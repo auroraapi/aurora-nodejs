@@ -1,5 +1,5 @@
 # Aurora NodeJS SDK
-
+Christopher Brown (904594941)
 
 ## Overview
 
