@@ -1,16 +1,24 @@
 'use strict';
 
-var expect = require('chai').expect;
-var aurora = require('../index');
+let expect = require('chai').expect;
+let aurora = require('../index');
 
 describe('#aurora', function(){
-  it('should get "Hello, world!"', function(){
-    var result = aurora.getHelloWorld();
-    expect(result).to.equal('Hello, world!');
+  it("stores and retrieves an app ID", function() {
+    const testAppId = "123456";
+    aurora.setAppId(testAppId);
+    expect(aurora.getAppId()).to.equal(testAppId);
   });
 
-  it('should sum up two numbers', function(){
-    var sum = aurora.getSum(3, 5);
-    expect(sum).to.equal(8);
+  it("stores and retrieves an app token", function() {
+    const testAppToken = "123456";
+    aurora.setAppToken(testAppToken);
+    expect(aurora.getAppToken()).to.equal(testAppToken);
+  });
+
+  it("stores and retrieves a device ID", function() {
+    const testDeviceID = "123456";
+    aurora.setDeviceId(testDeviceID);
+    expect(aurora.getDeviceId()).to.equal(testDeviceID);
   });
 });
