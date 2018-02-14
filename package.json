@@ -4,7 +4,7 @@
   "description": "SDK for developing with the Aurora API in the NodeJS runtime environment",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha --reporter spec"
   },
   "repository": {
     "type": "git",
@@ -27,5 +27,9 @@
   "homepage": "https://github.com/nkansal96/aurora-nodejs#readme",
   "engines": {
     "node": ">=6.0.0"
+  },
+  "devDependencies": {
+    "chai": "^4.1.2",
+    "mocha": "^5.0.1"
   }
 }
