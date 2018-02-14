@@ -42,7 +42,7 @@ describe('#audio', function(){
   it("records audio", function(){
     let audioFile = new audio(null);
     audioFile.getWav();
-    audio.fromRecording(1);
+    audio.fromRecording(3000);
     expect(fs.existsSync('rawAudio.raw')).to.be.true;
   });
 });

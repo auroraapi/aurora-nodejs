@@ -58,10 +58,6 @@ module.exports = class AudioFile {
   }
 
   // TODO
-<<<<<<< HEAD
-  static fromRecording(length = 0, silenceLen = 0) {
-
-=======
   static fromRecording(length = 0, silenceLen = 1.0) {
     let ai = new portAudio.AudioInput({
       channelCount: NUM_CHANNELS,
@@ -81,7 +77,6 @@ module.exports = class AudioFile {
     setTimeout(function (){
       ai.quit();
     }, length);
->>>>>>> 53d8d6a1edf7e950a45448dcd3174a1a822adead
   }
 
   // TODO
@@ -103,10 +98,6 @@ module.exports = class AudioFile {
   static createFromHttpStream(s) {
 
   }
-<<<<<<< HEAD
-}
-=======
 };
->>>>>>> 53d8d6a1edf7e950a45448dcd3174a1a822adead
 
 // TODO: implement IsSilent(data) <--- ???
