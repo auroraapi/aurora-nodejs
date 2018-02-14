@@ -39,10 +39,11 @@ describe('#audio', function(){
     expect(audio).to.exist;
   });
 
-  it("records audio", function(){
+  it("records and plays back audio", function(){
     let audioFile = new audio(null);
-    audioFile.getWav();
-    audio.fromRecording(3000);
+    audio.fromRecording(2000);
     expect(fs.existsSync('rawAudio.raw')).to.be.true;
+    audioFile.play(); // plays back sound
   });
+
 });

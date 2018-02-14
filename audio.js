@@ -11,7 +11,6 @@ const FORMAT = portAudio.SampleFormat16Bit;  //portAudio.paInt16;
 const RATE = 44100;
 
 module.exports = class AudioFile {
-  // TODO
   constructor(audio) {
     this.audio = audio;
     this.shouldStop = false;
@@ -47,9 +46,24 @@ module.exports = class AudioFile {
 
   }
 
-  // TODO
+  // TODO: Modify so sound data is stored in class
   play() {
+    let ao = new portAudio.AudioOutput({
+      channelCount: NUM_CHANNELS,
+      sampleFormat: FORMAT,
+      sampleRate: RATE,
+      deviceId: -1 // default device
+    });
 
+    ao.on('error', err => console.error);
+
+    let rs = fs.createReadStream('rawAudio.raw');
+
+    // close output stream at end of read stream
+    rs.on('end', () => ao.end());
+
+    rs.pipe(ao);
+    ao.start();
   }
 
   // TODO
@@ -57,7 +71,6 @@ module.exports = class AudioFile {
 
   }
 
-  // TODO
   static fromRecording(length = 0, silenceLen = 1.0) {
     let ai = new portAudio.AudioInput({
       channelCount: NUM_CHANNELS,
