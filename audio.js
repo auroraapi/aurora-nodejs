@@ -1,7 +1,8 @@
 'use strict';
 
-const fs = require("fs");
-const portAudio = require("naudiodon");
+let fs = require("fs");
+let portAudio = require("naudiodon");
+let wav = require("wav"); 
 
 const BUF_SIZE = Math.pow(2, 10);
 const MAX_THRESH = Math.pow(2, 14);
@@ -81,10 +82,18 @@ module.exports = class AudioFile {
 
     ai.on('error', err => console.error);
 
-    // create write stream to write out to raw audio file
-    let ws = fs.createWriteStream('rawAudio.raw');
+    // Create a wave writer that helps to encode raw audio.
+    let wavWriter = new wav.Writer({
+      channels: NUM_CHANNELS,
+      sampleRate: RATE,
+      bitDepth: FORMAT
+    });
 
-    ai.pipe(ws);
+    // create write stream to write out to raw audio file
+    let ws = fs.createWriteStream('rawAudio.wav');
+
+    ai.pipe(wavWriter);
+    wavWriter.pipe(ws);
     ai.start();
 
     setTimeout(function (){
