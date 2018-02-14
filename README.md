@@ -1,5 +1,6 @@
 # Aurora NodeJS SDK
 Christopher Brown (904594941)
+Anbo Wei (604480880)
 
 ## Overview
 
