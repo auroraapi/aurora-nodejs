@@ -1,16 +1,6 @@
 'use strict';
 
-const BASE_URL = "https://api.auroraapi.com";
-const TTS_URL = BASE_URL + "/v1/tts/";
-const STT_URL = BASE_URL + "/v1/stt/";
-const INTERPRET_URL = BASE_URL + "/v1/interpret/";
-
-const store  = {
-  appId: null,
-  appToken: null,
-  deviceId: null
-};
-
+let store = require("./globals.js");
 
 exports.setAppId = function(id){
   store.appId = id;
