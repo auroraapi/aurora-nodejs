@@ -1,0 +1,28 @@
+{
+  "name": "aurora-api",
+  "version": "0.0.1",
+  "description": "SDK for developing with the Aurora API in the NodeJS runtime environment",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nkansal96/aurora-nodejs.git"
+  },
+  "keywords": [
+    "aurora",
+    "speech",
+    "language",
+    "text",
+    "recognition",
+    "api",
+    "sdk"
+  ],
+  "author": "Christopher Brown, Anbo Wei",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/nkansal96/aurora-nodejs/issues"
+  },
+  "homepage": "https://github.com/nkansal96/aurora-nodejs#readme"
+}
