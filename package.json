@@ -24,5 +24,8 @@
   "bugs": {
     "url": "https://github.com/nkansal96/aurora-nodejs/issues"
   },
-  "homepage": "https://github.com/nkansal96/aurora-nodejs#readme"
+  "homepage": "https://github.com/nkansal96/aurora-nodejs#readme",
+  "engines": {
+    "node": ">=6.0.0"
+  }
 }
