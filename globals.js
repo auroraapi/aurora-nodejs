@@ -1,9 +1,7 @@
 'use strict';
 
-const store  = {
+global.store  = {
   appId: null,
   appToken: null,
   deviceId: null
 };
-
-exports = store;

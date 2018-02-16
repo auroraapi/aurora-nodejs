@@ -1,6 +1,6 @@
 'use strict';
 
-const store = require("./globals");
+require('./globals'); // add store to global namespace
 const api = require("./api");
 
 exports.setAppId = function(id){
@@ -31,7 +31,8 @@ exports.Text = class Text {
   speech(){
     // Convert text to speech
     // return Speech(getTTS(this.text));
-    let speechResult = api.getTTS(this.text);
+    let speechResultPath = api.getTTS(this.text);
+    return speechResultPath;
   }
 
   interpret() {

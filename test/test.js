@@ -3,7 +3,7 @@
 const fs = require('fs');
 const expect = require('chai').expect;
 
-const keys = require('./private');
+const keys = require('./private').keys;
 
 const aurora = require('../index');
 const api = require('../api');
@@ -54,16 +54,15 @@ describe('#api', function(){
   });
 
   it("can convert text to speech", function(){
-    const audioFileName = 'speechResult.wav';
-
-    aurora.setAppId(keys.appId);
-    aurora.setAppToken(keys.appToken);
-    aurora.setDeviceId(keys.deviceId);
+    aurora.setAppId(keys['appId']);
+    aurora.setAppToken(keys['appToken']);
+    aurora.setDeviceId(keys['deviceId']);
     let text = new aurora.Text("hello");
-    text.speech();
+    let resultPath = text.speech();
 
     setTimeout(function() {
-      expect(fs.existsSync(audioFileName)).to.be.true;
+      expect(fs.existsSync(resultPath)).to.be.true;
+      // fs.unlinkSync(audioFileName);
     }, 4000);
   });
 

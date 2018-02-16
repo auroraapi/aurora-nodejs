@@ -2,12 +2,8 @@
 
 let https = require('https');
 https.post = require('https-post');
-const store = require('./globals');
 const fs = require('fs');
 const axios = require('axios');
-
-// TODO: Get rid of this
-const keys = require('./test/private.js').keys;
 
 const BASE_URL = "https://api.auroraapi.com";
 const TTS_URL = BASE_URL + "/v1/tts/";
@@ -20,19 +16,16 @@ const INTERPRET_PATH = '/v1/interpret/';
 
 exports.getHeaders = function(){
   return {
-    "X-Application-ID": store.appId,
-		"X-Application-Token": store.appToken,
-		"X-Device-ID": store.deviceId,
+    "X-Application-ID": store['appId'],
+		"X-Application-Token": store['appToken'],
+		"X-Device-ID": store['deviceId']
   }
 }
 
 exports.getTTS = function(text){
-  // let headers = exports.getHeaders();
-  let headers = {
-    "X-Application-ID": keys['appId'],
-		"X-Application-Token": keys['appToken'],
-		"X-Device-ID": keys['deviceId']
-  };
+  const outputName = 'speechResult.wav';
+
+  let headers = this.getHeaders();
   let instance = axios.create({
     baseURL: BASE_URL,
     timeout: 4000,
@@ -45,11 +38,13 @@ exports.getTTS = function(text){
   });
   instance.get(TTS_URL)
     .then(function(response) {
-      response.data.pipe(fs.createWriteStream('speechResult.wav'));
+      response.data.pipe(fs.createWriteStream(outputName));
     })
     .catch(function(error){
       throw new Error(error);
   });
+
+  return outputName;
 }
 
 
