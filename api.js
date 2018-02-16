@@ -3,7 +3,11 @@
 let https = require('https');
 https.post = require('https-post');
 const store = require('./globals');
+const fs = require('fs');
 const axios = require('axios');
+
+// TODO: Get rid of this
+const keys = require('./test/private.js').keys;
 
 const BASE_URL = "https://api.auroraapi.com";
 const TTS_URL = BASE_URL + "/v1/tts/";
@@ -23,10 +27,15 @@ exports.getHeaders = function(){
 }
 
 exports.getTTS = function(text){
-  let headers = exports.getHeaders();
+  // let headers = exports.getHeaders();
+  let headers = {
+    "X-Application-ID": keys['appId'],
+		"X-Application-Token": keys['appToken'],
+		"X-Device-ID": keys['deviceId']
+  };
   let instance = axios.create({
     baseURL: BASE_URL,
-    timeout: 5000,
+    timeout: 4000,
     method: 'get',
     headers: headers,
     params: {
@@ -34,7 +43,7 @@ exports.getTTS = function(text){
     },
     responseType: 'stream',
   });
-  axios.get(TTS_URL)
+  instance.get(TTS_URL)
     .then(function(response) {
       response.data.pipe(fs.createWriteStream('speechResult.wav'));
     })
