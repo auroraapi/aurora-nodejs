@@ -3,6 +3,8 @@
 const fs = require('fs');
 const expect = require('chai').expect;
 
+const keys = require('./private');
+
 const aurora = require('../index');
 const api = require('../api');
 const audio = require('../audio');
@@ -49,6 +51,18 @@ describe('#api', function(){
     expect(headers["X-Application-ID"]).to.equal(testString);
     expect(headers["X-Application-Token"]).to.equal(testString);
     expect(headers["X-Device-ID"]).to.equal(testString);
+  });
+
+  it("can convert text to speech", function(){
+    const audioFileName = 'speechResult.wav';
+
+    aurora.setAppId(keys.appId);
+    aurora.setAppToken(keys.appToken);
+    aurora.setDeviceId(keys.deviceId);
+    let text = new aurora.Text("hello world");
+    text.speech();
+
+    expect(fs.existsSync(audioFileName)).to.be.true;
   });
 
   it("can convert speech to text", function(){

@@ -1,3 +1,5 @@
 node_modules
 *.raw
 *.wav
+test/private.js
+

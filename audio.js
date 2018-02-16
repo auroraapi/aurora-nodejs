@@ -118,7 +118,7 @@ module.exports = class AudioFile {
 
   // TODO
   static createFromStream(s) {
-
+    
   }
 
   // TODO

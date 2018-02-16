@@ -1,6 +1,7 @@
 'use strict';
 
-let store = require("./globals.js");
+const store = require("./globals");
+const api = require("./api");
 
 exports.setAppId = function(id){
   store.appId = id;
@@ -28,9 +29,9 @@ exports.Text = class Text {
   }
 
   speech(){
-    // Convert speech to text
+    // Convert text to speech
     // return Speech(getTTS(this.text));
-    throw new Error("speech() not yet implemented");
+    let speechResult = api.getTTS(this.text);
   }
 
   interpret() {
