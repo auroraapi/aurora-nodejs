@@ -36,9 +36,10 @@ exports.Text = class Text {
   }
 
   interpret() {
-    // Interpret the text and return the response
-    // return Interpret(getInterpret(this.text));
-    throw new Error("interpret() not yet implemented")
+    // Interpret the text and return the promise
+    // to get the Json
+    let interpretedJsonPromise = api.getInterpret(this.text);
+    return interpretedJsonPromise;
   }
 }
 

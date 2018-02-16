@@ -53,17 +53,37 @@ describe('#api', function(){
     expect(headers["X-Device-ID"]).to.equal(testString);
   });
 
-  it("can convert text to speech", function(){
+  it("converts text to speech", function(done){
+    this.timeout(5000);
+
+    const wavName = 'speechResult.wav';
+
+    aurora.setAppId(keys['appId']);
+    aurora.setAppToken(keys['appToken']);
+    aurora.setDeviceId(keys['deviceId']);
+    let text = new aurora.Text("hello world");
+    text.speech();
+
+    setTimeout(function() {
+      expect(fs.existsSync(wavName)).to.be.true;
+      fs.unlinkSync(wavName);
+      done();
+    }, 4000);
+  });
+
+  it("interprets text", function(done){
     aurora.setAppId(keys['appId']);
     aurora.setAppToken(keys['appToken']);
     aurora.setDeviceId(keys['deviceId']);
     let text = new aurora.Text("hello");
-    let resultPath = text.speech();
+    let resultPromise = text.interpret();
 
-    setTimeout(function() {
-      expect(fs.existsSync(resultPath)).to.be.true;
-      // fs.unlinkSync(audioFileName);
-    }, 4000);
+    resultPromise.then(function(response){
+      expect(response.hasOwnProperty('status')).to.be.true;
+      done();
+    }).catch(function(error){
+      done(error);
+    });
   });
 
   // it("can convert speech to text", function(){

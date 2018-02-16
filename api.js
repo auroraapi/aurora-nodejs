@@ -22,6 +22,7 @@ exports.getHeaders = function(){
   }
 }
 
+// returns path of created .wav file
 exports.getTTS = function(text){
   const outputName = 'speechResult.wav';
 
@@ -43,13 +44,24 @@ exports.getTTS = function(text){
     .catch(function(error){
       throw new Error(error);
   });
-
-  return outputName;
 }
 
 
+// return promise to get json from API
 exports.getInterpret = function(text){
-  throw Error("getInterpret() not yet implemented");
+  let headers = this.getHeaders();
+  let instance = axios.create({
+    baseURL: BASE_URL,
+    timeout: 4000,
+    method: 'get',
+    headers: headers,
+    params: {
+      'text': text
+    },
+    responseType: 'json',
+  });
+
+  return instance.get(INTERPRET_URL);
 }
 
 
