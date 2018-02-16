@@ -31,6 +31,28 @@ describe('#aurora', function(){
 });
 
 
+/* test api.js */
+let api = require('../api');
+
+describe('#api', function(){
+  it("exists", function(){
+    expect(api).to.exist;
+  });
+
+  it("can access stored API data", function(){
+    const testString = "123456";
+    aurora.setAppId(testString);
+    aurora.setAppToken(testString);
+    aurora.setDeviceId(testString);
+
+    let headers = api.getHeaders();
+    expect(headers["X-Application-ID"]).to.equal(testString);
+    expect(headers["X-Application-Token"]).to.equal(testString);
+    expect(headers["X-Device-ID"]).to.equal(testString);
+  });
+});
+
+
 / * test audio.js */
 let audio = require('../audio');
 
@@ -40,10 +62,23 @@ describe('#audio', function(){
   });
 
   it("records and plays back audio", function(){
+    const audioFileName = 'rawAudio.wav';
     let audioFile = new audio(null);
-    audio.fromRecording(2000);
-    expect(fs.existsSync('rawAudio.raw')).to.be.true;
-    audioFile.play(); // plays back sound
-  });
 
+    try {
+      fs.unlinkSync(audioFileName);
+    } catch(err) {
+      // audio file already doesn't exist
+      // just keep going
+    }
+
+    audio.fromRecording(1);
+    expect(fs.existsSync(audioFileName)).to.be.true;
+
+    try {
+      fs.unlinkSync(audioFileName);
+    } catch(err) {
+      throw err;
+    }
+  });
 });
