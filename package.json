@@ -33,6 +33,7 @@
     "mocha": "^5.0.1"
   },
   "dependencies": {
+    "https-post": "^0.1.1",
     "naudiodon": "^0.4.6",
     "wav": "^1.0.1"
   }

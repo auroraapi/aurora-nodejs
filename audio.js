@@ -2,7 +2,7 @@
 
 let fs = require("fs");
 let portAudio = require("naudiodon");
-let wav = require("wav"); 
+let wav = require("wav");
 
 const BUF_SIZE = Math.pow(2, 10);
 const MAX_THRESH = Math.pow(2, 14);
@@ -25,6 +25,11 @@ module.exports = class AudioFile {
   // TODO
   getWav() {
 
+  }
+
+  // TODO
+  getWavPath(){
+    return 'test.wav'; // dummy implementation
   }
 
   // TODO

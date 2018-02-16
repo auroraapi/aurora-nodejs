@@ -3,9 +3,11 @@
 const fs = require('fs');
 const expect = require('chai').expect;
 
-/* test aurora API as a whole */
-let aurora = require('../index');
+const aurora = require('../index');
+const api = require('../api');
+const audio = require('../audio');
 
+/* test aurora API as a whole */
 describe('#aurora', function(){
   it("exists", function(){
     expect(aurora).to.exist;
@@ -32,8 +34,6 @@ describe('#aurora', function(){
 
 
 /* test api.js */
-let api = require('../api');
-
 describe('#api', function(){
   it("exists", function(){
     expect(api).to.exist;
@@ -50,12 +50,14 @@ describe('#api', function(){
     expect(headers["X-Application-Token"]).to.equal(testString);
     expect(headers["X-Device-ID"]).to.equal(testString);
   });
+
+  it("can convert speech to text", function(){
+    // TODO
+  });
 });
 
 
 / * test audio.js */
-let audio = require('../audio');
-
 describe('#audio', function(){
   it("exists", function(){
     expect(audio).to.exist;
