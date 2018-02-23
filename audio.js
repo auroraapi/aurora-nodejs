@@ -29,7 +29,7 @@ module.exports = class AudioFile {
     return Buffer.from(this.audio.buffer, WAV_HEADER_SIZE);
   }
 
-  // Stores
+  // Stores the data contained in this object to [fname].wav. 
   writeToFile(fname) {
     let audioReadStream = new streamBuffers.ReadableStreamBuffer();
     let endFile = fs.createWriteStream(fname + WAV_FORMAT_TAG);
@@ -70,7 +70,7 @@ module.exports = class AudioFile {
 
   }
 
-  // TODO: Modify so sound data is stored in class
+  // Starts the playback of the audio stored in this object.  
   play() {
     if (this.audio) {
       this.audioOutput = new portAudio.AudioOutput({
@@ -97,11 +97,14 @@ module.exports = class AudioFile {
     }
   }
 
-  // TODO
+  // Stops the playback of the audio.
   stop() {
     if (this.audioOutput) this.audioOutput.end();
   }
 
+  // Starts recording data for the specified amounts of time, then calls 
+  // the callbackFunction with the single argument of the resultant AudioFile
+  // representation. 
   static fromRecording(callbackFunction, length = 0, silenceLen = 1.0) {
     let ai = new portAudio.AudioInput({
       channelCount: NUM_CHANNELS,
@@ -131,19 +134,28 @@ module.exports = class AudioFile {
     }, length);
   }
 
-  // TODO
+  // Creates an AudioFile representation from the data. No callback is needed.
   static createFromWavData(d) {
     return new AudioFile(d);
   }
 
-  // TODO
-  static createFromFile(f) {
-
+  // Reads the audio data from the file, appending the .wav extension to the 
+  // input filename. Returns the result as an argument to callbackFunction.
+  static createFromFile(f, callbackFunction) {
+    let readFile = fs.createReadStream(f + WAV_FORMAT_TAG);
+    AudioFile.createFromStream(readFile, callbackFunction);
   }
 
-  // TODO
-  static createFromStream(s) {
-    
+  // Reads the audio data from the stream. Returns the result as an argument 
+  // to callbackFunction.
+  static createFromStream(s, callbackFunction) {
+    let ws = new streamBuffers.WritableStreamBuffer();
+
+    readFile.pipe(s);
+
+    readFile.on("end", () => {
+      callbackFunction(AudioFile.createFromWavData(ws.getContents()));
+    });
   }
 
   // TODO
