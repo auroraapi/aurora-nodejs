@@ -103,7 +103,7 @@ module.exports = class AudioFile {
   }
 
   // Starts recording data for the specified amounts of time, then returns a 
-  // promise
+  // promise with the new AudioFile as the promise result.
   static fromRecording(length = 0, silenceLen = 1.0) {
     let ai = new portAudio.AudioInput({
       channelCount: NUM_CHANNELS,
@@ -164,11 +164,6 @@ module.exports = class AudioFile {
         reject(error);
       });
     });
-  }
-
-  // TODO
-  static createFromHttpStream(s) {
-
   }
 };
 
