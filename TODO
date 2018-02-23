@@ -1,6 +1,8 @@
 audio.js
-- Deal with the fact that play and the like read from files
-	- To do this, store a byte buffer of the wav data
+- Do silence processing
+- Do silence aware recording
+- Test createFromWavData, createFromFile, createFromStream indepdendently
+- Consider using promises for the callbacks.
 
 api.js
 - Properly return an object representation rather than store a result into a .wav file. 
@@ -12,3 +14,6 @@ index.js
 - Speech
 	- Fix the speech object
 	- Deal with continuouslyListen functionality
+
+README.md
+- Fix the readme

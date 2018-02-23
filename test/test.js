@@ -53,23 +53,24 @@ describe('#api', function(){
     expect(headers["X-Device-ID"]).to.equal(testString);
   });
 
-  // it("converts text to speech", function(done){
-  //   this.timeout(5000);
+  it("converts text to speech", function(done){
+    this.timeout(5000);
 
-  //   const wavName = 'speechResult.wav';
+    const wavName = 'speechResult';
 
-  //   aurora.setAppId(keys['appId']);
-  //   aurora.setAppToken(keys['appToken']);
-  //   aurora.setDeviceId(keys['deviceId']);
-  //   let text = new aurora.Text("hello world");
-  //   text.speech();
+    aurora.setAppId(keys['appId']);
+    aurora.setAppToken(keys['appToken']);
+    aurora.setDeviceId(keys['deviceId']);
+    let text = new aurora.Text("hello world");
+    text.speech(function(resultingSpeech) {
+      resultingSpeech.audio.writeToFile(wavName);
+      expect(fs.existsSync(wavName)).to.be.true;
+      // fs.unlinkSync(wavName);
+      done();
+    });
 
-  //   setTimeout(function() {
-  //     expect(fs.existsSync(wavName)).to.be.true;
-  //     // fs.unlinkSync(wavName);
-  //     done();
-  //   }, 4000);
-  // });
+    setTimeout(()=>{}, 4000);
+  });
 
   it("interprets text", function(done){
     aurora.setAppId(keys['appId']);
@@ -99,14 +100,6 @@ describe('#audio', function(){
     expect(AudioFile).to.exist;
   });
 
-  // it("plays helloWorld.wav", function(){
-  //   const audioFileName = 'helloWorld.wav';
-  //   let audioFile = new audio(null);
-
-  //   audioFile.play();
-  //   expect(fs.existsSync(audioFileName)).to.be.true;
-  // });
-
   it("records and plays back audio for 3 seconds", function(){
     this.timeout(10000);
 
@@ -114,5 +107,19 @@ describe('#audio', function(){
       resultingAudioFile.play();
       setTimeout(function(){},3000);
     }, 3000);
+  });
+
+  it("records audio and saves it to a file", function() {
+    this.timeout(10000);
+    AudioFile.fromRecording(function(resultingAudioFile) {
+      const wavName = "testFile";
+      resultingAudioFile.writeToFile(wavName);
+
+      setTimeout(function() {
+        expect(fs.existsSync(wavName + ".wav")).to.be.true;
+        fs.unlinkSync(wavName);
+        done();
+      }, 4000);
+    }, 5000);
   });
 });

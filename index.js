@@ -20,11 +20,10 @@ exports.Text = class Text {
     this.text = text;
   }
 
-  speech(){
-    // Convert text to speech
-    // return Speech(api.getTTS(this.text));
-    let speechResultPath = api.getTTS(this.text);
-    return speechResultPath;
+  // Convert text to speech. Calls a callback with the result when completed.
+  // return Speech(api.getTTS(this.text));
+  speech(callback) {
+    let speechResultPath = api.getTTS(this.text, callback);
   }
 
   interpret() {

@@ -4,6 +4,7 @@ let https = require('https');
 https.post = require('https-post');
 const fs = require('fs');
 const axios = require('axios');
+const AudioFile = require('./audio');
 
 const BASE_URL = "https://api.auroraapi.com";
 const TTS_URL = BASE_URL + "/v1/tts/";
@@ -22,10 +23,8 @@ exports.getHeaders = function(){
   }
 }
 
-// returns path of created .wav file
-exports.getTTS = function(text){
-  const outputName = 'speechResult.wav';
-
+// Returns a promise with the resulting Speech object. 
+exports.getTTS = function(text, callback){
   let headers = this.getHeaders();
   let instance = axios.create({
     baseURL: BASE_URL,
@@ -37,12 +36,15 @@ exports.getTTS = function(text){
     },
     responseType: 'stream',
   });
-  instance.get(TTS_URL)
-    .then(function(response) {
-      response.data.pipe(fs.createWriteStream(outputName));
-    })
-    .catch(function(error){
-      throw new Error(error);
+  return instance.get(TTS_URL)
+  .then(function(response) {
+    AudioFile.createFromStream(response, function(resultingAudioData) {
+      callback(new Speech(resultingAudioData));
+    });
+    // response.data.pipe(fs.createWriteStream(outputName));
+  })
+  .catch(function(error){
+    throw new Error(error);
   });
 }
 
@@ -85,10 +87,3 @@ exports.getSTT = function(audio) {
     return res;
   });
 }
-
-/*
-def get_stt(audio):
-	r = requests.post(STT_URL, files={ "audio": audio.get_wav() }, headers=get_headers())
-	handle_error(r)
-	return r.json()
-*/
