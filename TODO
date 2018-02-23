@@ -1,11 +1,13 @@
 audio.js
 - Do silence processing
 - Do silence aware recording
-- Test createFromWavData, createFromFile, createFromStream independently
 
 index.js
-- Mimic promise structure for Speech
-- Actually finish speech
+- Do continuous listening
+
+test.js
+- Test audio.js's createFromWavData, createFromFile, createFromStream independently
+- Enable and test index.js's Speech.listen();
 
 README.md
 - Fix the readme so it's not python?

@@ -2,6 +2,7 @@
 
 require('./globals'); // add store to global namespace
 const api = require("./api");
+const AudioFile = require('./audio');
 
 exports.setAppId = (id) => store.appId = id;
 exports.setAppToken = (token) => store.appToken = token;
@@ -76,10 +77,15 @@ class Speech {
     throw new Error("continuouslyListen() not yet implemented");
   }
 
+  // Returns a promise for a Speech object from a recording.
   static listen(length=0, silenceLength=1.0){
     // listen with given parameters
     // return a speech segment
     throw new Error("listen() not yet implemented");
+    // return AudioFile.fromRecording(length, silenceLength)
+    // .then((audioFile) => {
+    //   return new Speech(audioFile);
+    // });
   }
 
 }
