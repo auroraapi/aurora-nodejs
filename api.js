@@ -38,7 +38,7 @@ exports.getTTS = function(text){
   });
   return instance.get(TTS_URL)
   .then(function(httpReponse) {
-    return AudioFile.createFromStream(httpReponse);
+    return AudioFile.createFromStream(httpReponse.data);
   })
   .catch(function(error){
     throw new Error(error);

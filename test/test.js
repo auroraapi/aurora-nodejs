@@ -70,6 +70,7 @@ describe('#api', function(){
     .then((speech) => {
       speech.audio.writeToFile(wavName);
       expect(fs.existsSync(wavName + ".wav")).to.be.true;
+      fs.unlinkSync(wavName + ".wav");
       done();
     })
     .catch((error) => {

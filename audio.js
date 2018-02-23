@@ -150,7 +150,6 @@ module.exports = class AudioFile {
   // Reads the audio data from the stream. Returns a promise that will return
   // the result as the first argument.
   static createFromStream(s) {
-    console.log(s);
     let ws = new streamBuffers.WritableStreamBuffer();
     s.pipe(ws);
 

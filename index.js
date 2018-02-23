@@ -14,7 +14,7 @@ exports.getDeviceId = () => store.deviceId;
 /*
   Text to speech
 */
-exports.Text = class Text {
+class Text {
   // Contains methods for dealing with text
   constructor(text){
     this.text = text;
@@ -37,22 +37,24 @@ exports.Text = class Text {
     return interpretedJsonPromise;
   }
 }
+exports.Text = Text;
 
 /*
   Interpret
 */
-exports.Interpret = class Interpret {
+class Interpret {
   constructor(interpretation){
     // construct an interpret object from the API response
     this.intent = interpretation.intent;
     this.entities = interpretation.entities;
   }
 }
+exports.Interpret = Interpret;
 
 /*
   Speech to text
 */
-exports.Speech = class Speech {
+class Speech {
   constructor(audio) {
     // Speech object gets initialized with audio
     // Audio must be of type "AudioFile" as defined in ./audio.js
@@ -79,3 +81,4 @@ exports.Speech = class Speech {
   }
 
 }
+exports.Speech = Speech;
