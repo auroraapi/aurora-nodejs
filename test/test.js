@@ -74,7 +74,7 @@ describe('#api', function(){
       done();
     })
     .catch((error) => {
-      assert.isNotOk(error, "Encountered text to speech error.");
+      assert.isNotOk(error, "Encountered text to speech error");
       done(error);
     });
 
@@ -88,36 +88,57 @@ describe('#api', function(){
     let text = new aurora.Text("hello");
     let resultPromise = text.interpret();
 
-    resultPromise.then(function(response){
-      expect(response.hasOwnProperty('status')).to.be.true;
+    resultPromise.then(function(response) {
+      expect(response.hasOwnProperty('text')).to.be.true;
+      expect(response.hasOwnProperty('intent')).to.be.true;
+      expect(response.hasOwnProperty('entities')).to.be.true;
       done();
     }).catch(function(error){
+      assert.isNotOk(error, "Encountered interpret error");
       done(error);
     });
   });
 
   it("can convert speech to text", function(done){
-    const testFile = "SSTTest2";
-
     aurora.setAppId(keys['appId']);
     aurora.setAppToken(keys['appToken']);
     aurora.setDeviceId(keys['deviceId']);
 
-    let audioFilePromise = AudioFile.createFromFile(testFile);
+    const textString = "Hello friends";
 
-    audioFilePromise
-    .then((audioFile) => {
-      return new aurora.Speech(audioFile).text();
+    let text = new aurora.Text(textString);
+
+    text.speech()
+    .then((speech) => {
+      return speech.text();
     })
     .then((textObject) => {
-      console.log("textObject.text: " + textObject.text);
       expect(textObject.text).to.be.a('string');
+      expect(textObject.text).to.equal(textString);
       done();
     })
     .catch((error) => {
-      assert.isNotOk(error, "Encountered speech to text error.");
+      assert.isNotOk(error, "Encountered speech to text error");
       done(error);
     });
+
+    // const testFile = "SSTTest2";
+
+    // let audioFilePromise = AudioFile.createFromFile(testFile);
+
+    // audioFilePromise
+    // .then((audioFile) => {
+    //   return new aurora.Speech(audioFile).text();
+    // })
+    // .then((textObject) => {
+    //   console.log("textObject.text: " + textObject.text);
+    //   expect(textObject.text).to.be.a('string');
+    //   done();
+    // })
+    // .catch((error) => {
+    //   assert.isNotOk(error, "Encountered speech to text error.");
+    //   done(error);
+    // });
   });
 });
 

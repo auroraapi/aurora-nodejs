@@ -65,7 +65,10 @@ exports.getInterpret = function(text){
     responseType: 'json',
   });
 
-  return instance.get(INTERPRET_URL);
+  return instance.get(INTERPRET_URL)
+  .then((httpResponse) => {
+    return httpResponse.data;
+  });
 }
 
 // Return a promise to get json from an AudioFile.
