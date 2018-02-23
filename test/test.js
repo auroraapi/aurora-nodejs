@@ -121,24 +121,6 @@ describe('#api', function(){
       assert.isNotOk(error, "Encountered speech to text error");
       done(error);
     });
-
-    // const testFile = "SSTTest2";
-
-    // let audioFilePromise = AudioFile.createFromFile(testFile);
-
-    // audioFilePromise
-    // .then((audioFile) => {
-    //   return new aurora.Speech(audioFile).text();
-    // })
-    // .then((textObject) => {
-    //   console.log("textObject.text: " + textObject.text);
-    //   expect(textObject.text).to.be.a('string');
-    //   done();
-    // })
-    // .catch((error) => {
-    //   assert.isNotOk(error, "Encountered speech to text error.");
-    //   done(error);
-    // });
   });
 });
 
