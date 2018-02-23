@@ -7,7 +7,7 @@ const keys = require('./private').keys;
 
 const aurora = require('../index');
 const api = require('../api');
-const audio = require('../audio');
+const AudioFile = require('../audio');
 
 /* test aurora API as a whole */
 describe('#aurora', function(){
@@ -53,23 +53,23 @@ describe('#api', function(){
     expect(headers["X-Device-ID"]).to.equal(testString);
   });
 
-  it("converts text to speech", function(done){
-    this.timeout(5000);
+  // it("converts text to speech", function(done){
+  //   this.timeout(5000);
 
-    const wavName = 'speechResult.wav';
+  //   const wavName = 'speechResult.wav';
 
-    aurora.setAppId(keys['appId']);
-    aurora.setAppToken(keys['appToken']);
-    aurora.setDeviceId(keys['deviceId']);
-    let text = new aurora.Text("hello world");
-    text.speech();
+  //   aurora.setAppId(keys['appId']);
+  //   aurora.setAppToken(keys['appToken']);
+  //   aurora.setDeviceId(keys['deviceId']);
+  //   let text = new aurora.Text("hello world");
+  //   text.speech();
 
-    setTimeout(function() {
-      expect(fs.existsSync(wavName)).to.be.true;
-      fs.unlinkSync(wavName);
-      done();
-    }, 4000);
-  });
+  //   setTimeout(function() {
+  //     expect(fs.existsSync(wavName)).to.be.true;
+  //     // fs.unlinkSync(wavName);
+  //     done();
+  //   }, 4000);
+  // });
 
   it("interprets text", function(done){
     aurora.setAppId(keys['appId']);
@@ -96,29 +96,23 @@ describe('#api', function(){
 / * test audio.js */
 describe('#audio', function(){
   it("exists", function(){
-    expect(audio).to.exist;
+    expect(AudioFile).to.exist;
   });
-  /*
 
-  it("records and plays back audio", function(){
-    const audioFileName = 'rawAudio.wav';
-    let audioFile = new audio(null);
+  // it("plays helloWorld.wav", function(){
+  //   const audioFileName = 'helloWorld.wav';
+  //   let audioFile = new audio(null);
 
-    try {
-      fs.unlinkSync(audioFileName);
-    } catch(err) {
-      // audio file already doesn't exist
-      // just keep going
-    }
+  //   audioFile.play();
+  //   expect(fs.existsSync(audioFileName)).to.be.true;
+  // });
 
-    audio.fromRecording(1);
-    expect(fs.existsSync(audioFileName)).to.be.true;
+  it("records and plays back audio for 3 seconds", function(){
+    this.timeout(10000);
 
-    try {
-      fs.unlinkSync(audioFileName);
-    } catch(err) {
-      throw err;
-    }
+    AudioFile.fromRecording(function(resultingAudioFile) {
+      resultingAudioFile.play();
+      setTimeout(function(){},3000);
+    }, 3000);
   });
-  */
 });

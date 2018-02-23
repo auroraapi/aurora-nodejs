@@ -24,9 +24,20 @@ module.exports = class AudioFile {
     this.audioOutput = null;
   }
 
+  // Removes the metadata from the buffer and returns the resultant buffer.
+  wavWithoutMetadata() {
+    return Buffer.from(this.audio.buffer, WAV_HEADER_SIZE);
+  }
+
   // Stores
   writeToFile(fname) {
-    
+    let audioReadStream = new streamBuffers.ReadableStreamBuffer();
+    let endFile = fs.createWriteStream(fname + WAV_FORMAT_TAG);
+
+    audioReadStream.pipe(endFile);
+
+    audioReadStream.put(this.audio);
+    audioReadStream.stop();
   }
 
   // TODO
@@ -75,11 +86,9 @@ module.exports = class AudioFile {
       let readableStream = new streamBuffers.ReadableStreamBuffer();
       // close output stream at end of read stream
       readableStream.on('end', () => this.audioOutput.end());
-      
-      console.log(this.audio.length);
-      console.log(Buffer.from(this.audio, 527650).length);
 
-      readableStream.put(Buffer.from(this.audio, WAV_HEADER_SIZE));
+      // Trim the first WAV_HEADER_SIZE bytes to avoid playing metadata.
+      readableStream.put(this.wavWithoutMetadata());
       readableStream.pipe(this.audioOutput);
       this.audioOutput.start();
     }

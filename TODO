@@ -1,5 +1,6 @@
 audio.js
 - Deal with the fact that play and the like read from files
+	- To do this, store a byte buffer of the wav data
 
 api.js
 - Properly return an object representation rather than store a result into a .wav file. 
