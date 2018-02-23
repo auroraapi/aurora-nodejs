@@ -1,0 +1,13 @@
+audio.js
+- Deal with the fact that play and the like read from files
+
+api.js
+- Properly return an object representation rather than store a result into a .wav file. 
+- Read from an actual audio page.
+- First priority
+
+index.js
+- Properly return speech objects
+- Speech
+	- Fix the speech object
+	- Deal with continuouslyListen functionality

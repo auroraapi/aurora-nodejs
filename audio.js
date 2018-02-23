@@ -1,6 +1,7 @@
 'use strict';
 
 let fs = require("fs");
+let streamBuffers = require('stream-buffers');
 let portAudio = require("naudiodon");
 let wav = require("wav");
 
@@ -11,20 +12,26 @@ const NUM_CHANNELS = 2; // 1
 const FORMAT = portAudio.SampleFormat16Bit;  //portAudio.paInt16;
 const RATE = 44100;
 
+const WAV_HEADER_SIZE = 44;
+const WAV_FORMAT_TAG = ".wav";
+
 module.exports = class AudioFile {
   constructor(audio) {
+    // Define this.audio to be a buffer that stores the .wav file data.
     this.audio = audio;
-    this.shouldStop = false;
+
+    // An naudiodon output. This is stored so we can stop it later if need be.
+    this.audioOutput = null;
   }
 
-  // TODO
+  // Stores
   writeToFile(fname) {
-
+    
   }
 
   // TODO
   getWav() {
-
+    return this.audio;
   }
 
   // TODO
@@ -54,37 +61,45 @@ module.exports = class AudioFile {
 
   // TODO: Modify so sound data is stored in class
   play() {
-    let ao = new portAudio.AudioOutput({
-      channelCount: NUM_CHANNELS,
-      sampleFormat: FORMAT,
-      sampleRate: RATE,
-      deviceId: -1 // default device
-    });
+    if (this.audio) {
+      this.audioOutput = new portAudio.AudioOutput({
+        channelCount: NUM_CHANNELS,
+        sampleFormat: FORMAT,
+        sampleRate: RATE,
+        deviceId: -1 // default device
+      });
 
-    ao.on('error', err => console.error);
+      this.audioOutput.on('error', err => console.error);
 
-    let rs = fs.createReadStream('rawAudio.raw');
+      // this.rs = fs.createReadStream('helloWorld.wav');
+      let readableStream = new streamBuffers.ReadableStreamBuffer();
+      // close output stream at end of read stream
+      readableStream.on('end', () => this.audioOutput.end());
+      
+      console.log(this.audio.length);
+      console.log(Buffer.from(this.audio, 527650).length);
 
-    // close output stream at end of read stream
-    rs.on('end', () => ao.end());
-
-    rs.pipe(ao);
-    ao.start();
+      readableStream.put(Buffer.from(this.audio, WAV_HEADER_SIZE));
+      readableStream.pipe(this.audioOutput);
+      this.audioOutput.start();
+    }
+    else {
+      console.error("Nothing to play!");
+    }
   }
 
   // TODO
   stop() {
-
+    if (this.audioOutput) this.audioOutput.end();
   }
 
-  static fromRecording(length = 0, silenceLen = 1.0) {
+  static fromRecording(callbackFunction, length = 0, silenceLen = 1.0) {
     let ai = new portAudio.AudioInput({
       channelCount: NUM_CHANNELS,
       sampleFormat: FORMAT,
       sampleRate: RATE,
       deviceId: -1 // default device
     });
-
     ai.on('error', err => console.error);
 
     // Create a wave writer that helps to encode raw audio.
@@ -95,20 +110,21 @@ module.exports = class AudioFile {
     });
 
     // create write stream to write out to raw audio file
-    let ws = fs.createWriteStream('rawAudio.wav');
+    let ws = new streamBuffers.WritableStreamBuffer();
 
     ai.pipe(wavWriter);
     wavWriter.pipe(ws);
     ai.start();
 
-    setTimeout(function (){
+    setTimeout(function() {
       ai.quit();
+      callbackFunction(AudioFile.createFromWavData(ws.getContents()));
     }, length);
   }
 
   // TODO
   static createFromWavData(d) {
-
+    return new AudioFile(d);
   }
 
   // TODO

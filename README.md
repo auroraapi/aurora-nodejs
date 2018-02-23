@@ -12,24 +12,24 @@ The SDK is currently in a pre-alpha release phase. Bugs and limited functionalit
 
 **The Minimum NodeJS version is 6.x+**
 
-The Node SDK currently does not bundle the necessary system headers and binaries to interact with audio hardware in a cross-platform manner. For this reason, before using the SDK, you need to install `PortAudio`:
-
 ### macOS
 
 ```
-$ brew install portaudio
 $ npm install auroraapi
 ```
 
 ### Linux
 
 ```
-$ sudo apt-get install libportaudio-dev
 $ npm install auroraapi
 ```
 
-This will install `PortAudio`. Use `yum` if your distribution uses `RPM`-based packages. If your distribution does not have `PortAudio` in its repository, install [PortAudio via source](http://www.portaudio.com/download.html).
+If you're installing on Windows, you will likely need to install various production tools like Visual Studio compilers and compatible versions of Python in order to use one of the dependencies. Luckily, these are available conveniently in a npm package. Run the following as administrator. 
 
+```
+$ npm install --global --production windows-build-tools
+$ npm install auroraapi
+```
 
 ## Basic Usage
 

@@ -3,17 +3,9 @@
 require('./globals'); // add store to global namespace
 const api = require("./api");
 
-exports.setAppId = function(id){
-  store.appId = id;
-}
-
-exports.setAppToken = function(token){
-  store.appToken = token;
-}
-
-exports.setDeviceId = function(id){
-  store.deviceId = id;
-}
+exports.setAppId = (id) => store.appId = id;
+exports.setAppToken = (token) => store.appToken = token;
+exports.setDeviceId = (id) => store.deviceId = id;
 
 exports.getAppId = () => store.appId;
 exports.getAppToken = () => store.appToken;
@@ -30,7 +22,7 @@ exports.Text = class Text {
 
   speech(){
     // Convert text to speech
-    // return Speech(getTTS(this.text));
+    // return Speech(api.getTTS(this.text));
     let speechResultPath = api.getTTS(this.text);
     return speechResultPath;
   }
@@ -67,7 +59,7 @@ exports.Speech = class Speech {
 
   text(){
     // convert speech to text and get the prediction
-    // return Text(getSTT(this.audio)["transcript"]);
+    // return Text(api.getSTT(this.audio)["transcript"]);
     throw new Error("text() not yet implemented");
   }
 
