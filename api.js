@@ -15,6 +15,9 @@ const TTS_PATH = '/v1/tts/';
 const STT_PATH = '/v1/stt/';
 const INTERPRET_PATH = '/v1/interpret/';
 
+const CONTENT_TYPE = "Content-Type";
+const WAV_MIMETYPE = "audio/wav";
+
 exports.getHeaders = function(){
   return {
     "X-Application-ID": store['appId'],
@@ -36,17 +39,19 @@ exports.getTTS = function(text){
     },
     responseType: 'stream',
   });
+
   return instance.get(TTS_URL)
-  .then(function(httpReponse) {
+  .then((httpReponse) => {
     return AudioFile.createFromStream(httpReponse.data);
   })
-  .catch(function(error){
+  .catch((error) => {
     throw new Error(error);
   });
 }
 
 
 // return promise to get json from API
+// TODO: Return the json
 exports.getInterpret = function(text){
   let headers = this.getHeaders();
   let instance = axios.create({
@@ -63,24 +68,20 @@ exports.getInterpret = function(text){
   return instance.get(INTERPRET_URL);
 }
 
-
+// Return a promise to get json from an AudioFile.
 exports.getSTT = function(audio) {
-  const headers = exports.getHeaders();
-  const options = {
-    hostname: BASE_URL,
-    port: 443,
-    path: STT_PATH,
-    headers: headers
-  };
+  let headers = this.getHeaders();
+  headers[CONTENT_TYPE] = WAV_MIMETYPE;
+  let instance = axios.create({
+    baseURL: BASE_URL,
+    timeout: 4000,
+    method: 'post',
+    headers: headers,
+    responseType: 'json'
+  });
 
-  const files = [
-    {
-      param: 'audio',
-      path: audio.getWavPath(),
-    }
-  ];
-
-  https.post(options, [], files, function(res) {
-    return res;
+  return instance.post(STT_URL, audio.getWav())
+  .then((httpResponse) => {
+    return httpResponse.data;
   });
 }

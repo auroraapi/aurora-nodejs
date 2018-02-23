@@ -141,7 +141,7 @@ module.exports = class AudioFile {
   }
 
   // Reads the audio data from the file, appending the .wav extension to the 
-  // input filename. Returns the result as an argument to callbackFunction.
+  // input filename. Returns the result as a promise.
   static createFromFile(f) {
     let readFile = fs.createReadStream(f + WAV_FORMAT_TAG);
     return AudioFile.createFromStream(readFile);

@@ -62,10 +62,12 @@ class Speech {
     this.audio = audio;
   }
 
-  text(){
-    // convert speech to text and get the prediction
-    // return Text(api.getSTT(this.audio)["transcript"]);
-    throw new Error("text() not yet implemented");
+  // Return a promise to get a Text object.
+  text() {
+    return api.getSTT(this.audio)
+    .then((json) => {
+      return new Text(json.transcript);
+    });
   }
 
   static continuouslyListen(length=0, silenceLength=1.0){

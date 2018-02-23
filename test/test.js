@@ -75,6 +75,7 @@ describe('#api', function(){
     })
     .catch((error) => {
       assert.isNotOk(error, "Encountered text to speech error.");
+      done(error);
     });
 
     setTimeout(()=>{}, 4000);
@@ -95,10 +96,29 @@ describe('#api', function(){
     });
   });
 
-  // it("can convert speech to text", function(){
-  //   // TODO
-  //   expect(true).to.be.false; // not yet implemented
-  // });
+  it("can convert speech to text", function(done){
+    const testFile = "SSTTest2";
+
+    aurora.setAppId(keys['appId']);
+    aurora.setAppToken(keys['appToken']);
+    aurora.setDeviceId(keys['deviceId']);
+
+    let audioFilePromise = AudioFile.createFromFile(testFile);
+
+    audioFilePromise
+    .then((audioFile) => {
+      return new aurora.Speech(audioFile).text();
+    })
+    .then((textObject) => {
+      console.log("textObject.text: " + textObject.text);
+      expect(textObject.text).to.be.a('string');
+      done();
+    })
+    .catch((error) => {
+      assert.isNotOk(error, "Encountered speech to text error.");
+      done(error);
+    });
+  });
 });
 
 
