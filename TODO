@@ -2,18 +2,14 @@ audio.js
 - Do silence processing
 - Do silence aware recording
 - Test createFromWavData, createFromFile, createFromStream indepdendently
-- Consider using promises for the callbacks.
 
 api.js
-- Properly return an object representation rather than store a result into a .wav file. 
 - Read from an actual audio page.
 - First priority
 
 index.js
-- Properly return speech objects
-- Speech
-	- Fix the speech object
-	- Deal with continuouslyListen functionality
+- Mimic promise structure for Speech
+- Actually finish speech
 
 README.md
 - Fix the readme

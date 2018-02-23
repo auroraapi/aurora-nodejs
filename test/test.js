@@ -1,7 +1,10 @@
 'use strict';
 
 const fs = require('fs');
-const expect = require('chai').expect;
+const chai = require('chai');
+const expect = chai.expect;
+const assert = chai.assert;
+const sleep = require('sleep');
 
 const keys = require('./private').keys;
 
@@ -62,11 +65,15 @@ describe('#api', function(){
     aurora.setAppToken(keys['appToken']);
     aurora.setDeviceId(keys['deviceId']);
     let text = new aurora.Text("hello world");
-    text.speech(function(resultingSpeech) {
-      resultingSpeech.audio.writeToFile(wavName);
-      expect(fs.existsSync(wavName)).to.be.true;
-      // fs.unlinkSync(wavName);
+
+    text.speech()
+    .then((speech) => {
+      speech.audio.writeToFile(wavName);
+      expect(fs.existsSync(wavName + ".wav")).to.be.true;
       done();
+    })
+    .catch((error) => {
+      assert.isNotOk(error, "Encountered text to speech error.");
     });
 
     setTimeout(()=>{}, 4000);
@@ -94,32 +101,34 @@ describe('#api', function(){
 });
 
 
-/ * test audio.js */
+/* test audio.js */
 describe('#audio', function(){
   it("exists", function(){
     expect(AudioFile).to.exist;
   });
 
-  it("records and plays back audio for 3 seconds", function(){
+  it("fromRecording and playback", function(){
     this.timeout(10000);
 
-    AudioFile.fromRecording(function(resultingAudioFile) {
+    AudioFile.fromRecording(3000)
+    .then(function(resultingAudioFile) {
       resultingAudioFile.play();
       setTimeout(function(){},3000);
-    }, 3000);
+    });
   });
+  
+  // it("fromRecording and writeToFile", function() {
+  //   this.timeout(10000);
+  //   AudioFile.fromRecording(function(resultingAudioFile) {
+  //     const wavName = "testFile";
+  //     resultingAudioFile.writeToFile(wavName);
 
-  it("records audio and saves it to a file", function() {
-    this.timeout(10000);
-    AudioFile.fromRecording(function(resultingAudioFile) {
-      const wavName = "testFile";
-      resultingAudioFile.writeToFile(wavName);
+  //     setTimeout(function() {
+  //       expect(fs.existsSync(wavName + ".wav")).to.be.true;
+  //       fs.unlinkSync(wavName + ".wav");
+  //       done();
+  //     }, 4000);
+  //   }, 5000);
+  // });
 
-      setTimeout(function() {
-        expect(fs.existsSync(wavName + ".wav")).to.be.true;
-        fs.unlinkSync(wavName);
-        done();
-      }, 4000);
-    }, 5000);
-  });
 });

@@ -23,8 +23,8 @@ exports.getHeaders = function(){
   }
 }
 
-// Returns a promise with the resulting Speech object. 
-exports.getTTS = function(text, callback){
+// Returns a promise with the resulting audio file. 
+exports.getTTS = function(text){
   let headers = this.getHeaders();
   let instance = axios.create({
     baseURL: BASE_URL,
@@ -37,11 +37,8 @@ exports.getTTS = function(text, callback){
     responseType: 'stream',
   });
   return instance.get(TTS_URL)
-  .then(function(response) {
-    AudioFile.createFromStream(response, function(resultingAudioData) {
-      callback(new Speech(resultingAudioData));
-    });
-    // response.data.pipe(fs.createWriteStream(outputName));
+  .then(function(httpReponse) {
+    return AudioFile.createFromStream(httpReponse);
   })
   .catch(function(error){
     throw new Error(error);

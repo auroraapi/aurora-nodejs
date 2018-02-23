@@ -102,10 +102,9 @@ module.exports = class AudioFile {
     if (this.audioOutput) this.audioOutput.end();
   }
 
-  // Starts recording data for the specified amounts of time, then calls 
-  // the callbackFunction with the single argument of the resultant AudioFile
-  // representation. 
-  static fromRecording(callbackFunction, length = 0, silenceLen = 1.0) {
+  // Starts recording data for the specified amounts of time, then returns a 
+  // promise
+  static fromRecording(length = 0, silenceLen = 1.0) {
     let ai = new portAudio.AudioInput({
       channelCount: NUM_CHANNELS,
       sampleFormat: FORMAT,
@@ -128,10 +127,12 @@ module.exports = class AudioFile {
     wavWriter.pipe(ws);
     ai.start();
 
-    setTimeout(function() {
-      ai.quit();
-      callbackFunction(AudioFile.createFromWavData(ws.getContents()));
-    }, length);
+    return new Promise(function(resolve, reject) {
+      setTimeout(function() {
+        ai.quit();
+        resolve(AudioFile.createFromWavData(ws.getContents()));
+      }, length);
+    });
   }
 
   // Creates an AudioFile representation from the data. No callback is needed.
@@ -141,20 +142,28 @@ module.exports = class AudioFile {
 
   // Reads the audio data from the file, appending the .wav extension to the 
   // input filename. Returns the result as an argument to callbackFunction.
-  static createFromFile(f, callbackFunction) {
+  static createFromFile(f) {
     let readFile = fs.createReadStream(f + WAV_FORMAT_TAG);
-    AudioFile.createFromStream(readFile, callbackFunction);
+    return AudioFile.createFromStream(readFile);
   }
 
-  // Reads the audio data from the stream. Returns the result as an argument 
-  // to callbackFunction.
-  static createFromStream(s, callbackFunction) {
+  // Reads the audio data from the stream. Returns a promise that will return
+  // the result as the first argument.
+  static createFromStream(s) {
+    console.log(s);
     let ws = new streamBuffers.WritableStreamBuffer();
+    s.pipe(ws);
 
-    readFile.pipe(s);
+    return new Promise(function(resolve, reject) {
+      s.on("end", () => {
+        s.close
+        resolve(AudioFile.createFromWavData(ws.getContents()));
+      });
 
-    readFile.on("end", () => {
-      callbackFunction(AudioFile.createFromWavData(ws.getContents()));
+      s.on("error", (error) => {
+        s.close();
+        reject(error);
+      });
     });
   }
 
