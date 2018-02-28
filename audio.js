@@ -29,7 +29,7 @@ module.exports = class AudioFile {
     return Buffer.from(this.audio.buffer, WAV_HEADER_SIZE);
   }
 
-  // Stores the data contained in this object to [fname].wav. 
+  // Stores the data contained in this object to [fname].wav.
   writeToFile(fname) {
     let audioReadStream = new streamBuffers.ReadableStreamBuffer();
     let endFile = fs.createWriteStream(fname + WAV_FORMAT_TAG);
@@ -40,14 +40,16 @@ module.exports = class AudioFile {
     audioReadStream.stop();
   }
 
-  // TODO
+  // return a stream with the audio data
   getWav() {
     return this.audio;
   }
 
-  // TODO
+  // write the data to wavData.wav, then return the name of the file
   getWavPath(){
-    return 'test.wav'; // dummy implementation
+    const defaultWavName = 'wavData';
+    this.writeToFile(defaultWavName);
+    return defaultWavName + WAV_FORMAT_TAG;
   }
 
   // TODO
@@ -70,7 +72,7 @@ module.exports = class AudioFile {
 
   }
 
-  // Starts the playback of the audio stored in this object.  
+  // Starts the playback of the audio stored in this object.
   play() {
     if (this.audio) {
       this.audioOutput = new portAudio.AudioOutput({
@@ -102,7 +104,7 @@ module.exports = class AudioFile {
     if (this.audioOutput) this.audioOutput.end();
   }
 
-  // Starts recording data for the specified amounts of time, then returns a 
+  // Starts recording data for the specified amounts of time, then returns a
   // promise with the new AudioFile as the promise result.
   static fromRecording(length = 0, silenceLen = 1.0) {
     let ai = new portAudio.AudioInput({
@@ -140,7 +142,7 @@ module.exports = class AudioFile {
     return new AudioFile(d);
   }
 
-  // Reads the audio data from the file, appending the .wav extension to the 
+  // Reads the audio data from the file, appending the .wav extension to the
   // input filename. Returns the result as a promise.
   static createFromFile(f) {
     let readFile = fs.createReadStream(f + WAV_FORMAT_TAG);

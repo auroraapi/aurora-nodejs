@@ -99,6 +99,8 @@ describe('#api', function(){
   });
 
   it("can convert speech to text", function(done){
+    this.timeout(4000);
+
     aurora.setAppId(keys['appId']);
     aurora.setAppToken(keys['appToken']);
     aurora.setDeviceId(keys['deviceId']);
@@ -131,8 +133,7 @@ describe('#audio', function(){
   });
 
   it("fromRecording and playback", function(done){
-    this.timeout(10000);
-    AudioFile.fromRecording(3000)
+    AudioFile.fromRecording(1000)
     .then(function(resultingAudioFile) {
       resultingAudioFile.play();
       done();
@@ -140,21 +141,23 @@ describe('#audio', function(){
   });
 
 
-  // it('returns name of .wav file with audio data', function(){
-  // });
+  it('converts audio data to .wav file', function(done){
+    expect(fs.existsSync('test.wav')).to.be.false;
+    AudioFile.fromRecording(1000).then(function(resultingAudioFile){
+      resultingAudioFile.writeToFile('test'); // no .wav tag
+      expect(fs.existsSync('test.wav')).to.be.true;
 
-  // it("fromRecording and writeToFile", function() {
-  //   this.timeout(10000);
-  //   AudioFile.fromRecording(function(resultingAudioFile) {
-  //     const wavName = "testFile";
-  //     resultingAudioFile.writeToFile(wavName);
+      let path = resultingAudioFile.getWavPath();
+      expect(fs.existsSync(path)).to.be.true;
 
-  //     setTimeout(function() {
-  //       expect(fs.existsSync(wavName + ".wav")).to.be.true;
-  //       fs.unlinkSync(wavName + ".wav");
-  //       done();
-  //     }, 4000);
-  //   }, 5000);
-  // });
+      // clean up
+      fs.unlink('test.wav', function(){
+        fs.unlink(path, function(){
+          done();
+        });
+      });
+  
+    });
+  });
 
 });
