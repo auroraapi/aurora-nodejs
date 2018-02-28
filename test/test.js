@@ -130,15 +130,18 @@ describe('#audio', function(){
     expect(AudioFile).to.exist;
   });
 
-  it("fromRecording and playback", function(){
+  it("fromRecording and playback", function(done){
     this.timeout(10000);
-
     AudioFile.fromRecording(3000)
     .then(function(resultingAudioFile) {
       resultingAudioFile.play();
-      setTimeout(function(){},3000);
+      done();
     });
   });
+
+
+  // it('returns name of .wav file with audio data', function(){
+  // });
 
   // it("fromRecording and writeToFile", function() {
   //   this.timeout(10000);
