@@ -4,7 +4,6 @@ const fs = require('fs');
 const chai = require('chai');
 const expect = chai.expect;
 const assert = chai.assert;
-const sleep = require('sleep');
 
 const keys = require('./private').keys;
 
@@ -140,7 +139,7 @@ describe('#audio', function(){
       setTimeout(function(){},3000);
     });
   });
-  
+
   // it("fromRecording and writeToFile", function() {
   //   this.timeout(10000);
   //   AudioFile.fromRecording(function(resultingAudioFile) {
