@@ -18,16 +18,16 @@ const INTERPRET_PATH = '/v1/interpret/';
 const CONTENT_TYPE = "Content-Type";
 const WAV_MIMETYPE = "audio/wav";
 
-exports.getHeaders = function(){
+module.exports.getHeaders = function(){
 	return {
-		"X-Application-ID": store['appId'],
-		"X-Application-Token": store['appToken'],
-		"X-Device-ID": store['deviceId']
+		"X-Application-ID": global.aurora.store['appId'],
+		"X-Application-Token": global.aurora.store['appToken'],
+		"X-Device-ID": global.aurora.store['deviceId']
 	}
 }
 
 // Returns a promise with the resulting audio file. 
-exports.getTTS = function(text){
+module.exports.getTTS = function(text){
 	let headers = this.getHeaders();
 	let instance = axios.create({
 		baseURL: BASE_URL,
@@ -52,7 +52,7 @@ exports.getTTS = function(text){
 
 // return promise to get json from API
 // TODO: Return the json
-exports.getInterpret = function(text){
+module.exports.getInterpret = function(text){
 	let headers = this.getHeaders();
 	let instance = axios.create({
 		baseURL: BASE_URL,
@@ -72,7 +72,7 @@ exports.getInterpret = function(text){
 }
 
 // Return a promise to get json from an AudioFile.
-exports.getSTT = function(audio) {
+module.exports.getSTT = function(audio) {
 	let headers = this.getHeaders();
 	headers[CONTENT_TYPE] = WAV_MIMETYPE;
 	let instance = axios.create({

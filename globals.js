@@ -1,6 +1,7 @@
 'use strict';
 
-global.store  = {
+global.aurora = {};
+global.aurora.store = {
 	appId: null,
 	appToken: null,
 	deviceId: null

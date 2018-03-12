@@ -1,16 +1,18 @@
 'use strict';
 
-require('./globals'); // add store to global namespace
+// This call adds 'aurora.store' to the global object to allow api keys 
+// to be accessable throughout. 
+require('./globals'); 
 const api = require("./api");
 const AudioFile = require('./audio');
 
-exports.setAppId = (id) => store.appId = id;
-exports.setAppToken = (token) => store.appToken = token;
-exports.setDeviceId = (id) => store.deviceId = id;
+module.exports.setAppId = (id) => global.aurora.store.appId = id;
+module.exports.setAppToken = (token) => global.aurora.store.appToken = token;
+module.exports.setDeviceId = (id) => global.aurora.store.deviceId = id;
 
-exports.getAppId = () => store.appId;
-exports.getAppToken = () => store.appToken;
-exports.getDeviceId = () => store.deviceId;
+module.exports.getAppId = () => global.aurora.store.appId;
+module.exports.getAppToken = () => global.aurora.store.appToken;
+module.exports.getDeviceId = () => global.aurora.store.deviceId;
 
 /*
 	Text to speech
@@ -38,7 +40,7 @@ class Text {
 		return interpretedJsonPromise;
 	}
 }
-exports.Text = Text;
+module.exports.Text = Text;
 
 /*
 	Interpret
@@ -50,7 +52,7 @@ class Interpret {
 		this.entities = interpretation.entities;
 	}
 }
-exports.Interpret = Interpret;
+module.exports.Interpret = Interpret;
 
 /*
 	Speech to text
@@ -89,4 +91,4 @@ class Speech {
 	}
 
 }
-exports.Speech = Speech;
+module.exports.Speech = Speech;
