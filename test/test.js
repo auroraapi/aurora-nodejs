@@ -88,7 +88,6 @@ describe('#api', function(){
 		let resultPromise = text.interpret();
 
 		resultPromise.then(function(response) {
-			expect(response.hasOwnProperty('text')).to.be.true;
 			expect(response.hasOwnProperty('intent')).to.be.true;
 			expect(response.hasOwnProperty('entities')).to.be.true;
 			done();
