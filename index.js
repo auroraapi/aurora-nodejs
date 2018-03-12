@@ -15,6 +15,9 @@ module.exports.getAppId = () => global.aurora.store.appId;
 module.exports.getAppToken = () => global.aurora.store.appToken;
 module.exports.getDeviceId = () => global.aurora.store.deviceId;
 
+module.exports.api = api;
+module.exports.AudioFile = AudioFile;
+
 /**
  * Aurora's text object. This high level object provides the main point of
  * interaction between your code and the API and primarily uses promises to 
