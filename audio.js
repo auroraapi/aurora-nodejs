@@ -28,8 +28,6 @@ const WAV_FORMAT_TAG = ".wav";
  * @property {Buffer} audio
  * @property {portAudio.AudioOutput} audioOutput
  */
-
- // TODO: Consider making your own buffer.
 module.exports = class AudioFile {
 
 	/**
