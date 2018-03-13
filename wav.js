@@ -3,6 +3,8 @@
 /**
  * @file Provides some wrapper details for the concept of .wav data to allow metadata to be easily accessed.
  * Credit to http://soundfile.sapp.org/doc/WaveFormat/ for the information about .wav file formatting needed.
+ * 
+ * This file assumes little endian data and that the data chunk is the last chunk in the file.
  */
 
 // The following constants relate to the formatting of a .wav file. Positions are their place in the buffer
@@ -26,16 +28,22 @@ const FORMAT_LEN = 4;
 const DEFAULT_RIFF_HEADER_POS = 0;
 const DEFAULT_RIFF_HEADER_LEN = CHUNK_ID_LEN + CHUNK_SIZE_LEN + FORMAT_LEN;
 
+
+// .wav files consist of a series of subchunks, starting with a 4 char 
+// id code and then 4 bytes of chunk length. 
+const SUBCHUNK_ID_POS = 0;
+const SUBCHUNK_ID_LEN = 4;
+// Chunk length stores the length of the rest of the chunk.
+const SUBCHUNK_SIZE_POS = 4;
+const SUBCHUNK_SIZE_LEN = 4;
+const SUBCHUNK_SIZE_VALUE_OFFSET = 8;
+
+
 // "fmt " subchunk
 // Given positions are relative to the start of the chunk.
 // "fmt " subchunk starts with that string.
 const FMT_SUBCHUNK_ID = "fmt ";
-const FMT_SUBCHUNK_ID_POS = 0;
-const FMT_SUBCHUNK_ID_LEN = 4;
-// Size of the rest of this subchunk, not including the "fmt " or this number. Usually 16. 
-const FMT_SUBCHUNK_SIZE_POS = 4;
-const FMT_SUBCHUNK_SIZE_LEN = 4;
-const FMT_SUBCHUNK_SIZE_VALUE_OFFSET = 8;
+// Note: fmt subchunk size is usually 16.
 // Audio format compression rate. If this is not 1, we can't read it.
 const AUDIO_FORMAT = 1;
 const AUDIO_FORMAT_POS = 8;
@@ -55,28 +63,15 @@ const BLOCK_ALIGN_LEN = 2;
 // Number of bits in a sample. 8, 16, so on.
 const BITS_PER_SAMPLE_POS = 22;
 const BITS_PER_SAMPLE_LEN = 2;
-// Position of the beginning of the "fmt " subchunk.
-const DEFAULT_FMT_SUBCHUNK_POS = DEFAULT_RIFF_HEADER_POS + DEFAULT_RIFF_HEADER_LEN;
-// FMT subchunk length isn't defined since it's variable.
 
 
 // "data" subchunk. Contains the actual sound.
 // Given positions are relative to the start of the chunk.
 // Data tag.  
 const DATA_SUBCHUNK_ID = "data";
-const DATA_SUBCHUNK_ID_POS = 0;
-const DATA_SUBCHUNK_ID_LEN = 4;
-// == NumSamples * NumChannels * BitsPerSample/8
-// This is the number of bytes in the data.
-// You can also think of this as the size
-// of the read of the subchunk following this 
-// number.
-const DATA_SUBCHUNK_SIZE_POS = 4;
-const DATA_SUBCHUNK_SIZE_LEN = 4;
-const DATA_SUBCHUNK_SIZE_VALUE_OFFSET = 8;
+// Note: Data subchunk size is usually == NumSamples * NumChannels * BitsPerSample/8
 // The starting position of the data.
-const DATA_START_POS = 8
-// Neither the data subchunk start or length are defined since they are variable.
+const DATA_START_POS = 8;
 
 // ASCII string encoding. 
 const ASCII = 'ascii';
@@ -168,7 +163,7 @@ module.exports = class WavBuffer {
 	 * @private
 	 */
 	getFmtSubchunkSize() {
-		return this.getUInt32FromBuffer(this.fmtChunk, FMT_SUBCHUNK_SIZE_POS);
+		return this.getUInt32FromBuffer(this.fmtChunk, SUBCHUNK_SIZE_POS);
 	}
 
 	/**
@@ -177,7 +172,7 @@ module.exports = class WavBuffer {
 	 * @private
 	 */
 	setFmtSubchunkSize(length) {
-		this.setUInt32FromBuffer(this.fmtChunk, length, FMT_SUBCHUNK_SIZE_POS);
+		this.setUInt32FromBuffer(this.fmtChunk, length, SUBCHUNK_SIZE_POS);
 	}
 
 	/**
@@ -287,7 +282,7 @@ module.exports = class WavBuffer {
 	 * @private
 	 */
 	getDataSubchunkSize() {
-		return this.getUInt32FromBuffer(this.dataChunk, DATA_SUBCHUNK_SIZE_POS);
+		return this.getUInt32FromBuffer(this.dataChunk, SUBCHUNK_SIZE_POS);
 	}
 
 	/**
@@ -296,34 +291,28 @@ module.exports = class WavBuffer {
 	 * @private
 	 */
 	setDataSubchunkSize(size) {
-		this.setUInt32FromBuffer(this.dataChunk, size, DATA_SUBCHUNK_SIZE_POS);
+		this.setUInt32FromBuffer(this.dataChunk, size, SUBCHUNK_SIZE_POS);
 	}
 
 	/**
 	 * Attempt to make the headers inside the .wav file consistent with the data itself. 
 	 * You probably shouldn't be using this.
-	 * @param {number} riffHeaderStart - The starting index for the riff header. 
-	 * @param {number} dataChunkStart - The starting index for the data chunk. 
 	 * @private
 	 */
-	attemptToFixHeaders(riffHeaderStart, dataChunkStart) {
-		let bufferSize = this.buffer.byteLength;
-		this.setRiffFileLength(bufferSize - riffHeaderStart - CHUNK_SIZE_VALUE_OFFSET);
+	attemptToFixHeaders() {
+		this.setRiffFileLength(this.buffer.byteLength - CHUNK_SIZE_VALUE_OFFSET);
 		this.setByteRate(this.getSampleRate() * this.getNumChannels() * this.getBitsPerSample() / 8);
 		this.setBlockAlign(this.getNumChannels() * this.getBitsPerSample() / 8);
-		this.setDataSubchunkSize(bufferSize - dataChunkStart - DATA_SUBCHUNK_SIZE_VALUE_OFFSET);
+		this.setDataSubchunkSize(this.dataChunk.byteLength - SUBCHUNK_SIZE_VALUE_OFFSET);
 	}
 
 	/**
 	 * Check if the header is consistent. You probably shouldn't be using this.
-	 * @param {number} riffHeaderStart - The starting index for the riff header. 
-	 * @param {number} dataChunkStart - The starting index for the data chunk. 
 	 * @return {string} - An error string if there is a problem. Otherwise, "".
 	 * @private
 	 */
-	getHeaderConsistencyError(riffHeaderStart, dataChunkStart) {
-		let bufferSize = this.buffer.byteLength;
-		if (this.getRiffFileLength() != (bufferSize - riffHeaderStart - CHUNK_SIZE_VALUE_OFFSET)) {
+	getHeaderConsistencyError() {
+		if (this.getRiffFileLength() != (this.buffer.byteLength - CHUNK_SIZE_VALUE_OFFSET)) {
 			return "RIFF header inconsistent with data.";
 		}
 		if (this.getByteRate() != (this.getSampleRate() * this.getNumChannels() * this.getBitsPerSample() / 8)) {
@@ -332,7 +321,7 @@ module.exports = class WavBuffer {
 		if (this.getBlockAlign() != (this.getNumChannels() * this.getBitsPerSample() / 8)) {
 			return "FMT block align inconsistent with data.";
 		}
-		if (this.getDataSubchunkSize() != (bufferSize - dataChunkStart - DATA_SUBCHUNK_SIZE_VALUE_OFFSET)) {
+		if (this.getDataSubchunkSize() != (this.dataChunk.byteLength - SUBCHUNK_SIZE_VALUE_OFFSET)) {
 			return "Data header inconsistent with data.";
 		}
 		return "";
@@ -346,7 +335,7 @@ module.exports = class WavBuffer {
 	constructor(inputBuffer, fixHeaderErrors=false) {
 		// The central buffer holding the wave data.
 		this.buffer;
-		// Specific buffers point to the same locations in memory and serve only to 
+		// Specific buffers point to the same locations in memory and serve to 
 		// improve the readability of the code.
 		this.riffChunk;
 		this.fmtChunk;
@@ -357,42 +346,39 @@ module.exports = class WavBuffer {
 		this.buffer = inputBuffer;
  
 		// Load the riff chunk
-		let riffHeaderStart = DEFAULT_RIFF_HEADER_POS;
-		let riffChunkLength = DEFAULT_RIFF_HEADER_LEN;
-		this.riffChunk = Buffer.from(this.buffer.buffer, riffHeaderStart, riffChunkLength);
+		this.riffChunk = Buffer.from(this.buffer.buffer, DEFAULT_RIFF_HEADER_POS, DEFAULT_RIFF_HEADER_LEN);
 		// Validate the riff chunk
 		if (this.getStringFromBuffer(this.riffChunk, CHUNK_ID_POS, CHUNK_ID_LEN) != CHUNK_ID || 
 			this.getStringFromBuffer(this.riffChunk, FORMAT_POS, FORMAT_LEN) != FORMAT) {
 			throw "Invalid RIFF header.";
 		}
 
-		// Load the "fmt " chunk
-		let fmtChunkStart = DEFAULT_FMT_SUBCHUNK_POS;
-		let fmtChunkLength = this.getUInt32FromBuffer(this.buffer, fmtChunkStart + FMT_SUBCHUNK_SIZE_POS) + FMT_SUBCHUNK_SIZE_VALUE_OFFSET;
-		this.fmtChunk = Buffer.from(this.buffer.buffer, fmtChunkStart, fmtChunkLength);
-		// Validate the "fmt " chunk.
-		if (this.getStringFromBuffer(this.fmtChunk, FMT_SUBCHUNK_ID_POS, FMT_SUBCHUNK_ID_LEN) != FMT_SUBCHUNK_ID) {
-			throw "Invalid FMT header.";
-		}
+		// Store the start of the next chunk. We loop until we get through the buffer. 
+		let pos = DEFAULT_RIFF_HEADER_POS + DEFAULT_RIFF_HEADER_LEN;
 
-		// Load the data chunk
-		let dataChunkStart = fmtChunkStart + fmtChunkLength;
-		let dataChunkLength = this.getUInt32FromBuffer(this.buffer, dataChunkStart + DATA_SUBCHUNK_SIZE_POS) + DATA_SUBCHUNK_SIZE_VALUE_OFFSET;
-		this.dataChunk = Buffer.from(this.buffer.buffer, dataChunkStart);
-		// Validate the data chunk.
-		if (this.getStringFromBuffer(this.dataChunk, DATA_SUBCHUNK_ID_POS, DATA_SUBCHUNK_ID_LEN) != DATA_SUBCHUNK_ID) {
-			throw "Invalid data header.";
-		}
+		while (pos < this.buffer.byteLength) {
+			let currentSubchunkID = this.getStringFromBuffer(this.buffer, pos + SUBCHUNK_ID_POS, SUBCHUNK_ID_LEN);
+			let currentSubchunkLength = this.getUInt32FromBuffer(this.buffer, pos + SUBCHUNK_SIZE_POS) + SUBCHUNK_SIZE_VALUE_OFFSET;
 
-		// Load the actual data into the data buffer.
-		let dataStart = dataChunkStart + DATA_START_POS;
-		this.data = Buffer.from(this.buffer.buffer, dataStart);
+			if (currentSubchunkID == FMT_SUBCHUNK_ID) {
+				// We found a format chunk. Save it and continue processing. 
+				this.fmtChunk = Buffer.from(this.buffer.buffer, pos, currentSubchunkLength);
+			}
+			else if (currentSubchunkID == DATA_SUBCHUNK_ID) {
+				// Assume the data subchunk is the last subchunk in the file. 
+				this.dataChunk = Buffer.from(this.buffer.buffer, pos);
+				// Load the actual data into the data buffer.
+				let dataStart = pos + DATA_START_POS;
+				this.data = Buffer.from(this.buffer.buffer, dataStart);
+			}
+			pos = pos + currentSubchunkLength;
+		}
 
 		if (fixHeaderErrors) {
-			this.attemptToFixHeaders(riffHeaderStart, dataChunkStart);
+			this.attemptToFixHeaders();
 		}
 		else {
-			let errorString = this.getHeaderConsistencyError(riffHeaderStart, dataChunkStart);
+			let errorString = this.getHeaderConsistencyError();
 			if (errorString != "") {
 				throw errorString;
 			}
