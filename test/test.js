@@ -56,7 +56,6 @@ describe('#api', function(){
 	});
 
 	it("converts text to speech", function(done){
-		this.timeout(5000);
 
 		const wavName = 'speechResult';
 
@@ -98,8 +97,6 @@ describe('#api', function(){
 	});
 
 	it("can convert speech to text", function(done){
-		this.timeout(4000);
-
 		aurora.setAppId(keys['appId']);
 		aurora.setAppToken(keys['appToken']);
 		aurora.setDeviceId(keys['deviceId']);

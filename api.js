@@ -94,7 +94,7 @@ module.exports.getInterpret = function(text) {
 
 /**
  * Using Aurora's network API calls, converts the input AudioFile to a promise
- * for an AudioFile.
+ * for a text transcript.
  * @param {AudioFile} audio - The audio to be converted into text.
  * @return {Promise<TextTranscript>} - A promise to obtain json data transcribing the data.
  */
