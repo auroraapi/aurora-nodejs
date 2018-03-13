@@ -10,6 +10,7 @@
 // The following constants relate to the formatting of a .wav file. Positions are their place in the buffer
 // and lengths are their bytelength. 
 
+
 // RIFF header
 // Given positions are relative to the start of the chunk.
 // .wav starts with the 4char string "RIFF".
@@ -24,9 +25,9 @@ const CHUNK_SIZE_VALUE_OFFSET = 8;
 const FORMAT = "WAVE";
 const FORMAT_POS = 8;
 const FORMAT_LEN = 4;
-// Length of the entire header for organizational purposes. 
+// Length of the entire header for header generation purposes. 
 const DEFAULT_RIFF_HEADER_POS = 0;
-const DEFAULT_RIFF_HEADER_LEN = CHUNK_ID_LEN + CHUNK_SIZE_LEN + FORMAT_LEN;
+const DEFAULT_RIFF_HEADER_LEN = 12;
 
 
 // .wav files consist of a series of subchunks, starting with a 4 char 
@@ -44,6 +45,7 @@ const SUBCHUNK_SIZE_VALUE_OFFSET = 8;
 // "fmt " subchunk starts with that string.
 const FMT_SUBCHUNK_ID = "fmt ";
 // Note: fmt subchunk size is usually 16.
+const DEFAULT_FMT_SUBCHUNK_SIZE = 16;
 // Audio format compression rate. If this is not 1, we can't read it.
 const AUDIO_FORMAT = 1;
 const AUDIO_FORMAT_POS = 8;
@@ -63,6 +65,9 @@ const BLOCK_ALIGN_LEN = 2;
 // Number of bits in a sample. 8, 16, so on.
 const BITS_PER_SAMPLE_POS = 22;
 const BITS_PER_SAMPLE_LEN = 2;
+// Length and pos for the typical fmt subchunk for header generation purposes.
+const DEFAULT_FMT_HEADER_POS = 12;
+const DEFAULT_FMT_HEADER_LEN = 24;
 
 
 // "data" subchunk. Contains the actual sound.
@@ -72,9 +77,16 @@ const DATA_SUBCHUNK_ID = "data";
 // Note: Data subchunk size is usually == NumSamples * NumChannels * BitsPerSample/8
 // The starting position of the data.
 const DATA_START_POS = 8;
+// Length and pos for the typical fmt subchunk for header generation purposes.
+const DEFAULT_DATA_HEADER_POS = 36;
+const DEFAULT_DATA_HEADER_LEN = 8;
 
 // ASCII string encoding. 
 const ASCII = 'ascii';
+
+
+// Typical headers are around 44 bytes long. 
+const DEFAULT_WAV_HEADER_LEN = 44;
 
 
 // A list of various .wav audio encoding schemes.
@@ -516,5 +528,38 @@ module.exports = class WavBuffer {
 		if (!this.isSupported()) {
 			throw "The given format is currently unsupported.";
 		}
+	}
+
+	/**
+	 * Creates a new WavBuffer from the given input options and the PCM data in the buffer.
+	 * @param {Buffer} pcmBuffer - A buffer containing the corresponding PCM data.
+	 * @param {Object} options - An object containing the config options.
+	 * @param {number} options.numChannels - The number of channels to record with.
+	 * @param {number} options.sampleRate - The sample rate to record at.
+	 * @param {number} options.bitsPerSample - Bit depth to record at. Currently should be 16.
+	 * @return {WavBuffer} - A new PCM buffer from the given options.
+	 */
+	static generateWavFromPCM(pcmBuffer, options) {
+		let tempBuffer = Buffer.allocUnsafe(pcmBuffer.length + DEFAULT_WAV_HEADER_LEN);
+
+		// Load the RIFF header.
+		Buffer.from(CHUNK_ID, ASCII).copy(tempBuffer, CHUNK_ID_POS);
+		Buffer.from(FORMAT, ASCII).copy(tempBuffer, CHUNK_ID_POS + FORMAT_POS);
+		
+		// Load the fmt subchunk.
+		Buffer.from(FMT_SUBCHUNK_ID, ASCII).copy(tempBuffer, DEFAULT_FMT_HEADER_POS);
+		tempBuffer.writeUInt32LE(DEFAULT_FMT_SUBCHUNK_SIZE, DEFAULT_FMT_HEADER_POS + SUBCHUNK_SIZE_POS);
+		tempBuffer.writeUInt16LE(AUDIO_FORMAT, DEFAULT_FMT_HEADER_POS + AUDIO_FORMAT_POS);
+		tempBuffer.writeUInt16LE(options.numChannels, DEFAULT_FMT_HEADER_POS + NUM_CHANNELS_POS);
+		tempBuffer.writeUInt32LE(options.sampleRate, DEFAULT_FMT_HEADER_POS + SAMPLE_RATE_POS);
+		tempBuffer.writeUInt16LE(options.bitsPerSample, DEFAULT_FMT_HEADER_POS + BITS_PER_SAMPLE_POS);
+
+		// Load the data header.
+		Buffer.from(DATA_SUBCHUNK_ID, ASCII).copy(tempBuffer, DEFAULT_DATA_HEADER_POS);		
+
+		// Load the pcm data into the temp buffer.
+		pcmBuffer.copy(tempBuffer, DEFAULT_WAV_HEADER_LEN, DEFAULT_FMT_HEADER_POS + SUBCHUNK_SIZE_POS);
+
+		return new WavBuffer(tempBuffer, true);
 	}
 };
