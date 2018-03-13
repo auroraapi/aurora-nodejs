@@ -1,14 +1,14 @@
 'use strict';
 
+let WavBuffer = require('./wav');
 let fs = require("fs");
-let streamBuffers = require('stream-buffers');
 let portAudio = require("naudiodon");
-let wav = require("wav");
+let streamBuffers = require('stream-buffers');
 
 const BUF_SIZE = Math.pow(2, 10);
 const MAX_THRESH = Math.pow(2, 14);
 const SILENT_THRESH = Math.pow(2, 10);
-const NUM_CHANNELS = 2; // 1
+const NUM_CHANNELS = 2; // 1 
 const FORMAT = portAudio.SampleFormat16Bit;  //portAudio.paInt16;
 const RATE = 44100;
 
@@ -21,22 +21,27 @@ const WAV_FORMAT_TAG = ".wav";
  * 
  * @details
  * Since surprisingly few audio processing libraries exist for npm, this representation 
- * uses a streamable buffer in order to store the binary data related to the .wav file. 
+ * uses a newly constructed WavBuffer in order to store the binary data related to the .wav file. 
  * Such files are expected to be generated using naudiodon, a node binding for PortAudio.
  *
  * @typedef {Object} AudioFile
- * @property {Buffer} audio
+ * @property {WavBuffer} audio
  * @property {portAudio.AudioOutput} audioOutput
  */
 module.exports = class AudioFile {
 
 	/**
-	 * Creates an AudioFile object from the input stream-buffer
-	 * @param {Buffer} text - The string to be stored. 
+	 * Creates an AudioFile object from the input WavBuffer or normal buffer.
+	 * @param {WavBuffer | Buffer} audio - The buffer to be stored. 
 	 */
 	constructor(audio) {
-		// Define this.audio to be a buffer that stores the .wav file data.
-		this.audio = audio;
+		// Define this.audio to be a WavBuffer that stores the .wav file data.
+		if (WavBuffer.isWavBuffer(audio)) {
+			this.audio = audio;
+		}
+		else {
+			this.audio = new WavBuffer(audio);
+		}
 
 		// An naudiodon output. This is stored so we can stop it later if need be.
 		this.audioOutput = null;
@@ -47,7 +52,7 @@ module.exports = class AudioFile {
 	 * @return {Buffer} A buffer of the PCM audio data inside the wav data.
 	 */
 	wavWithoutMetadata() {
-		return Buffer.from(this.audio.buffer, WAV_HEADER_SIZE);
+		return this.audio.getWavWithoutHeader();
 	}
 
 	/**
@@ -60,7 +65,7 @@ module.exports = class AudioFile {
 
 		audioReadStream.pipe(endFile);
 
-		audioReadStream.put(this.audio);
+		audioReadStream.put(this.getWav());
 		audioReadStream.stop();
 	}
 
@@ -69,7 +74,7 @@ module.exports = class AudioFile {
 	 * @return {Buffer} A buffer of the PCM audio data inside the wav data.
 	 */
 	getWav() {
-		return this.audio;
+		return this.audio.getWav();
 	}
 
 	/**
@@ -96,32 +101,28 @@ module.exports = class AudioFile {
 	 * @param {number} - seconds: The amount of seconds to add.
 	 */
 	pad(seconds) {
-		this.padLeft(seconds);
-		this.padRight(seconds);
+		this.audio.padSilence(seconds);
 	}
 
 	/**
 	 * Pad the left side of the audio with the specified amount of silence in seconds.
 	 * @param {number} - seconds: The amount of seconds to add.
 	 */
-	// TODO
 	padLeft(seconds) {
-
+		this.audio.padSilenceFront(seconds);
 	}
 
 	/**
 	 * Pad the right side of the audio with the specified amount of silence in seconds.
 	 * @param {number} - seconds: The amount of seconds to add.
 	 */
-	// TODO
 	pad_right(seconds) {
-
+		this.audio.padSilenceBack(seconds);
 	}
 
 	/**
 	 * Trims extraneous silence at the ends of the audio.
 	 */
-	// TODO
 	// TODO
 	trimSilent() {
 
@@ -181,24 +182,21 @@ module.exports = class AudioFile {
 		});
 		ai.on('error', err => console.error);
 
-		// Create a wave writer that helps to encode raw audio.
-		let wavWriter = new wav.Writer({
-			channels: NUM_CHANNELS,
-			sampleRate: RATE,
-			bitDepth: FORMAT
-		});
-
 		// create write stream to write out to raw audio file
 		let ws = new streamBuffers.WritableStreamBuffer();
 
-		ai.pipe(wavWriter);
-		wavWriter.pipe(ws);
+		ai.pipe(ws);
 		ai.start();
 
 		return new Promise(function(resolve, reject) {
 			setTimeout(() => {
 				ai.quit();
-				resolve(AudioFile.createFromWavData(ws.getContents()));
+				let recordedBuffer = WavBuffer.generateWavFromPCM(ws.getContents(), {
+					numChannels: NUM_CHANNELS,
+					sampleRate: RATE,
+					bitsPerSample: FORMAT
+				});
+				resolve(AudioFile.createFromWavData(recordedBuffer));
 			}, length);
 		});
 	}
@@ -239,12 +237,10 @@ module.exports = class AudioFile {
 
 		return new Promise(function(resolve, reject) {
 			s.on("end", () => {
-				s.close
 				resolve(AudioFile.createFromWavData(ws.getContents()));
 			});
 
 			s.on("error", (error) => {
-				s.close();
 				reject(error);
 			});
 		});

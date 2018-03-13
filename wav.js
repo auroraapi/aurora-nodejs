@@ -467,7 +467,6 @@ module.exports = class WavBuffer {
 		silence.copy(this.data, previousDataLength, silenceLength);
 	}
 
-
 	/**
 	 * Copies and validates the input buffer and creates a WavBuffer from it.
 	 * @param {Buffer} inputBuffer - The buffer to use. 
@@ -483,6 +482,8 @@ module.exports = class WavBuffer {
 		this.dataHeader;
 		// This holds the start of the actual sound data with no header metadata.
 		this.data;
+		// A "class identifier."
+		this.isAuroraWavBuffer = true;
 
 		this.buffer = Buffer.from(inputBuffer);
  
@@ -561,5 +562,12 @@ module.exports = class WavBuffer {
 		pcmBuffer.copy(tempBuffer, DEFAULT_WAV_HEADER_LEN, DEFAULT_FMT_HEADER_POS + SUBCHUNK_SIZE_POS);
 
 		return new WavBuffer(tempBuffer, true);
+	}
+
+	/**
+	 * @returns {boolean} true if the object input is a WavBuffer. 
+	 */
+	static isWavBuffer(buffer) {
+		return buffer.hasOwnProperty("isAuroraWavBuffer");
 	}
 };
