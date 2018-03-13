@@ -86,10 +86,264 @@ const ASCII = 'ascii';
  */
 module.exports = class WavBuffer {
 	/**
+	 * Returns the string at the given position and length from
+	 * the buffer in ascii format.
+	 * @param {Buffer} buffer - The buffer to read from.
+	 * @param {number} pos - The byte offset to read from the buffer.
+	 * @param {number} length - The number of bytes to read. 
+	 * @return {string} - The string at the given position.
+	 * @private
+	 */
+	getStringFromBuffer(buffer, pos, length) {
+		return buffer.toString(ASCII, pos, pos + length);
+	}
+
+	/**
+	 * Returns the next 4 bytes of the buffer at the given position in
+	 * the buffer in unsigned integer form.
+	 * @param {Buffer} buffer - The buffer to read from.
+	 * @param {number} pos - The byte offset to read from the buffer. 
+	 * @return {number} - The number at the given position.
+	 * @private
+	 */
+	getUInt32FromBuffer(buffer, pos) {
+		return buffer.readUInt32LE(pos);
+	}
+
+	/**
+	 * Sets the next 4 bytes of the buffer at the given position in
+	 * the buffer in unsigned integer form.
+	 * @param {Buffer} buffer - The buffer to read from.
+	 * @param {number} value - The number to store.
+	 * @param {number} pos - The byte offset to read from the buffer. 
+	 * @private
+	 */
+	setUInt32FromBuffer(buffer, value, pos) {
+		buffer.writeUInt32LE(value, pos);
+	}
+
+	/**
+	 * Returns the next 2 bytes of the buffer at the given position in
+	 * the buffer in unsigned integer form.
+	 * @param {Buffer} buffer - The buffer to read from.
+	 * @param {number} pos - The byte offset to read from the buffer. 
+	 * @return {number} - The number at the given position.
+	 * @private
+	 */
+	getUInt16FromBuffer(buffer, pos) {
+		return buffer.readUInt16LE(pos);
+	}
+
+	/**
+	 * Sets the next 4 bytes of the buffer at the given position in
+	 * the buffer in unsigned integer form.
+	 * @param {Buffer} buffer - The buffer to read from.
+	 * @param {number} value - The number to store.
+	 * @param {number} pos - The byte offset to read from the buffer. 
+	 * @private
+	 */
+	setUInt16FromBuffer(buffer, value, pos) {
+		buffer.writeUInt16LE(value, pos);
+	}
+
+	/**
+	 * @return {number} the length of the file given by the RIFF header. This is off from the file length by CHUNK_SIZE_VALUE_OFFSET.
+	 * @private
+	 */
+	getRiffFileLength() {
+		return this.getUInt32FromBuffer(this.riffChunk, CHUNK_SIZE_POS);
+	}
+
+	/**
+	 * Sets the file length to the input length. You probably shouldn't be using this.
+	 * @param {number} length - The length to set the riff header to. 
+	 * @private
+	 */
+	setRiffFileLength(length) {
+		this.setUInt32FromBuffer(this.riffChunk, length, CHUNK_SIZE_POS);
+	}
+
+	/**
+	 * @return {number} the length of the file given by the RIFF header.
+	 * @private
+	 */
+	getFmtSubchunkSize() {
+		return this.getUInt32FromBuffer(this.fmtChunk, FMT_SUBCHUNK_SIZE_POS);
+	}
+
+	/**
+	 * Sets the file length to the input length. You probably shouldn't be using this.
+	 * @param {number} length - The length to set the riff header to. 
+	 * @private
+	 */
+	setFmtSubchunkSize(length) {
+		this.setUInt32FromBuffer(this.fmtChunk, length, FMT_SUBCHUNK_SIZE_POS);
+	}
+
+	/**
+	 * @return {number} the audio format number given by the header.
+	 * @private
+	 */
+	getAudioFormat() {
+		return this.getUInt16FromBuffer(this.fmtChunk, AUDIO_FORMAT_POS);
+	}
+
+	/**
+	 * Set the audio format tag in the fmt header. You probably shouldn't be using this.
+	 * @param {number} format - The format to set. 
+	 * @private
+	 */
+	setAudioFormat(format) {
+		this.setUInt16FromBuffer(this.fmtChunk, format, AUDIO_FORMAT_POS);
+	}
+
+	/**
+	 * @return {number} the number of channels given by the header.
+	 * @private
+	 */
+	getNumChannels() {
+		return this.getUInt16FromBuffer(this.fmtChunk, NUM_CHANNELS_POS);
+	}
+
+	/**
+	 * Set the number of channels tag in the fmt header. You probably shouldn't be using this.
+	 * @param {number} channels - The channel count to set. 
+	 * @private
+	 */
+	setNumChannels(channels) {
+		this.setUInt16FromBuffer(this.fmtChunk, channels, NUM_CHANNELS_POS);
+	}
+
+	/**
+	 * @return {number} the sample rate given by the header.
+	 * @private
+	 */
+	getSampleRate() {
+		return this.getUInt32FromBuffer(this.fmtChunk, SAMPLE_RATE_POS);
+	}
+
+	/**
+	 * Set the sample rate tag in the fmt header. You probably shouldn't be using this.
+	 * @param {number} rate - The sample rate. 
+	 * @private
+	 */
+	setSampleRate(rate) {
+		this.setUInt32FromBuffer(this.fmtChunk, rate, SAMPLE_RATE_POS);
+	}
+
+	/**
+	 * @return {number} the byte rate given by the header.
+	 * @private
+	 */
+	getByteRate() {
+		return this.getUInt32FromBuffer(this.fmtChunk, BYTE_RATE_POS);
+	}
+
+	/**
+	 * Set the byte rate tag in the fmt header. You probably shouldn't be using this.
+	 * @param {number} rate - The byte rate. 
+	 * @private
+	 */
+	setByteRate(rate) {
+		this.setUInt32FromBuffer(this.fmtChunk, rate, BYTE_RATE_POS);
+	}
+
+	/**
+	 * @return {number} the block align given by the header.
+	 * @private
+	 */
+	getBlockAlign() {
+		return this.getUInt16FromBuffer(this.fmtChunk, BLOCK_ALIGN_POS);
+	}
+
+	/**
+	 * Set the block align tag in the fmt header. You probably shouldn't be using this.
+	 * @param {number} align - The block align. 
+	 * @private
+	 */
+	setBlockAlign(align) {
+		this.setUInt16FromBuffer(this.fmtChunk, align, BLOCK_ALIGN_POS);
+	}
+
+	/**
+	 * @return {number} the bits per sample given by the header.
+	 * @private
+	 */
+	getBitsPerSample() {
+		return this.getUInt16FromBuffer(this.fmtChunk, BITS_PER_SAMPLE_POS);
+	}
+
+	/**
+	 * Set the bits per sample tag in the fmt header. You probably shouldn't be using this.
+	 * @param {number} bps - The bits per sample. 
+	 * @private
+	 */
+	setBitsPerSample(bps) {
+		this.setUInt16FromBuffer(this.fmtChunk, bps, BITS_PER_SAMPLE_POS);
+	}
+
+	/**
+	 * @return {number} the data subchunk size given by the header.
+	 * @private
+	 */
+	getDataSubchunkSize() {
+		return this.getUInt32FromBuffer(this.dataChunk, DATA_SUBCHUNK_SIZE_POS);
+	}
+
+	/**
+	 * Set the data subchunk size tag in the fmt header. You probably shouldn't be using this.
+	 * @param {number} size - The data subchunk size. 
+	 * @private
+	 */
+	setDataSubchunkSize(size) {
+		this.setUInt32FromBuffer(this.dataChunk, size, DATA_SUBCHUNK_SIZE_POS);
+	}
+
+	/**
+	 * Attempt to make the headers inside the .wav file consistent with the data itself. 
+	 * You probably shouldn't be using this.
+	 * @param {number} riffHeaderStart - The starting index for the riff header. 
+	 * @param {number} dataChunkStart - The starting index for the data chunk. 
+	 * @private
+	 */
+	attemptToFixHeaders(riffHeaderStart, dataChunkStart) {
+		let bufferSize = this.buffer.byteLength;
+		this.setRiffFileLength(bufferSize - riffHeaderStart - CHUNK_SIZE_VALUE_OFFSET);
+		this.setByteRate(this.getSampleRate() * this.getNumChannels() * this.getBitsPerSample() / 8);
+		this.setBlockAlign(this.getNumChannels() * this.getBitsPerSample() / 8);
+		this.setDataSubchunkSize(bufferSize - dataChunkStart - DATA_SUBCHUNK_SIZE_VALUE_OFFSET);
+	}
+
+	/**
+	 * Check if the header is consistent. You probably shouldn't be using this.
+	 * @param {number} riffHeaderStart - The starting index for the riff header. 
+	 * @param {number} dataChunkStart - The starting index for the data chunk. 
+	 * @return {string} - An error string if there is a problem. Otherwise, "".
+	 * @private
+	 */
+	getHeaderConsistencyError(riffHeaderStart, dataChunkStart) {
+		let bufferSize = this.buffer.byteLength;
+		if (this.getRiffFileLength() != (bufferSize - riffHeaderStart - CHUNK_SIZE_VALUE_OFFSET)) {
+			return "RIFF header inconsistent with data.";
+		}
+		if (this.getByteRate() != (this.getSampleRate() * this.getNumChannels() * this.getBitsPerSample() / 8)) {
+			return "FMT byte rate inconsistent with data.";
+		}
+		if (this.getBlockAlign() != (this.getNumChannels() * this.getBitsPerSample() / 8)) {
+			return "FMT block align inconsistent with data.";
+		}
+		if (this.getDataSubchunkSize() != (bufferSize - dataChunkStart - DATA_SUBCHUNK_SIZE_VALUE_OFFSET)) {
+			return "Data header inconsistent with data.";
+		}
+		return "";
+	}
+
+	/**
 	 * Validates the input buffer and creates a WavBuffer from it.
 	 * @param {Buffer} inputBuffer - The buffer to use. 
+	 * @param {boolean} [fixHeaderErrors=false] - Frequently, .wav headers will be malformed. If this is true, the constructor will attempt to fix conflicting header information. If false, errors will be thrown for malformed headers.
 	 */
-	constructor(inputBuffer) {
+	constructor(inputBuffer, fixHeaderErrors=false) {
 		// The central buffer holding the wave data.
 		this.buffer;
 		// Specific buffers point to the same locations in memory and serve only to 
@@ -99,200 +353,6 @@ module.exports = class WavBuffer {
 		this.dataChunk;
 		// This holds the start of the actual sound data with no header metadata.
 		this.data;
-
-
-		/**
-		 * Returns the string at the given position and length from
-		 * the buffer in ascii format.
-		 * @param {Buffer} buffer - The buffer to read from.
-		 * @param {number} pos - The byte offset to read from the buffer.
-		 * @param {number} length - The number of bytes to read. 
-		 * @return {string} - The string at the given position.
-		 */
-		this.getStringFromBuffer = function(buffer, pos, length) {
-			return buffer.toString(ASCII, pos, pos + length);
-		};
-
-		/**
-		 * Returns the next 4 bytes of the buffer at the given position in
-		 * the buffer in unsigned integer form.
-		 * @param {Buffer} buffer - The buffer to read from.
-		 * @param {number} pos - The byte offset to read from the buffer. 
-		 * @return {number} - The number at the given position.
-		 */
-		this.getUInt32FromBuffer = function(buffer, pos) {
-			return buffer.readUInt32LE(pos);
-		};
-
-		/**
-		 * Sets the next 4 bytes of the buffer at the given position in
-		 * the buffer in unsigned integer form.
-		 * @param {Buffer} buffer - The buffer to read from.
-		 * @param {number} value - The number to store.
-		 * @param {number} pos - The byte offset to read from the buffer. 
-		 */
-		this.setUInt32FromBuffer = function(buffer, value, pos) {
-			buffer.writeUInt32LE(value, pos);
-		};
-
-		/**
-		 * Returns the next 2 bytes of the buffer at the given position in
-		 * the buffer in unsigned integer form.
-		 * @param {Buffer} buffer - The buffer to read from.
-		 * @param {number} pos - The byte offset to read from the buffer. 
-		 * @return {number} - The number at the given position.
-		 */
-		this.getUInt16FromBuffer = function(buffer, pos) {
-			return buffer.readUInt16LE(pos);
-		};
-
-		/**
-		 * Sets the next 4 bytes of the buffer at the given position in
-		 * the buffer in unsigned integer form.
-		 * @param {Buffer} buffer - The buffer to read from.
-		 * @param {number} value - The number to store.
-		 * @param {number} pos - The byte offset to read from the buffer. 
-		 */
-		this.setUInt16FromBuffer = function(buffer, value, pos) {
-			buffer.writeUInt16LE(value, pos);
-		};
-
-		/**
-		 * @return {number} the length of the file given by the RIFF header. This is off from the file length by CHUNK_SIZE_VALUE_OFFSET.
-		 */
-		this.getRiffFileLength = function() {
-			return this.getUInt32FromBuffer(this.riffChunk, CHUNK_SIZE_POS);
-		}
-
-		/**
-		 * Sets the file length to the input length. You probably shouldn't be using this.
-		 * @param {number} length - The length to set the riff header to. 
-		 */
-		this.setRiffFileLength = function(length) {
-			this.setUInt32FromBuffer(this.riffChunk, length, CHUNK_SIZE_POS);
-		}
-
-		/**
-		 * @return {number} the length of the file given by the RIFF header.
-		 */
-		this.getFmtSubchunkSize = function() {
-			return this.getUInt32FromBuffer(this.fmtChunk, FMT_SUBCHUNK_SIZE_POS);
-		}
-
-		/**
-		 * Sets the file length to the input length. You probably shouldn't be using this.
-		 * @param {number} length - The length to set the riff header to. 
-		 */
-		this.setFmtSubchunkSize = function(length) {
-			this.setUInt32FromBuffer(this.fmtChunk, length, FMT_SUBCHUNK_SIZE_POS);
-		}
-
-		/**
-		 * @return {number} the audio format number given by the header.
-		 */
-		this.getAudioFormat = function() {
-			return this.getUInt16FromBuffer(this.fmtChunk, AUDIO_FORMAT_POS);
-		}
-
-		/**
-		 * Set the audio format tag in the fmt header. You probably shouldn't be using this.
-		 * @param {number} format - The format to set. 
-		 */
-		this.setAudioFormat = function(format) {
-			this.setUInt16FromBuffer(this.fmtChunk, format, AUDIO_FORMAT_POS);
-		}
-
-		/**
-		 * @return {number} the number of channels given by the header.
-		 */
-		this.getNumChannels = function() {
-			return this.getUInt16FromBuffer(this.fmtChunk, NUM_CHANNELS_POS);
-		}
-
-		/**
-		 * Set the number of channels tag in the fmt header. You probably shouldn't be using this.
-		 * @param {number} channels - The channel count to set. 
-		 */
-		this.setNumChannels = function(channels) {
-			this.setUInt16FromBuffer(this.fmtChunk, channels, NUM_CHANNELS_POS);
-		}
-
-		/**
-		 * @return {number} the sample rate given by the header.
-		 */
-		this.getSampleRate = function() {
-			return this.getUInt32FromBuffer(this.fmtChunk, SAMPLE_RATE_POS);
-		}
-
-		/**
-		 * Set the sample rate tag in the fmt header. You probably shouldn't be using this.
-		 * @param {number} rate - The sample rate. 
-		 */
-		this.setSampleRate = function(rate) {
-			this.setUInt32FromBuffer(this.fmtChunk, rate, SAMPLE_RATE_POS);
-		}
-
-		/**
-		 * @return {number} the byte rate given by the header.
-		 */
-		this.getByteRate = function() {
-			return this.getUInt32FromBuffer(this.fmtChunk, BYTE_RATE_POS);
-		}
-
-		/**
-		 * Set the byte rate tag in the fmt header. You probably shouldn't be using this.
-		 * @param {number} rate - The byte rate. 
-		 */
-		this.setByteRate = function(rate) {
-			this.setUInt32FromBuffer(this.fmtChunk, rate, BYTE_RATE_POS);
-		}
-
-		/**
-		 * @return {number} the block align given by the header.
-		 */
-		this.getBlockAlign = function() {
-			return this.getUInt16FromBuffer(this.fmtChunk, BLOCK_ALIGN_POS);
-		}
-
-		/**
-		 * Set the block align tag in the fmt header. You probably shouldn't be using this.
-		 * @param {number} align - The block align. 
-		 */
-		this.setBlockAlign = function(align) {
-			this.setUInt16FromBuffer(this.fmtChunk, align, BLOCK_ALIGN_POS);
-		}
-
-		/**
-		 * @return {number} the bits per sample given by the header.
-		 */
-		this.getBitsPerSample = function() {
-			return this.getUInt16FromBuffer(this.fmtChunk, BITS_PER_SAMPLE_POS);
-		}
-
-		/**
-		 * Set the bits per sample tag in the fmt header. You probably shouldn't be using this.
-		 * @param {number} bps - The bits per sample. 
-		 */
-		this.setBitsPerSample = function(bps) {
-			this.setUInt16FromBuffer(this.fmtChunk, bps, BITS_PER_SAMPLE_POS);
-		}
-
-		/**
-		 * @return {number} the data subchunk size given by the header.
-		 */
-		this.getDataSubchunkSize = function() {
-			return this.getUInt32FromBuffer(this.dataChunk, DATA_SUBCHUNK_SIZE_POS);
-		}
-
-		/**
-		 * Set the data subchunk size tag in the fmt header. You probably shouldn't be using this.
-		 * @param {number} size - The data subchunk size. 
-		 */
-		this.setDataSubchunkSize = function(size) {
-			this.setUInt32FromBuffer(this.dataChunk, size, DATA_SUBCHUNK_SIZE_POS);
-		}
-
-
 
 		this.buffer = inputBuffer;
  
@@ -318,12 +378,24 @@ module.exports = class WavBuffer {
 		// Load the data chunk
 		let dataChunkStart = fmtChunkStart + fmtChunkLength;
 		let dataChunkLength = this.getUInt32FromBuffer(this.buffer, dataChunkStart + DATA_SUBCHUNK_SIZE_POS) + DATA_SUBCHUNK_SIZE_VALUE_OFFSET;
-		console.log(dataChunkLength);
-		console.log(inputBuffer.byteLength);
-		this.dataChunk = Buffer.from(this.buffer.buffer, dataChunkStart, dataChunkLength);
+		this.dataChunk = Buffer.from(this.buffer.buffer, dataChunkStart);
+		// Validate the data chunk.
+		if (this.getStringFromBuffer(this.dataChunk, DATA_SUBCHUNK_ID_POS, DATA_SUBCHUNK_ID_LEN) != DATA_SUBCHUNK_ID) {
+			throw "Invalid data header.";
+		}
 
 		// Load the actual data into the data buffer.
 		let dataStart = dataChunkStart + DATA_START_POS;
 		this.data = Buffer.from(this.buffer.buffer, dataStart);
+
+		if (fixHeaderErrors) {
+			this.attemptToFixHeaders(riffHeaderStart, dataChunkStart);
+		}
+		else {
+			let errorString = this.getHeaderConsistencyError(riffHeaderStart, dataChunkStart);
+			if (errorString != "") {
+				throw errorString;
+			}
+		}
 	}
 };
