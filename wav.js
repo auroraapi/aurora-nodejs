@@ -76,6 +76,18 @@ const DATA_START_POS = 8;
 // ASCII string encoding. 
 const ASCII = 'ascii';
 
+
+// A list of various .wav audio encoding schemes.
+const PCM16 = "pcm16";
+const wavEncodings = [
+	{
+		name: PCM16,
+		audioFormat: 1,
+		bitsPerSample: 16
+	}
+];
+
+
 /**
  * A class holding a buffer needed to extract meaningful data from .wav data 
  */
@@ -282,7 +294,7 @@ module.exports = class WavBuffer {
 	 * @private
 	 */
 	getDataSubchunkSize() {
-		return this.getUInt32FromBuffer(this.dataChunk, SUBCHUNK_SIZE_POS);
+		return this.getUInt32FromBuffer(this.dataHeader, SUBCHUNK_SIZE_POS);
 	}
 
 	/**
@@ -291,7 +303,16 @@ module.exports = class WavBuffer {
 	 * @private
 	 */
 	setDataSubchunkSize(size) {
-		this.setUInt32FromBuffer(this.dataChunk, size, SUBCHUNK_SIZE_POS);
+		this.setUInt32FromBuffer(this.dataHeader, size, SUBCHUNK_SIZE_POS);
+	}
+
+	/**
+	 * Updates the length fields to be consistent with the data itself. You probably shouldn't be using this.
+	 * @private
+	 */
+	updateLengthFields() {
+		this.setRiffFileLength(this.buffer.length - CHUNK_SIZE_VALUE_OFFSET);
+		this.setDataSubchunkSize(this.data.length - SUBCHUNK_SIZE_VALUE_OFFSET);
 	}
 
 	/**
@@ -300,10 +321,9 @@ module.exports = class WavBuffer {
 	 * @private
 	 */
 	attemptToFixHeaders() {
-		this.setRiffFileLength(this.buffer.byteLength - CHUNK_SIZE_VALUE_OFFSET);
+		this.updateLengthFields();
 		this.setByteRate(this.getSampleRate() * this.getNumChannels() * this.getBitsPerSample() / 8);
 		this.setBlockAlign(this.getNumChannels() * this.getBitsPerSample() / 8);
-		this.setDataSubchunkSize(this.dataChunk.byteLength - SUBCHUNK_SIZE_VALUE_OFFSET);
 	}
 
 	/**
@@ -312,7 +332,7 @@ module.exports = class WavBuffer {
 	 * @private
 	 */
 	getHeaderConsistencyError() {
-		if (this.getRiffFileLength() != (this.buffer.byteLength - CHUNK_SIZE_VALUE_OFFSET)) {
+		if (this.getRiffFileLength() != (this.buffer.length - CHUNK_SIZE_VALUE_OFFSET)) {
 			return "RIFF header inconsistent with data.";
 		}
 		if (this.getByteRate() != (this.getSampleRate() * this.getNumChannels() * this.getBitsPerSample() / 8)) {
@@ -321,14 +341,123 @@ module.exports = class WavBuffer {
 		if (this.getBlockAlign() != (this.getNumChannels() * this.getBitsPerSample() / 8)) {
 			return "FMT block align inconsistent with data.";
 		}
-		if (this.getDataSubchunkSize() != (this.dataChunk.byteLength - SUBCHUNK_SIZE_VALUE_OFFSET)) {
+		if (this.getDataSubchunkSize() != this.data.length) {
 			return "Data header inconsistent with data.";
 		}
 		return "";
 	}
 
 	/**
-	 * Validates the input buffer and creates a WavBuffer from it.
+	 * Expands the underlying buffer, transfers the corresponding buffer views, and copies over
+	 * data. The extra space gets added to this.data. You REALLY shouldn't be calling this.
+	 * @private
+	 * @param {number} byteCount - The number of bytes to expand the underlying buffer by.
+	 */
+	realloc(byteCount) {
+		// Create new space for the buffer.
+		let tempBuffer = Buffer.allocUnsafe(this.buffer.length + byteCount);
+		// Copy the data.
+		this.buffer.copy(tempBuffer);
+		// Move DataView references.
+		this.riffChunk = Buffer.from(tempBuffer.buffer, this.riffChunk.byteOffset, this.riffChunk.length);
+		this.fmtChunk = Buffer.from(tempBuffer.buffer, this.fmtChunk.byteOffset, this.fmtChunk.length);
+		this.dataHeader = Buffer.from(tempBuffer.buffer, this.dataHeader.byteOffset, this.dataHeader.length);
+		this.data = Buffer.from(tempBuffer.buffer, this.data.byteOffset);
+		// Move this.buffer pointer to the new buffer.
+		this.buffer = tempBuffer;
+
+		// Increase the various data length counts. 
+		this.updateLengthFields();
+	}
+
+	/**
+	 * @returns {string} - "pcm16" if it is a PCM16 encoding. Nothing else is supported at the moment, so nothing else will be returned. 
+	 */
+	getWavEncodingScheme() {
+		for (let i = 0; i < wavEncodings.length; i++) {
+			let currentWavEncoding = wavEncodings[i];
+			if (this.getAudioFormat() == currentWavEncoding.audioFormat &&
+				this.getBitsPerSample() == currentWavEncoding.bitsPerSample) {
+				return currentWavEncoding.name;
+			}
+		}
+		return "";
+	} 
+
+	/**
+	 * @returns {boolean} - true if the given format is supported. Currently, only PCM16 is supported.
+	 */
+	isSupported() {
+		let encoding = this.getWavEncodingScheme();
+		// PCM16
+		if (encoding == PCM16) {
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Get the underlying Buffer that the wav is stored in. Keep in mind that the reference
+	 * returned here might cease to be valid if the data changes. 
+	 * @return {Buffer} - the underlying buffer for this object. 
+	 */
+	getWav() {
+		return this.buffer;
+	}
+
+	/**
+	 * Get the underlying buffer that the data is stored in. Keep in mind that the reference
+	 * returned here might cease to be valid if the data changes. 
+	 * @return {Buffer} - The underlying PCM data without the header.
+	 */
+	getWavWithoutHeader() {
+		return this.data;
+	}
+
+	/**
+	 * Adds silence to the front and the back of the data.
+	 * @param {number} seconds - the number of seconds to pad the front and the back with. 
+	 */
+	padSilence(seconds) {
+		let silenceLength = seconds * this.getByteRate();
+		let silence = Buffer.alloc(silenceLength);
+		let previousDataLength = this.data.length;
+
+		this.realloc(silenceLength * 2);
+		this.data.copy(this.data, silenceLength);
+		silence.copy(this.data);
+		silence.copy(this.data, previousDataLength, silenceLength);
+	}
+
+	/**
+	 * Adds silence to the front of the data.
+	 * @param {number} seconds - the number of seconds to pad the front and the back with. 
+	 */
+	padSilenceFront(seconds) {
+		let silenceLength = seconds * this.getByteRate();
+		let silence = Buffer.alloc(silenceLength);
+
+		this.realloc(silenceLength);
+		this.data.copy(this.data, silenceLength);
+		silence.copy(this.data);
+	}
+
+	/**
+	 * Adds silence to the back of the data.
+	 * @param {number} seconds - the number of seconds to pad the front and the back with. 
+	 */
+	padSilenceBack(seconds) {
+		let silenceLength = seconds * this.getByteRate();
+		let silence = Buffer.alloc(silenceLength);
+		let previousDataLength = this.data.length;
+
+		this.realloc(silenceLength);
+		silence.copy(this.data, previousDataLength, silenceLength);
+	}
+
+
+	/**
+	 * Copies and validates the input buffer and creates a WavBuffer from it.
 	 * @param {Buffer} inputBuffer - The buffer to use. 
 	 * @param {boolean} [fixHeaderErrors=false] - Frequently, .wav headers will be malformed. If this is true, the constructor will attempt to fix conflicting header information. If false, errors will be thrown for malformed headers.
 	 */
@@ -339,11 +468,11 @@ module.exports = class WavBuffer {
 		// improve the readability of the code.
 		this.riffChunk;
 		this.fmtChunk;
-		this.dataChunk;
+		this.dataHeader;
 		// This holds the start of the actual sound data with no header metadata.
 		this.data;
 
-		this.buffer = inputBuffer;
+		this.buffer = Buffer.from(inputBuffer);
  
 		// Load the riff chunk
 		this.riffChunk = Buffer.from(this.buffer.buffer, DEFAULT_RIFF_HEADER_POS, DEFAULT_RIFF_HEADER_LEN);
@@ -356,7 +485,7 @@ module.exports = class WavBuffer {
 		// Store the start of the next chunk. We loop until we get through the buffer. 
 		let pos = DEFAULT_RIFF_HEADER_POS + DEFAULT_RIFF_HEADER_LEN;
 
-		while (pos < this.buffer.byteLength) {
+		while (pos < this.buffer.length) {
 			let currentSubchunkID = this.getStringFromBuffer(this.buffer, pos + SUBCHUNK_ID_POS, SUBCHUNK_ID_LEN);
 			let currentSubchunkLength = this.getUInt32FromBuffer(this.buffer, pos + SUBCHUNK_SIZE_POS) + SUBCHUNK_SIZE_VALUE_OFFSET;
 
@@ -366,7 +495,7 @@ module.exports = class WavBuffer {
 			}
 			else if (currentSubchunkID == DATA_SUBCHUNK_ID) {
 				// Assume the data subchunk is the last subchunk in the file. 
-				this.dataChunk = Buffer.from(this.buffer.buffer, pos);
+				this.dataHeader = Buffer.from(this.buffer.buffer, pos, SUBCHUNK_SIZE_VALUE_OFFSET);
 				// Load the actual data into the data buffer.
 				let dataStart = pos + DATA_START_POS;
 				this.data = Buffer.from(this.buffer.buffer, dataStart);
@@ -382,6 +511,10 @@ module.exports = class WavBuffer {
 			if (errorString != "") {
 				throw errorString;
 			}
+		}
+
+		if (!this.isSupported()) {
+			throw "The given format is currently unsupported.";
 		}
 	}
 };
