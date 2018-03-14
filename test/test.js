@@ -75,8 +75,6 @@ describe('#api', function(){
 			assert.isNotOk(error, "Encountered text to speech error");
 			done(error);
 		});
-
-		setTimeout(()=>{}, 4000);
 	});
 
 	it("interprets text", function(done){
