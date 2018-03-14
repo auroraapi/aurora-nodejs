@@ -6,7 +6,6 @@ let portAudio = require("naudiodon");
 let streamBuffers = require('stream-buffers');
 
 const BUF_SIZE = Math.pow(2, 10);
-const MAX_THRESH = Math.pow(2, 14);
 const SILENT_THRESH = Math.pow(2, 10);
 const NUM_CHANNELS = 2; // 1 
 const FORMAT = portAudio.SampleFormat16Bit;  //portAudio.paInt16;
@@ -123,7 +122,7 @@ module.exports = class AudioFile {
 	/**
 	 * Trims extraneous silence in the audio.
 	 */
-	 
+
 	trimSilent() {
 		this.audio.trimSilence();
 	}
@@ -180,25 +179,86 @@ module.exports = class AudioFile {
 			sampleRate: RATE,
 			deviceId: -1 // default device
 		});
-		ai.on('error', err => console.error);
-
+		
 		// create write stream to write out to raw audio file
 		let ws = new streamBuffers.WritableStreamBuffer();
 
-		ai.pipe(ws);
-		ai.start();
-
-		return new Promise(function(resolve, reject) {
-			setTimeout(() => {
-				ai.quit();
-				let recordedBuffer = WavBuffer.generateWavFromPCM(ws.getContents(), {
-					numChannels: NUM_CHANNELS,
-					sampleRate: RATE,
-					bitsPerSample: FORMAT
+		if (length != 0) {
+			// Pipe for a finite amount of time and make a new wav from the data.
+			ai.pipe(ws);
+			ai.start();
+			
+			return new Promise(function(resolve, reject) {
+				ai.on('error', (err) => {
+					console.error(err);
+					reject(err);
 				});
-				resolve(AudioFile.createFromWavData(recordedBuffer));
-			}, length);
-		});
+
+				setTimeout(() => {
+					ai.quit();
+					let recordedBuffer = WavBuffer.generateWavFromPCM(ws.getContents(), {
+						numChannels: NUM_CHANNELS,
+						sampleRate: RATE,
+						bitsPerSample: FORMAT
+					});
+					resolve(AudioFile.createFromWavData(recordedBuffer));
+				}, length);
+			});
+		}
+		else {
+			return new Promise(function(resolve, reject) {
+				let bytesPerSubsample = FORMAT / 8;
+
+				// Start hooking up handlers. 
+				// On error, reject the promise.
+				ai.on('error', (err) => {
+					console.error(err);
+					reject(err);
+				});
+
+				let subsampleSilenceTarget = RATE * NUM_CHANNELS * silenceLen;
+				let subsamplesInSilence = 0;
+
+				// Whenever we receive a data chunk, note how long it is. Test if it is silence, 
+				// then, if so, add the time corresponding to the number of samples spent in silence
+				// to samplesInSilence. In either case, write to the data chunk.
+				ai.on('data', (dataChunk) => {
+					ws.write(dataChunk);
+
+					let numSubsamplesInChunk = dataChunk.length / bytesPerSubsample;
+					// Loop through the samples to see if we spent them in silence.
+					let maxAmplitude = 0;
+					for (let currentSubsamplePos = 0; currentSubsamplePos < dataChunk.length; currentSubsamplePos += bytesPerSubsample) {
+						let currentValue = dataChunk.readIntLE(currentSubsamplePos, bytesPerSubsample);
+						if (Math.abs(currentValue) > maxAmplitude) 
+							maxAmplitude = currentValue;
+					}
+
+					// If we spent them in silence, increase subsamplesInSilence.
+					if (maxAmplitude < SILENT_THRESH) {
+						subsamplesInSilence += numSubsamplesInChunk;
+					}
+					// If we've been in silence long enough, finish listening.
+					if (subsamplesInSilence >= subsampleSilenceTarget) {
+						ai.quit();
+					}
+				});
+
+				// When we're done with the recording, end the audio input and resolve the promise.
+				ai.on('end', () => {
+					ws.end();
+					let recordedBuffer = WavBuffer.generateWavFromPCM(ws.getContents(), {
+						numChannels: NUM_CHANNELS,
+						sampleRate: RATE,
+						bitsPerSample: FORMAT
+					});
+					resolve(AudioFile.createFromWavData(recordedBuffer));
+				});
+
+				// Start recording.
+				ai.start();
+			});
+		}
 	}
 
 	/**

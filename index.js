@@ -116,11 +116,10 @@ class Speech {
 	static listen(length=0, silenceLength=1.0) {
 		// listen with given parameters
 		// return a speech segment
-		throw new Error("listen() not yet implemented");
-		// return AudioFile.fromRecording(length, silenceLength)
-		// .then((audioFile) => {
-		//   return new Speech(audioFile);
-		// });
+		return AudioFile.fromRecording(length, silenceLength)
+		.then((audioFile) => {
+		  return new Speech(audioFile);
+		});
 	}
 
 	/**
