@@ -383,91 +383,6 @@ module.exports = class WavBuffer {
 	}
 
 	/**
-	 * @returns {string} - "pcm16" if it is a PCM16 encoding. Nothing else is supported at the moment, so nothing else will be returned. 
-	 */
-	getWavEncodingScheme() {
-		for (let i = 0; i < wavEncodings.length; i++) {
-			let currentWavEncoding = wavEncodings[i];
-			if (this.getAudioFormat() == currentWavEncoding.audioFormat &&
-				this.getBitsPerSample() == currentWavEncoding.bitsPerSample) {
-				return currentWavEncoding.name;
-			}
-		}
-		return "";
-	} 
-
-	/**
-	 * @returns {boolean} - true if the given format is supported. Currently, only PCM16 is supported.
-	 */
-	isSupported() {
-		let encoding = this.getWavEncodingScheme();
-		// PCM16
-		if (encoding == PCM16) {
-			return true;
-		}
-		return false;
-	}
-
-	/**
-	 * Get the underlying Buffer that the wav is stored in. Keep in mind that the reference
-	 * returned here might cease to be valid if the data changes. 
-	 * @return {Buffer} - the underlying buffer for this object. 
-	 */
-	getWav() {
-		return this.buffer;
-	}
-
-	/**
-	 * Get the underlying buffer that the data is stored in. Keep in mind that the reference
-	 * returned here might cease to be valid if the data changes. 
-	 * @return {Buffer} - The underlying PCM data without the header.
-	 */
-	getWavWithoutHeader() {
-		return this.data;
-	}
-
-	/**
-	 * Adds silence to the front and the back of the data.
-	 * @param {number} seconds - the number of seconds to pad the front and the back with. 
-	 */
-	padSilence(seconds) {
-		let silenceLength = seconds * this.getByteRate();
-		let silence = Buffer.alloc(silenceLength);
-		let previousDataLength = this.data.length;
-
-		this.realloc(silenceLength * 2);
-		this.data.copy(this.data, silenceLength);
-		silence.copy(this.data);
-		silence.copy(this.data, previousDataLength, silenceLength);
-	}
-
-	/**
-	 * Adds silence to the front of the data.
-	 * @param {number} seconds - the number of seconds to pad the front and the back with. 
-	 */
-	padSilenceFront(seconds) {
-		let silenceLength = seconds * this.getByteRate();
-		let silence = Buffer.alloc(silenceLength);
-
-		this.realloc(silenceLength);
-		this.data.copy(this.data, silenceLength);
-		silence.copy(this.data);
-	}
-
-	/**
-	 * Adds silence to the back of the data.
-	 * @param {number} seconds - the number of seconds to pad the front and the back with. 
-	 */
-	padSilenceBack(seconds) {
-		let silenceLength = seconds * this.getByteRate();
-		let silence = Buffer.alloc(silenceLength);
-		let previousDataLength = this.data.length;
-
-		this.realloc(silenceLength);
-		silence.copy(this.data, previousDataLength, silenceLength);
-	}
-
-	/**
 	 * Copies and validates the input buffer and creates a WavBuffer from it.
 	 * @param {Buffer} inputBuffer - The buffer to use. 
 	 * @param {boolean} [fixHeaderErrors=false] - Frequently, .wav headers will be malformed. If this is true, the constructor will attempt to fix conflicting header information. If false, errors will be thrown for malformed headers.
@@ -484,6 +399,8 @@ module.exports = class WavBuffer {
 		this.data;
 		// A "class identifier."
 		this.isAuroraWavBuffer = true;
+		// Stores the encoding scheme of the data for a small performance bump.
+		this.encoding;
 
 		this.buffer = Buffer.from(inputBuffer);
  
@@ -562,6 +479,147 @@ module.exports = class WavBuffer {
 		pcmBuffer.copy(tempBuffer, DEFAULT_WAV_HEADER_LEN, DEFAULT_FMT_HEADER_POS + SUBCHUNK_SIZE_POS);
 
 		return new WavBuffer(tempBuffer, true);
+	}
+
+	/**
+	 * @returns {string} - "pcm16" if it is a PCM16 encoding. Nothing else is supported at the moment, so nothing else will be returned. 
+	 */
+	getWavEncodingScheme() {
+		
+		if (this.encoding) return this.encoding;
+
+		for (let i = 0; i < wavEncodings.length; i++) {
+			let currentWavEncoding = wavEncodings[i];
+			if (this.getAudioFormat() == currentWavEncoding.audioFormat &&
+				this.getBitsPerSample() == currentWavEncoding.bitsPerSample) {
+				this.encoding = currentWavEncoding.name;
+				return currentWavEncoding.name;
+			}
+		}
+		return "";
+	} 
+
+	/**
+	 * @returns {boolean} - true if the given format is supported. Currently, only PCM16 is supported.
+	 */
+	isSupported() {
+		let encoding = this.getWavEncodingScheme();
+		// PCM16
+		if (encoding == PCM16) {
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Get the underlying Buffer that the wav is stored in. Keep in mind that the reference
+	 * returned here might cease to be valid if the data changes. 
+	 * @return {Buffer} - the underlying buffer for this object. 
+	 */
+	getWav() {
+		return this.buffer;
+	}
+
+	/**
+	 * Get the underlying buffer that the data is stored in. Keep in mind that the reference
+	 * returned here might cease to be valid if the data changes. 
+	 * @return {Buffer} - The underlying PCM data without the header.
+	 */
+	getWavWithoutHeader() {
+		return this.data;
+	}
+
+	/**
+	 * Returns an iterator on the data itself. Upon each call of next(), 
+	 * an array of the next sample's channel values are returned. For instance, 
+	 * with 2 channels, a length-2 array of the left and right channels are returned. 
+	 */
+	getDataIterator() {
+		if (!this.isSupported()) {
+			throw "The current encoding scheme is unsupported."
+		}
+
+		let blockAlign = this.getBlockAlign();
+		let numChannels = this.getNumChannels();
+		let bitDepth = this.getBitsPerSample();
+
+		let sampleObtainingFunction;
+
+		if (this.getWavEncodingScheme() == PCM16) {
+			sampleObtainingFunction = (sample, channel) => {
+				return sample.readInt16LE(channel * bitDepth);
+			}
+		}
+
+		let dataPointer = this.data;
+
+		let iterator = {};
+		iterator[Symbol.iterator] = function () {
+
+			let currentBlockIndex = 0;
+
+			return {
+				next: function() {
+					// Finish iteration if you reach the end of the data.
+					if (currentBlockIndex >= dataPointer.length) {
+						return { done : true };
+					}
+					let currentSample = Buffer.allocUnsafe(blockAlign);
+					dataPointer.copy(currentSample, 0, currentBlockIndex * blockAlign);
+
+					let returnValues = [];
+					for (let channelCount = 0; channelCount < numChannels; channelCount++) {
+						let currentChannelValue = sampleObtainingFunction(currentSample, channelCount);
+						returnValues.push(currentChannelValue);
+					}
+					currentBlockIndex += blockAlign;
+					return { value: returnValues };
+				}
+			};
+		}
+
+		return iterator;
+	}
+
+	/**
+	 * Adds silence to the front and the back of the data.
+	 * @param {number} seconds - the number of seconds to pad the front and the back with. 
+	 */
+	padSilence(seconds) {
+		let silenceLength = seconds * this.getByteRate();
+		let silence = Buffer.alloc(silenceLength);
+		let previousDataLength = this.data.length;
+
+		this.realloc(silenceLength * 2);
+		this.data.copy(this.data, silenceLength);
+		silence.copy(this.data);
+		silence.copy(this.data, previousDataLength);
+	}
+
+	/**
+	 * Adds silence to the front of the data.
+	 * @param {number} seconds - the number of seconds to pad the front and the back with. 
+	 */
+	padSilenceFront(seconds) {
+		let silenceLength = seconds * this.getByteRate();
+		let silence = Buffer.alloc(silenceLength);
+
+		this.realloc(silenceLength);
+		this.data.copy(this.data, silenceLength);
+		silence.copy(this.data);
+	}
+
+	/**
+	 * Adds silence to the back of the data.
+	 * @param {number} seconds - the number of seconds to pad the front and the back with. 
+	 */
+	padSilenceBack(seconds) {
+		let silenceLength = seconds * this.getByteRate();
+		let silence = Buffer.alloc(silenceLength);
+		let previousDataLength = this.data.length;
+
+		this.realloc(silenceLength);
+		silence.copy(this.data, previousDataLength);
 	}
 
 	/**
