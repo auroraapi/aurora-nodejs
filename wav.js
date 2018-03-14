@@ -383,6 +383,25 @@ module.exports = class WavBuffer {
 	}
 
 	/**
+	 * Removes the data at the the specified start position in the data buffer to the specified 
+	 * end length. Shrinks the data accordingly. You shouldn't be using this.
+	 * @private
+	 * @param {number} start - The starting index to delete from. Defaults to 0.
+	 * @param {number} deleteCount - The number of elements to delete. Defaults to this.data.length;
+	 */
+	splice(start, deleteCount) {
+		let newBufferLength = this.buffer.length - deleteCount;
+		let newDataLength = this.data.length - deleteCount;
+		this.data.copy(this.data, start, start + deleteCount);
+
+		// Update the length safely. 
+		this.data = this.data.slice(0, newDataLength);
+		this.buffer = this.buffer.slice(0, newBufferLength);
+
+		this.updateLengthFields();
+	}
+
+	/**
 	 * Copies and validates the input buffer and creates a WavBuffer from it.
 	 * @param {Buffer} inputBuffer - The buffer to use. 
 	 * @param {boolean} [fixHeaderErrors=false] - Frequently, .wav headers will be malformed. If this is true, the constructor will attempt to fix conflicting header information. If false, errors will be thrown for malformed headers.
@@ -639,8 +658,8 @@ module.exports = class WavBuffer {
 
 		let max = 0;
 		let iterator = this.getDataIterator();
-		for (let samples of iterator) {
-			for (let value of samples) {
+		for (let sample of iterator) {
+			for (let value of sample) {
 				let currentChannelAmplitude = Math.abs(value); 
 				if (currentChannelAmplitude > max) {
 					max = currentChannelAmplitude;
@@ -650,4 +669,61 @@ module.exports = class WavBuffer {
 		return max;
 	}
 
+	/**
+	 * Trims silence off of the sound file. "Silence" in this case
+	 * is defined as any block of time where the amplitude of any sample on any channel 
+	 * does not exceed 1/6th of the maximum amplitude.
+	 * @param {number} silenceThreshold - The threshold for silence. Defaults to 1/16.
+	 * @param {number} blockSeconds - The number of seconds to consider as a single block. Defaults to 1 second. 
+	 */
+	trimSilence(silenceThreshold=1/16, blockSeconds=1) {
+		let silenceAmplitudeThreshold = this.getMaxAmplitude() * silenceThreshold;
+
+		let bytesInBlock = this.getByteRate() * blockSeconds;
+		let samplesInBlock = this.getSampleRate() * blockSeconds;
+		let bytesInSample = this.getBlockAlign();
+		let numChannels = this.getNumChannels();
+		let bitDepth = this.getBitsPerSample();
+
+		let sampleObtainingFunction;
+
+		// TODO: Consider making this a function in wavEncodings.
+		if (this.getWavEncodingScheme() == PCM16) {
+			sampleObtainingFunction = (sample, channel) => {
+				return sample.readInt16LE(channel * bitDepth);
+			}
+		}
+
+		// For each chunk of blockSeconds time...
+		for (let blockCountPos = 0; blockCountPos < this.data.length; blockCountPos += bytesInBlock) {
+
+			let isSilent = true;
+			// For each sample in each blockSecond...
+			for (let samplePos = 0; samplePos < samplesInBlock; samplePos++) {
+				// Get the current sample. 
+				let sampleOffsetInBlock = samplePos * bytesInSample;
+				let currentSample = Buffer.allocUnsafe(bytesInSample);
+				this.data.copy(currentSample, 0, blockCountPos + sampleOffsetInBlock, blockCountPos + sampleOffsetInBlock + bytesInSample);
+
+				// Get the values in the sample.
+				let sampleValues = [];
+				for (let channelCount = 0; channelCount < numChannels; channelCount++) {
+					let currentChannelValue = sampleObtainingFunction(currentSample, channelCount);
+					if (Math.abs(currentChannelValue) > silenceAmplitudeThreshold) {
+						isSilent = false;
+						break;
+					}
+				}
+				if (!isSilent) {
+					break;
+				}
+			}
+			// If the current block is detected as silent, remove it. 
+			if (isSilent) {
+				this.splice(blockCountPos, bytesInBlock);
+				// Update the blockCountPos to reflect the new changes.
+				blockCountPos -= bytesInBlock;
+			}
+		}
+	}
 };
