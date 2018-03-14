@@ -565,7 +565,7 @@ module.exports = class WavBuffer {
 						return { done : true };
 					}
 					let currentSample = Buffer.allocUnsafe(blockAlign);
-					dataPointer.copy(currentSample, 0, currentBlockIndex * blockAlign);
+					dataPointer.copy(currentSample, 0, currentBlockIndex, currentBlockIndex + blockAlign);
 
 					let returnValues = [];
 					for (let channelCount = 0; channelCount < numChannels; channelCount++) {
@@ -628,4 +628,26 @@ module.exports = class WavBuffer {
 	static isWavBuffer(buffer) {
 		return buffer.hasOwnProperty("isAuroraWavBuffer");
 	}
+
+	/**
+	 * @returns {number} The maximum amplitude inside the data. 
+	 */
+	getMaxAmplitude() {
+		if (!this.isSupported()) {
+			throw "The current encoding scheme is unsupported."
+		}
+
+		let max = 0;
+		let iterator = this.getDataIterator();
+		for (let samples of iterator) {
+			for (let value of samples) {
+				let currentChannelAmplitude = Math.abs(value); 
+				if (currentChannelAmplitude > max) {
+					max = currentChannelAmplitude;
+				}
+			}
+		}
+		return max;
+	}
+
 };
