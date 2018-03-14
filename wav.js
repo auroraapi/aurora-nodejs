@@ -612,7 +612,7 @@ module.exports = class WavBuffer {
 		this.realloc(silenceLength * 2);
 		this.data.copy(this.data, silenceLength);
 		silence.copy(this.data);
-		silence.copy(this.data, previousDataLength);
+		silence.copy(this.data, previousDataLength + silenceLength);
 	}
 
 	/**
