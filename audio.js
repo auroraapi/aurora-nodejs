@@ -7,7 +7,7 @@ let streamBuffers = require('stream-buffers');
 
 const BUF_SIZE = Math.pow(2, 10);
 const SILENT_THRESH = Math.pow(2, 10);
-const NUM_CHANNELS = 2; // 1 
+const NUM_CHANNELS = 1;
 const FORMAT = portAudio.SampleFormat16Bit;  //portAudio.paInt16;
 const RATE = 44100;
 
@@ -130,31 +130,36 @@ module.exports = class AudioFile {
 	/**
 	 * Plays the audio stored in this audio file (if it exists) to the default portAudio
 	 * device. The playback of the audio is asynchronous and can be stopped by calling this.stop().
+	 * @return {AudioFile} - This audio file that resolves when it's done playing.
 	 */
 	play() {
-		if (this.audio) {
-			this.audioOutput = new portAudio.AudioOutput({
-				channelCount: NUM_CHANNELS,
-				sampleFormat: FORMAT,
-				sampleRate: RATE,
-				deviceId: -1 // default device
-			});
+		return new Promise((resolve, reject) => {
+			if (this.audio) {
+				this.audioOutput = new portAudio.AudioOutput({
+					channelCount: NUM_CHANNELS,
+					sampleFormat: FORMAT,
+					sampleRate: RATE,
+					deviceId: -1 // default device
+				});
 
-			this.audioOutput.on('error', err => console.error);
+				this.audioOutput.on('error', err => console.error);
 
-			// this.rs = fs.createReadStream('helloWorld.wav');
-			let readableStream = new streamBuffers.ReadableStreamBuffer();
-			// close output stream at end of read stream
-			readableStream.on('end', () => this.audioOutput.end());
+				let readableStream = new streamBuffers.ReadableStreamBuffer();
+				// close output stream at end of read stream
+				readableStream.on('end', () => { 
+					this.audioOutput.end();
+					resolve(this);
+				});
 
-			// Trim the first WAV_HEADER_SIZE bytes to avoid playing metadata.
-			readableStream.put(this.wavWithoutMetadata());
-			readableStream.pipe(this.audioOutput);
-			this.audioOutput.start();
-		}
-		else {
-			console.error("Nothing to play!");
-		}
+				// Trim the first WAV_HEADER_SIZE bytes to avoid playing metadata.
+				readableStream.put(this.wavWithoutMetadata());
+				readableStream.pipe(this.audioOutput);
+				this.audioOutput.start();
+			}
+			else {
+				reject(new Error("Nothing to play!"));
+			}
+		});
 	}
 
 	/**
