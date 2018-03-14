@@ -115,7 +115,7 @@ module.exports = class AudioFile {
 	 * Pad the right side of the audio with the specified amount of silence in seconds.
 	 * @param {number} - seconds: The amount of seconds to add.
 	 */
-	pad_right(seconds) {
+	padRight(seconds) {
 		this.audio.padSilenceBack(seconds);
 	}
 
@@ -155,6 +155,7 @@ module.exports = class AudioFile {
 				readableStream.put(this.wavWithoutMetadata());
 				readableStream.pipe(this.audioOutput);
 				this.audioOutput.start();
+				readableStream.stop();
 			}
 			else {
 				reject(new Error("Nothing to play!"));
