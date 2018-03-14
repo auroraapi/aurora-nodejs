@@ -703,7 +703,7 @@ module.exports = class WavBuffer {
 				// Get the current sample. 
 				let sampleOffsetInBlock = samplePos * bytesInSample;
 				let currentSample = Buffer.allocUnsafe(bytesInSample);
-				this.data.copy(currentSample, 0, blockCountPos + sampleOffsetInBlock, blockCountPos + sampleOffsetInBlock + bytesInSample);
+				this.data.copy(currentSample, 0, blockCountPos + sampleOffsetInBlock);
 
 				// Get the values in the sample.
 				let sampleValues = [];

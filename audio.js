@@ -121,11 +121,11 @@ module.exports = class AudioFile {
 	}
 
 	/**
-	 * Trims extraneous silence at the ends of the audio.
+	 * Trims extraneous silence in the audio.
 	 */
-	// TODO
+	 
 	trimSilent() {
-
+		this.audio.trimSilence();
 	}
 
 	/**
