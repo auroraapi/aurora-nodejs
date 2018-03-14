@@ -98,12 +98,41 @@ describe('#api', function() {
 			return api.getSTT(audioFile);
 		})
 		.then((textTranscript) => {
-			console.log(textTranscript);
 			expect(textTranscript.transcript).to.be.a('string');
 		});
 	});
 });
 
+
+/* test the Text object */
+describe('#Text', function() {
+	it("exists", function() {
+		expect(aurora.Text).to.exist;
+	});
+
+	it("can convert Text to Speech", function() {
+		const wavName = './test/speechResult';
+
+		let textObject = new aurora.Text("Hello world!");
+
+		return textObject.speech()
+		.then((speechObject) => {
+			speechObject.audio.writeToFile(wavName);
+			expect(fs.existsSync(wavName + ".wav")).to.be.true;
+			fs.unlinkSync(wavName + ".wav");
+		});
+	});
+
+	it("can convert Text to Interpret", function() {
+		let textObject = new aurora.Text("What is the weather in Los Angeles?");
+
+		return textObject.interpret()
+		.then((interpretObject) => {
+			expect(interpretObject.hasOwnProperty('intent')).to.be.true;
+			expect(interpretObject.hasOwnProperty('entities')).to.be.true;
+		});
+	});
+});
 
 
 /* test audio.js */
