@@ -8,8 +8,17 @@ const assert = chai.assert;
 const keys = require('./private').keys;
 
 const aurora = require('../index');
-const api = require('../api');
-const AudioFile = require('../audio');
+const api = aurora.api;
+const AudioFile = aurora.AudioFile;
+
+const HELLO_FRIENDS_LOCATION = "./test/helloFriends";
+const SIN_WAVE_LOCATION = "./test/sinWave";
+
+let setKeys = function() {
+	aurora.setAppId(keys['appId']);
+	aurora.setAppToken(keys['appToken']);
+	aurora.setDeviceId(keys['deviceId']);
+}
 
 /* test aurora API as a whole */
 describe('#aurora', function(){
@@ -55,70 +64,46 @@ describe('#api', function(){
 		expect(headers["X-Device-ID"]).to.equal(testString);
 	});
 
-	it("converts text to speech", function(done){
+	it("converts text to speech using getTTS()", function() {
+		
+		setKeys();
 
-		const wavName = 'speechResult';
+		const wavName = './test/speechResult';
+		let text = "Hello World!";
 
-		aurora.setAppId(keys['appId']);
-		aurora.setAppToken(keys['appToken']);
-		aurora.setDeviceId(keys['deviceId']);
-		let text = new aurora.Text("hello world");
-
-		text.speech()
-		.then((speech) => {
-			speech.audio.writeToFile(wavName);
+		return api.getTTS(text)
+		.then((audioFile) => {
+			audioFile.writeToFile(wavName);
 			expect(fs.existsSync(wavName + ".wav")).to.be.true;
 			fs.unlinkSync(wavName + ".wav");
-			done();
-		})
-		.catch((error) => {
-			assert.isNotOk(error, "Encountered text to speech error");
-			done(error);
 		});
+	}).timeout(5000);
 
-		setTimeout(()=>{}, 4000);
-	});
+	it("interprets text using getInterpret()", function() {
+		
+		setKeys();
 
-	it("interprets text", function(done){
-		aurora.setAppId(keys['appId']);
-		aurora.setAppToken(keys['appToken']);
-		aurora.setDeviceId(keys['deviceId']);
-		let text = new aurora.Text("hello");
-		let resultPromise = text.interpret();
+		let text = "What's the weather in Los Angles?";
 
-		resultPromise.then(function(response) {
+		return api.getInterpret(text)
+		.then((response) => {
 			expect(response.hasOwnProperty('intent')).to.be.true;
 			expect(response.hasOwnProperty('entities')).to.be.true;
-			done();
-		}).catch(function(error){
-			assert.isNotOk(error, "Encountered interpret error");
-			done(error);
 		});
-	});
+	}).timeout(5000);
 
-	it("can convert speech to text", function(done){
-		aurora.setAppId(keys['appId']);
-		aurora.setAppToken(keys['appToken']);
-		aurora.setDeviceId(keys['deviceId']);
+	it("can convert speech to text using getSTT()", function() {
+	
+		setKeys();
 
-		const textString = "Hello friends";
-
-		let text = new aurora.Text(textString);
-
-		text.speech()
-		.then((speech) => {
-			return speech.text();
+		return AudioFile.createFromFile(HELLO_FRIENDS_LOCATION)
+		.then((audioFile) => {
+			return api.getSTT(audioFile);
 		})
-		.then((textObject) => {
-			expect(textObject.text).to.be.a('string');
-			expect(textObject.text).to.equal(textString);
-			done();
-		})
-		.catch((error) => {
-			assert.isNotOk(error, "Encountered speech to text error");
-			done(error);
+		.then((textTranscript) => {
+			expect(textTranscript.transcript).to.be.a('string');
 		});
-	});
+	}).timeout(5000);
 });
 
 
