@@ -138,16 +138,20 @@ describe('#audio', function() {
 		.then((resultingAudioFile) => {
 			expect(resultingAudioFile).to.exist;
 			return resultingAudioFile.play();
+		}).then((audioFile) => {
+			console.log("Done playing audio file.");
 		});
-	}).timeout(10000);
+	}).timeout(0);
 
 	it("can be created from silence aware recording", function() {
 		return AudioFile.fromRecording(0, 3)
 		.then((resultingAudioFile) => {
 			expect(resultingAudioFile).to.exist;
 			return resultingAudioFile.play();
+		}).then((audioFile) => {
+			console.log("Done playing audio file.");
 		});
-	}).timeout(10000);
+	}).timeout(0);
 
 	it("can play and stop recordings", function() {
 		return AudioFile.createFromFile(HELLO_FRIENDS_LOCATION)
@@ -165,32 +169,41 @@ describe('#audio', function() {
 		})
 		.then((audioFile) => {
 			audioFile.stop();
+		})
+		.then((audioFile) => {
+			console.log("Done with test.");
 		});
-	}).timeout(5000);
+	}).timeout(0);
 
 	it("can pad both sides of files", function() {
 		return AudioFile.createFromFile(SIN_WAVE_LOCATION)
 		.then((audioFile) => {
 			audioFile.pad(1);
 			return audioFile.play();
+		}).then((audioFile) => {
+			console.log("Done playing audio file.");
 		});
-	}).timeout(5000);
+	}).timeout(0);
 
 	it("can pad left of files", function() {
 		return AudioFile.createFromFile(SIN_WAVE_LOCATION)
 		.then((audioFile) => {
 			audioFile.padLeft(1);
 			return audioFile.play();
+		}).then((audioFile) => {
+			console.log("Done playing audio file.");
 		});
-	}).timeout(5000);
+	}).timeout(0);
 
 	it("can pad right of files", function() {
 		return AudioFile.createFromFile(SIN_WAVE_LOCATION)
 		.then((audioFile) => {
 			audioFile.padRight(1);
 			return audioFile.play();
+		}).then((audioFile) => {
+			console.log("Done playing audio file.");
 		});
-	}).timeout(5000);
+	}).timeout(0);
 
 	it("can trim silence off files", function() {
 		return AudioFile.createFromFile(SIN_WAVE_LOCATION)
@@ -198,8 +211,10 @@ describe('#audio', function() {
 			audioFile.pad(1);
 			audioFile.trimSilent();
 			return audioFile.play();
+		}).then((audioFile) => {
+			console.log("Done playing audio file.");
 		});
-	}).timeout(5000);
+	}).timeout(0);
 
 	it("can write itself to a new file and return the path", function() {
 		return AudioFile.createFromFile(SIN_WAVE_LOCATION)

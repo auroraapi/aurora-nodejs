@@ -122,9 +122,17 @@ module.exports = class AudioFile {
 	/**
 	 * Trims extraneous silence in the audio.
 	 */
-
 	trimSilent() {
 		this.audio.trimSilence();
+	}
+
+	/**
+	 * Cleans up the audio output. 
+	 * @private
+	 */
+	cleanupOutput() {
+		this.audioOutput.end();
+		this.audioOutput = null;
 	}
 
 	/**
@@ -142,12 +150,18 @@ module.exports = class AudioFile {
 					deviceId: -1 // default device
 				});
 
-				this.audioOutput.on('error', err => console.error);
-
 				let readableStream = new streamBuffers.ReadableStreamBuffer();
+
+				// On error, cut the stream.
+				this.audioOutput.on('error', (err) => {
+					console.error(err);
+					this.cleanupOutput();
+					reject(err);
+				});
+
 				// close output stream at end of read stream
 				readableStream.on('end', () => { 
-					this.audioOutput.quit();
+					this.cleanupOutput();
 					resolve(this);
 				});
 
@@ -167,7 +181,9 @@ module.exports = class AudioFile {
 	 * If audio output is being played from this.play(), stop it.
 	 */
 	stop() {
-		if (this.audioOutput) this.audioOutput.quit();
+		if (this.audioOutput) {
+			this.cleanupOutput();
+		}
 	}
 
 	/**
@@ -189,6 +205,11 @@ module.exports = class AudioFile {
 		// create write stream to write out to raw audio file
 		let ws = new streamBuffers.WritableStreamBuffer();
 
+		let cleanupStreams = function() {
+			ai.quit();
+			ws.end();
+		};
+
 		if (length != 0) {
 			// Pipe for a finite amount of time and make a new wav from the data.
 			ai.pipe(ws);
@@ -197,11 +218,12 @@ module.exports = class AudioFile {
 			return new Promise(function(resolve, reject) {
 				ai.on('error', (err) => {
 					console.error(err);
+					cleanupStreams();
 					reject(err);
 				});
 
 				setTimeout(() => {
-					ai.quit();
+					cleanupStreams();
 					let pcmData = ws.getContents();
 					if (!pcmData) {
 						reject(new Error("Recording error."));
@@ -223,6 +245,7 @@ module.exports = class AudioFile {
 				// On error, reject the promise.
 				ai.on('error', (err) => {
 					console.error(err);
+					cleanupStreams();
 					reject(err);
 				});
 
@@ -254,13 +277,12 @@ module.exports = class AudioFile {
 					}
 					// If we've been in silence long enough, finish listening.
 					if (subsamplesInSilence >= subsampleSilenceTarget) {
-						ai.quit();
+						cleanupStreams();
 					}
 				});
 
 				// When we're done with the recording, end the audio input and resolve the promise.
 				ai.on('end', () => {
-					ws.end();
 					let recordedBuffer = WavBuffer.generateWavFromPCM(ws.getContents(), {
 						numChannels: NUM_CHANNELS,
 						sampleRate: RATE,
