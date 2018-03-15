@@ -118,7 +118,7 @@ describe('#audio', function(){
 		.then(function(resultingAudioFile) {
 			resultingAudioFile.play();
 		});
-	});
+	}).timeout(0);
 
 
 	it('converts audio data to .wav file', function(){
@@ -134,6 +134,6 @@ describe('#audio', function(){
 			fs.unlinkSync('test.wav');
 			fs.unlinkSync(path);	
 		});
-	});
+	}).timeout(0);
 
 });
