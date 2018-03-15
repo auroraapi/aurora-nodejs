@@ -1,13 +1,21 @@
-audio.js
-- Do silence processing
-- Do silence aware recording
+Todo: 
+- JS Documentation
+- Import alphabetization
+- function() { vs function() { consistency
+- () => {} vs function() {} consistency.
+- Actually make audio file work as expected
+- Check node version
 
-index.js
-- Do continuous listening
+Linting checklist per file
+- function(){} -> function() {}
+- () => {} vs function() {} consistency.
+- Ending semicolons
+- JSDocumentation
+- Import alphabetion
 
-test.js
-- Test audio.js's createFromWavData, createFromFile, createFromStream independently
-- Enable and test index.js's Speech.listen();
+Functional
+- Finish listen looping in index.js
+- Endianess of the buffer?
+- Assume little endian for now
 
-README.md
-- Fix the readme so it's not python?
+use ReadIntLE

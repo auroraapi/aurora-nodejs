@@ -367,7 +367,7 @@ module.exports = class WavBuffer {
 	 */
 	realloc(byteCount) {
 		// Create new space for the buffer.
-		let tempBuffer = Buffer.allocUnsafe(this.buffer.length + byteCount);
+		let tempBuffer = Buffer.alloc(this.buffer.length + byteCount);
 		// Copy the data.
 		this.buffer.copy(tempBuffer);
 		// Move DataView references.
@@ -383,88 +383,22 @@ module.exports = class WavBuffer {
 	}
 
 	/**
-	 * @returns {string} - "pcm16" if it is a PCM16 encoding. Nothing else is supported at the moment, so nothing else will be returned. 
+	 * Removes the data at the the specified start position in the data buffer to the specified 
+	 * end length. Shrinks the data accordingly. You shouldn't be using this.
+	 * @private
+	 * @param {number} start - The starting index to delete from. Defaults to 0.
+	 * @param {number} deleteCount - The number of elements to delete. Defaults to this.data.length;
 	 */
-	getWavEncodingScheme() {
-		for (let i = 0; i < wavEncodings.length; i++) {
-			let currentWavEncoding = wavEncodings[i];
-			if (this.getAudioFormat() == currentWavEncoding.audioFormat &&
-				this.getBitsPerSample() == currentWavEncoding.bitsPerSample) {
-				return currentWavEncoding.name;
-			}
-		}
-		return "";
-	} 
+	splice(start, deleteCount) {
+		let newBufferLength = this.buffer.length - deleteCount;
+		let newDataLength = this.data.length - deleteCount;
+		this.data.copy(this.data, start, start + deleteCount);
 
-	/**
-	 * @returns {boolean} - true if the given format is supported. Currently, only PCM16 is supported.
-	 */
-	isSupported() {
-		let encoding = this.getWavEncodingScheme();
-		// PCM16
-		if (encoding == PCM16) {
-			return true;
-		}
-		return false;
-	}
+		// Update the length safely. 
+		this.data = this.data.slice(0, newDataLength);
+		this.buffer = this.buffer.slice(0, newBufferLength);
 
-	/**
-	 * Get the underlying Buffer that the wav is stored in. Keep in mind that the reference
-	 * returned here might cease to be valid if the data changes. 
-	 * @return {Buffer} - the underlying buffer for this object. 
-	 */
-	getWav() {
-		return this.buffer;
-	}
-
-	/**
-	 * Get the underlying buffer that the data is stored in. Keep in mind that the reference
-	 * returned here might cease to be valid if the data changes. 
-	 * @return {Buffer} - The underlying PCM data without the header.
-	 */
-	getWavWithoutHeader() {
-		return this.data;
-	}
-
-	/**
-	 * Adds silence to the front and the back of the data.
-	 * @param {number} seconds - the number of seconds to pad the front and the back with. 
-	 */
-	padSilence(seconds) {
-		let silenceLength = seconds * this.getByteRate();
-		let silence = Buffer.alloc(silenceLength);
-		let previousDataLength = this.data.length;
-
-		this.realloc(silenceLength * 2);
-		this.data.copy(this.data, silenceLength);
-		silence.copy(this.data);
-		silence.copy(this.data, previousDataLength + silenceLength, silenceLength);
-	}
-
-	/**
-	 * Adds silence to the front of the data.
-	 * @param {number} seconds - the number of seconds to pad the front and the back with. 
-	 */
-	padSilenceFront(seconds) {
-		let silenceLength = seconds * this.getByteRate();
-		let silence = Buffer.alloc(silenceLength);
-
-		this.realloc(silenceLength);
-		this.data.copy(this.data, silenceLength);
-		silence.copy(this.data);
-	}
-
-	/**
-	 * Adds silence to the back of the data.
-	 * @param {number} seconds - the number of seconds to pad the front and the back with. 
-	 */
-	padSilenceBack(seconds) {
-		let silenceLength = seconds * this.getByteRate();
-		let silence = Buffer.alloc(silenceLength);
-		let previousDataLength = this.data.length;
-
-		this.realloc(silenceLength);
-		silence.copy(this.data, previousDataLength, silenceLength);
+		this.updateLengthFields();
 	}
 
 	/**
@@ -482,8 +416,8 @@ module.exports = class WavBuffer {
 		this.dataHeader;
 		// This holds the start of the actual sound data with no header metadata.
 		this.data;
-		// A "class identifier."
-		this.isAuroraWavBuffer = true;
+		// Stores the encoding scheme of the data for a small performance bump.
+		this.encoding;
 
 		this.buffer = Buffer.from(inputBuffer);
  
@@ -541,7 +475,7 @@ module.exports = class WavBuffer {
 	 * @return {WavBuffer} - A new PCM buffer from the given options.
 	 */
 	static generateWavFromPCM(pcmBuffer, options) {
-		let tempBuffer = Buffer.allocUnsafe(pcmBuffer.length + DEFAULT_WAV_HEADER_LEN);
+		let tempBuffer = Buffer.alloc(pcmBuffer.length + DEFAULT_WAV_HEADER_LEN);
 
 		// Load the RIFF header.
 		Buffer.from(CHUNK_ID, ASCII).copy(tempBuffer, CHUNK_ID_POS);
@@ -565,9 +499,229 @@ module.exports = class WavBuffer {
 	}
 
 	/**
+	 * @returns {string} - "pcm16" if it is a PCM16 encoding. Nothing else is supported at the moment, so nothing else will be returned. 
+	 */
+	getWavEncodingScheme() {
+		
+		if (this.encoding) return this.encoding;
+
+		for (let i = 0; i < wavEncodings.length; i++) {
+			let currentWavEncoding = wavEncodings[i];
+			if (this.getAudioFormat() == currentWavEncoding.audioFormat &&
+				this.getBitsPerSample() == currentWavEncoding.bitsPerSample) {
+				this.encoding = currentWavEncoding.name;
+				return currentWavEncoding.name;
+			}
+		}
+		return "";
+	} 
+
+	/**
+	 * @returns {boolean} - true if the given format is supported. Currently, only PCM16 is supported.
+	 */
+	isSupported() {
+		let encoding = this.getWavEncodingScheme();
+		// PCM16
+		if (encoding == PCM16) {
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Get the underlying Buffer that the wav is stored in. Keep in mind that the reference
+	 * returned here might cease to be valid if the data changes. 
+	 * @return {Buffer} - the underlying buffer for this object. 
+	 */
+	getWav() {
+		return this.buffer;
+	}
+
+	/**
+	 * Get the underlying buffer that the data is stored in. Keep in mind that the reference
+	 * returned here might cease to be valid if the data changes. 
+	 * @return {Buffer} - The underlying PCM data without the header.
+	 */
+	getWavWithoutHeader() {
+		return this.data;
+	}
+
+	/**
+	 * Returns an iterator on the data itself. Upon each call of next(), 
+	 * an array of the next sample's channel values are returned. For instance, 
+	 * with 2 channels, a length-2 array of the left and right channels are returned. 
+	 */
+	getDataIterator() {
+		if (!this.isSupported()) {
+			throw "The current encoding scheme is unsupported.";
+		}
+
+		let blockAlign = this.getBlockAlign();
+		let numChannels = this.getNumChannels();
+		let bitDepth = this.getBitsPerSample();
+
+		let sampleObtainingFunction;
+
+		if (this.getWavEncodingScheme() == PCM16) {
+			sampleObtainingFunction = (sample, channel) => {
+				return sample.readInt16LE(channel * bitDepth);
+			};
+		}
+
+		let dataPointer = this.data;
+
+		let iterator = {};
+		iterator[Symbol.iterator] = function () {
+
+			let currentBlockIndex = 0;
+
+			return {
+				next: function() {
+					// Finish iteration if you reach the end of the data.
+					if (currentBlockIndex >= dataPointer.length) {
+						return { done : true };
+					}
+					let currentSample = Buffer.alloc(blockAlign);
+					dataPointer.copy(currentSample, 0, currentBlockIndex, currentBlockIndex + blockAlign);
+
+					let returnValues = [];
+					for (let channelCount = 0; channelCount < numChannels; channelCount++) {
+						let currentChannelValue = sampleObtainingFunction(currentSample, channelCount);
+						returnValues.push(currentChannelValue);
+					}
+					currentBlockIndex += blockAlign;
+					return { value: returnValues };
+				}
+			};
+		};
+
+		return iterator;
+	}
+
+	/**
+	 * Adds silence to the front and the back of the data.
+	 * @param {number} seconds - the number of seconds to pad the front and the back with. 
+	 */
+	padSilence(seconds) {
+		let silenceLength = seconds * this.getByteRate();
+		let silence = Buffer.alloc(silenceLength);
+		let previousDataLength = this.data.length;
+
+		this.realloc(silenceLength * 2);
+		this.data.copy(this.data, silenceLength);
+		silence.copy(this.data);
+		silence.copy(this.data, previousDataLength + silenceLength);
+	}
+
+	/**
+	 * Adds silence to the front of the data.
+	 * @param {number} seconds - the number of seconds to pad the front and the back with. 
+	 */
+	padSilenceFront(seconds) {
+		let silenceLength = seconds * this.getByteRate();
+		let silence = Buffer.alloc(silenceLength);
+
+		this.realloc(silenceLength);
+		this.data.copy(this.data, silenceLength);
+		silence.copy(this.data);
+	}
+
+	/**
+	 * Adds silence to the back of the data.
+	 * @param {number} seconds - the number of seconds to pad the front and the back with. 
+	 */
+	padSilenceBack(seconds) {
+		let silenceLength = seconds * this.getByteRate();
+		let silence = Buffer.alloc(silenceLength);
+		let previousDataLength = this.data.length;
+
+		this.realloc(silenceLength);
+		silence.copy(this.data, previousDataLength);
+	}
+
+	/**
 	 * @returns {boolean} true if the object input is a WavBuffer. 
 	 */
 	static isWavBuffer(buffer) {
-		return buffer.hasOwnProperty("isAuroraWavBuffer");
+		return buffer instanceof WavBuffer;
+	}
+
+	/**
+	 * @returns {number} The maximum amplitude inside the data. 
+	 */
+	getMaxAmplitude() {
+		if (!this.isSupported()) {
+			throw "The current encoding scheme is unsupported.";
+		}
+
+		let max = 0;
+		let iterator = this.getDataIterator();
+		for (let sample of iterator) {
+			for (let value of sample) {
+				let currentChannelAmplitude = Math.abs(value); 
+				if (currentChannelAmplitude > max) {
+					max = currentChannelAmplitude;
+				}
+			}
+		}
+		return max;
+	}
+
+	/**
+	 * Trims silence off of the sound file. "Silence" in this case
+	 * is defined as any block of time where the amplitude of any sample on any channel 
+	 * does not exceed 1/6th of the maximum amplitude.
+	 * @param {number} [silenceThreshold] - The threshold for silence. Defaults to 1/16.
+	 * @param {number} [blockSeconds] - The number of seconds to consider as a single block. Defaults to 1 second. 
+	 */
+	trimSilence(silenceThreshold=1/16, blockSeconds=1) {
+		let silenceAmplitudeThreshold = this.getMaxAmplitude() * silenceThreshold;
+
+		let bytesInBlock = this.getByteRate() * blockSeconds;
+		let samplesInBlock = this.getSampleRate() * blockSeconds;
+		let bytesInSample = this.getBlockAlign();
+		let numChannels = this.getNumChannels();
+		let bitDepth = this.getBitsPerSample();
+
+		let sampleObtainingFunction;
+
+		// TODO: Consider making this a function in wavEncodings.
+		if (this.getWavEncodingScheme() == PCM16) {
+			sampleObtainingFunction = (sample, channel) => {
+				return sample.readInt16LE(channel * bitDepth);
+			};
+		}
+
+		// For each chunk of blockSeconds time...
+		for (let blockCountPos = 0; blockCountPos < this.data.length; blockCountPos += bytesInBlock) {
+
+			let isSilent = true;
+			// For each sample in each blockSecond...
+			for (let samplePos = 0; samplePos < samplesInBlock; samplePos++) {
+				// Get the current sample. 
+				let sampleOffsetInBlock = samplePos * bytesInSample;
+				let currentSample = Buffer.alloc(bytesInSample);
+				this.data.copy(currentSample, 0, blockCountPos + sampleOffsetInBlock);
+
+				// Get the values in the sample.
+				let sampleValues = [];
+				for (let channelCount = 0; channelCount < numChannels; channelCount++) {
+					let currentChannelValue = sampleObtainingFunction(currentSample, channelCount);
+					if (Math.abs(currentChannelValue) > silenceAmplitudeThreshold) {
+						isSilent = false;
+						break;
+					}
+				}
+				if (!isSilent) {
+					break;
+				}
+			}
+			// If the current block is detected as silent, remove it. 
+			if (isSilent) {
+				this.splice(blockCountPos, bytesInBlock);
+				// Update the blockCountPos to reflect the new changes.
+				blockCountPos -= bytesInBlock;
+			}
+		}
 	}
 };

@@ -37,7 +37,6 @@
     "axios": "^0.17.1",
     "https-post": "^0.1.1",
     "naudiodon": "^0.4.6",
-    "stream-buffers": "^3.0.1",
-    "wav": "^1.0.1"
+    "stream-buffers": "^3.0.1"
   }
 }

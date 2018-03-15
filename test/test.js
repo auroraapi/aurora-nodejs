@@ -20,9 +20,17 @@ let setKeys = function() {
 	aurora.setDeviceId(keys['deviceId']);
 }
 
+let setTimeoutPromise = function(time) {
+	return new Promise(function(resolve) {
+		setTimeout(() => {
+			resolve()
+		}, time);
+	});
+}
+
 /* test aurora API as a whole */
-describe('#aurora', function(){
-	it("exists", function(){
+describe('#aurora', function() {
+	it("exists", function() {
 		expect(aurora).to.exist;
 	});
 
@@ -47,12 +55,12 @@ describe('#aurora', function(){
 
 
 /* test api.js */
-describe('#api', function(){
-	it("exists", function(){
+describe('#api', function() {
+	it("exists", function() {
 		expect(api).to.exist;
 	});
 
-	it("can access stored API data", function(){
+	it("can access stored API data from headers", function() {
 		const testString = "123456";
 		aurora.setAppId(testString);
 		aurora.setAppToken(testString);
@@ -62,7 +70,7 @@ describe('#api', function(){
 		expect(headers["X-Application-ID"]).to.equal(testString);
 		expect(headers["X-Application-Token"]).to.equal(testString);
 		expect(headers["X-Device-ID"]).to.equal(testString);
-	});
+	}).timeout(5000);
 
 	it("converts text to speech using getTTS()", function() {
 		
@@ -73,7 +81,7 @@ describe('#api', function(){
 
 		return api.getTTS(text)
 		.then((audioFile) => {
-			audioFile.writeToFile(wavName);
+			audioFile.writeToFileSync(wavName);
 			expect(fs.existsSync(wavName + ".wav")).to.be.true;
 			fs.unlinkSync(wavName + ".wav");
 		});
@@ -108,32 +116,215 @@ describe('#api', function(){
 
 
 /* test audio.js */
-describe('#audio', function(){
-	it("exists", function(){
+describe('#audio', function() {
+	it("exists", function() {
 		expect(AudioFile).to.exist;
 	});
 
-	it("fromRecording and playback", function(){
-		return AudioFile.fromRecording(1000)
+	it("can be created from a stream", function() {
+		let fileName = HELLO_FRIENDS_LOCATION + ".wav";
+		AudioFile.createFromStream(fs.createReadStream(fileName))
 		.then(function(resultingAudioFile) {
-			resultingAudioFile.play();
+			expect(resultingAudioFile).to.exist;
 		});
 	}).timeout(0);
 
+	it("can be created from a filename", function() {
+		AudioFile.createFromFile(HELLO_FRIENDS_LOCATION)
+		.then(function(resultingAudioFile) {
+			expect(resultingAudioFile).to.exist;
+		});
+	});
 
-	it('converts audio data to .wav file', function(){
-		expect(fs.existsSync('test.wav')).to.be.false;
-		return AudioFile.fromRecording(1000).then(function(resultingAudioFile){
-			resultingAudioFile.writeToFile('test'); // no .wav tag
-			expect(fs.existsSync('test.wav')).to.be.true;
+	it("can be created from wav data", function() {
+		let wavBuffer = fs.readFileSync(HELLO_FRIENDS_LOCATION + '.wav');
+		expect(AudioFile.createFromWavData(wavBuffer)).to.exist;
+	});
 
-			let path = resultingAudioFile.getWavPath();
-			expect(fs.existsSync(path)).to.be.true;
-
-			// clean up
-			fs.unlinkSync('test.wav');
-			fs.unlinkSync(path);	
+	it("can be created from recording a fixed length", function() {
+		return AudioFile.fromRecording(3)
+		.then((resultingAudioFile) => {
+			expect(resultingAudioFile).to.exist;
+			return resultingAudioFile.play();
+		}).then((audioFile) => {
+			console.log("Done playing audio file.");
+			return setTimeoutPromise(500);
 		});
 	}).timeout(0);
 
+	it("can be created from silence aware recording", function() {
+		return AudioFile.fromRecording(0, 3)
+		.then((resultingAudioFile) => {
+			expect(resultingAudioFile).to.exist;
+			return resultingAudioFile.play();
+		}).then((audioFile) => {
+			console.log("Done playing audio file.");
+			return setTimeoutPromise(500);
+		});
+	}).timeout(0);
+
+	it("can play and stop recordings", function() {
+		return AudioFile.createFromFile(HELLO_FRIENDS_LOCATION)
+		.then((audioFile) => {
+			audioFile.play();
+			return audioFile;
+		})
+		.then((audioFile) => {
+			// Set a timeout for a second.
+			return new Promise(function(resolve) {
+				setTimeout(() => {
+					resolve(audioFile);
+				}, 1000);
+			});
+		})
+		.then((audioFile) => {
+			audioFile.stop();
+		})
+		.then((audioFile) => {
+			console.log("Done with test.");
+			return setTimeoutPromise(500);
+		});
+	}).timeout(0);
+
+	it("can pad both sides of files", function() {
+		return AudioFile.createFromFile(SIN_WAVE_LOCATION)
+		.then((audioFile) => {
+			audioFile.pad(1);
+			return audioFile.play();
+		}).then((audioFile) => {
+			console.log("Done playing audio file.");
+			return setTimeoutPromise(500);
+		});
+	}).timeout(0);
+
+	it("can pad left of files", function() {
+		return AudioFile.createFromFile(SIN_WAVE_LOCATION)
+		.then((audioFile) => {
+			audioFile.padLeft(1);
+			return audioFile.play();
+		}).then((audioFile) => {
+			console.log("Done playing audio file.");
+			return setTimeoutPromise(500);
+		});
+	}).timeout(0);
+
+	it("can pad right of files", function() {
+		return AudioFile.createFromFile(SIN_WAVE_LOCATION)
+		.then((audioFile) => {
+			audioFile.padRight(1);
+			return audioFile.play();
+		}).then((audioFile) => {
+			console.log("Done playing audio file.");
+			return setTimeoutPromise(500);
+		});
+	}).timeout(0);
+
+	// it("can trim silence off files", function() {
+	// 	return AudioFile.createFromFile(SIN_WAVE_LOCATION)
+	// 	.then((audioFile) => {
+	// 		audioFile.pad(1);
+	// 		audioFile.trimSilent();
+	// 		return audioFile.play();
+	// 	}).then((audioFile) => {
+	// 		console.log("Done playing audio file.");
+	// 		return setTimeoutPromise(500);
+	// 	});
+	// }).timeout(0);
+
+	it("can write itself to a new file and return the path", function() {
+		return AudioFile.createFromFile(SIN_WAVE_LOCATION)
+		.then((audioFile) => {
+			let filePath = audioFile.getWavPath();
+			expect(fs.existsSync(filePath)).to.be.true;
+			if (fs.existsSync(filePath)) {
+				fs.unlinkSync(filePath);
+			}
+		});
+	});
+
+	it("can write itself to a specified file location", function() {
+		return AudioFile.createFromFile(SIN_WAVE_LOCATION)
+		.then((audioFile) => {
+			let fileName = "./test/testLoc";
+			let filePath = audioFile.writeToFileSync(fileName);
+			expect(fs.existsSync(fileName + ".wav")).to.be.true;
+			if (fs.existsSync(fileName + ".wav")) {
+				fs.unlinkSync(fileName + ".wav");
+			}
+		});
+	});
+});
+
+/* test the Text object */
+describe('#Text', function() {
+	it("exists", function() {
+		expect(aurora.Text).to.exist;
+	});
+
+	it("can convert Text to Speech using Text.speech()", function() {
+		const wavName = './test/speechResult';
+
+		let textObject = new aurora.Text("Hello world!");
+
+		return textObject.speech()
+		.then((speechObject) => {
+			speechObject.audio.writeToFileSync(wavName);
+			expect(fs.existsSync(wavName + ".wav")).to.be.true;
+			fs.unlinkSync(wavName + ".wav");
+		});
+	});
+
+	it("can convert Text to Interpret using Text.interpret()", function() {
+		let textObject = new aurora.Text("What is the weather in Los Angeles?");
+
+		return textObject.interpret()
+		.then((interpretObject) => {
+			expect(interpretObject.hasOwnProperty('intent')).to.be.true;
+			expect(interpretObject.hasOwnProperty('entities')).to.be.true;
+		});
+	});
+});
+
+/* test the Speech object */
+describe('#Speech', function() {
+	it("exists", function() {
+		expect(aurora.Speech).to.exist;
+	});
+
+	it("can convert Speech to Text using Speech.text()", function() {
+		const wavName = HELLO_FRIENDS_LOCATION;
+
+		return AudioFile.createFromFile(wavName)
+		.then((audioFile) => {
+			return new aurora.Speech(audioFile);
+		})
+		.then((speechObject) => {
+			return speechObject.text();
+		})
+		.then((textObject) => {
+			expect(textObject.text).to.be.a('string');
+		});
+	}).timeout(0);
+
+	it("can record using Speech.listen()", function() {
+		return aurora.Speech.listen(5)
+		.then((speechObject) => {
+			return speechObject.text()
+		})
+		.then((textObject) => {
+			console.log(textObject.text);
+			expect(textObject.text).to.be.a('string');
+		});
+	}).timeout(0);
+
+	it("can record using silence aware Speech.listen()", function() {
+		return aurora.Speech.listen(0, 5)
+		.then((speechObject) => {
+			return speechObject.text()
+		})
+		.then((textObject) => {
+			console.log(textObject.text);
+			expect(textObject.text).to.be.a('string');
+		});
+	}).timeout(0);
 });
