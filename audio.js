@@ -201,6 +201,7 @@ module.exports = class AudioFile {
 				});
 
 				setTimeout(() => {
+					ai.quit();
 					let pcmData = ws.getContents();
 					if (!pcmData) {
 						reject(new Error("Recording error."));
