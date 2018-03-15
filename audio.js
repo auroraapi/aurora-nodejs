@@ -289,6 +289,7 @@ module.exports = class AudioFile {
 						bitsPerSample: FORMAT
 					});
 					resolve(AudioFile.createFromWavData(recordedBuffer));
+					ws.end();
 				});
 
 				// Start recording.
