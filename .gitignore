@@ -1,5 +1,5 @@
 node_modules
-*.raw
-*.wav
+./*.raw
+./*.wav
 test/private.js
 
