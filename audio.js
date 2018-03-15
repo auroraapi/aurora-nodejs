@@ -472,7 +472,7 @@ module.exports = class AudioFile {
 			writeStream.on('finish', () => {
 				if (!rejected) {
 					let wavData = writeStream.getContents();
-					if (!pcmData) {
+					if (!wavData) {
 						reject(new Error("Problem with streaming of .wav data."));
 					}
 					else {
