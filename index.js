@@ -118,7 +118,7 @@ class Speech {
 		// return a speech segment
 		return AudioFile.fromRecording(length, silenceLength)
 		.then((audioFile) => {
-		  return new Speech(audioFile);
+			return new Speech(audioFile);
 		});
 	}
 

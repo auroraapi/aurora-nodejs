@@ -269,3 +269,48 @@ describe('#Text', function() {
 		});
 	});
 });
+
+/* test the Speech object */
+describe('#Speech', function() {
+	it("exists", function() {
+		expect(aurora.Speech).to.exist;
+	});
+
+	it("can convert Speech to Text using Speech.text()", function() {
+		const wavName = HELLO_FRIENDS_LOCATION;
+
+		return AudioFile.createFromFile(wavName)
+		.then((audioFile) => {
+			return new aurora.Speech(audioFile);
+		})
+		.then((speechObject) => {
+			return speechObject.text();
+		})
+		.then((textObject) => {
+			expect(textObject.text).to.be.a('string');
+			fs.unlinkSync(wavName + ".wav");
+		});
+	}).timeout(0);
+
+	it("can record using Speech.listen()", function() {
+		return aurora.Speech.listen(5)
+		.then((speechObject) => {
+			return speechObject.text()
+		})
+		.then((textObject) => {
+			console.log(textObject.text);
+			expect(textObject.text).to.be.a('string');
+		});
+	}).timeout(0);
+
+	it("can record using silence aware Speech.listen()", function() {
+		return aurora.Speech.listen(0, 5)
+		.then((speechObject) => {
+			return speechObject.text()
+		})
+		.then((textObject) => {
+			console.log(textObject.text);
+			expect(textObject.text).to.be.a('string');
+		});
+	}).timeout(0);
+});
