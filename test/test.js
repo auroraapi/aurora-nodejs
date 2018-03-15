@@ -205,16 +205,16 @@ describe('#audio', function() {
 		});
 	}).timeout(0);
 
-	it("can trim silence off files", function() {
-		return AudioFile.createFromFile(SIN_WAVE_LOCATION)
-		.then((audioFile) => {
-			audioFile.pad(1);
-			audioFile.trimSilent();
-			return audioFile.play();
-		}).then((audioFile) => {
-			console.log("Done playing audio file.");
-		});
-	}).timeout(0);
+	// it("can trim silence off files", function() {
+	// 	return AudioFile.createFromFile(SIN_WAVE_LOCATION)
+	// 	.then((audioFile) => {
+	// 		audioFile.pad(1);
+	// 		audioFile.trimSilent();
+	// 		return audioFile.play();
+	// 	}).then((audioFile) => {
+	// 		console.log("Done playing audio file.");
+	// 	});
+	// }).timeout(0);
 
 	it("can write itself to a new file and return the path", function() {
 		return AudioFile.createFromFile(SIN_WAVE_LOCATION)
