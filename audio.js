@@ -482,7 +482,7 @@ module.exports = class AudioFile {
 			});
 
 			// Start piping.
-			s.pipe(ws);
+			readStream.pipe(ws);
 		});
 	}
 };
