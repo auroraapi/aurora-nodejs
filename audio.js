@@ -248,6 +248,10 @@ module.exports = class AudioFile {
 					if (maxAmplitude < SILENT_THRESH) {
 						subsamplesInSilence += numSubsamplesInChunk;
 					}
+					// Otherwise, reset the count.
+					else {
+						subsamplesInSilence = 0;
+					}
 					// If we've been in silence long enough, finish listening.
 					if (subsamplesInSilence >= subsampleSilenceTarget) {
 						ai.quit();
