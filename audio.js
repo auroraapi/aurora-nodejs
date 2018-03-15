@@ -147,7 +147,7 @@ module.exports = class AudioFile {
 				let readableStream = new streamBuffers.ReadableStreamBuffer();
 				// close output stream at end of read stream
 				readableStream.on('end', () => { 
-					this.audioOutput.end();
+					this.audioOutput.quit();
 					resolve(this);
 				});
 
@@ -167,7 +167,7 @@ module.exports = class AudioFile {
 	 * If audio output is being played from this.play(), stop it.
 	 */
 	stop() {
-		if (this.audioOutput) this.audioOutput.end();
+		if (this.audioOutput) this.audioOutput.quit();
 	}
 
 	/**

@@ -102,7 +102,6 @@ describe('#api', function() {
 		})
 		.then((textTranscript) => {
 			expect(textTranscript.transcript).to.be.a('string');
-			console.log(textTranscript);
 		});
 	}).timeout(5000);
 });
