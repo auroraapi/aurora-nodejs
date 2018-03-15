@@ -201,14 +201,17 @@ module.exports = class AudioFile {
 				});
 
 				setTimeout(() => {
-					ai.quit();
-					let recordedBuffer = WavBuffer.generateWavFromPCM(ws.getContents(), {
+					let pcmData = ws.getContents();
+					if (!pcmData) {
+						reject(new Error("Recording error."));
+					}
+					let recordedBuffer = WavBuffer.generateWavFromPCM(pcmData, {
 						numChannels: NUM_CHANNELS,
 						sampleRate: RATE,
 						bitsPerSample: FORMAT
 					});
 					resolve(AudioFile.createFromWavData(recordedBuffer));
-				}, length);
+				}, length * 1000);
 			});
 		}
 		else {
