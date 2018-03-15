@@ -20,6 +20,14 @@ let setKeys = function() {
 	aurora.setDeviceId(keys['deviceId']);
 }
 
+let setTimeoutPromise = function(time) {
+	return new Promise(function(resolve) {
+		setTimeout(() => {
+			resolve()
+		}, time);
+	});
+}
+
 /* test aurora API as a whole */
 describe('#aurora', function() {
 	it("exists", function() {
@@ -73,7 +81,7 @@ describe('#api', function() {
 
 		return api.getTTS(text)
 		.then((audioFile) => {
-			audioFile.writeToFile(wavName);
+			audioFile.writeToFileSync(wavName);
 			expect(fs.existsSync(wavName + ".wav")).to.be.true;
 			fs.unlinkSync(wavName + ".wav");
 		});
@@ -140,6 +148,7 @@ describe('#audio', function() {
 			return resultingAudioFile.play();
 		}).then((audioFile) => {
 			console.log("Done playing audio file.");
+			return setTimeoutPromise(500);
 		});
 	}).timeout(0);
 
@@ -150,6 +159,7 @@ describe('#audio', function() {
 			return resultingAudioFile.play();
 		}).then((audioFile) => {
 			console.log("Done playing audio file.");
+			return setTimeoutPromise(500);
 		});
 	}).timeout(0);
 
@@ -172,6 +182,7 @@ describe('#audio', function() {
 		})
 		.then((audioFile) => {
 			console.log("Done with test.");
+			return setTimeoutPromise(500);
 		});
 	}).timeout(0);
 
@@ -182,6 +193,7 @@ describe('#audio', function() {
 			return audioFile.play();
 		}).then((audioFile) => {
 			console.log("Done playing audio file.");
+			return setTimeoutPromise(500);
 		});
 	}).timeout(0);
 
@@ -192,6 +204,7 @@ describe('#audio', function() {
 			return audioFile.play();
 		}).then((audioFile) => {
 			console.log("Done playing audio file.");
+			return setTimeoutPromise(500);
 		});
 	}).timeout(0);
 
@@ -202,6 +215,7 @@ describe('#audio', function() {
 			return audioFile.play();
 		}).then((audioFile) => {
 			console.log("Done playing audio file.");
+			return setTimeoutPromise(500);
 		});
 	}).timeout(0);
 
@@ -213,6 +227,7 @@ describe('#audio', function() {
 	// 		return audioFile.play();
 	// 	}).then((audioFile) => {
 	// 		console.log("Done playing audio file.");
+	// 		return setTimeoutPromise(500);
 	// 	});
 	// }).timeout(0);
 
@@ -231,7 +246,7 @@ describe('#audio', function() {
 		return AudioFile.createFromFile(SIN_WAVE_LOCATION)
 		.then((audioFile) => {
 			let fileName = "./test/testLoc";
-			let filePath = audioFile.writeToFile(fileName);
+			let filePath = audioFile.writeToFileSync(fileName);
 			expect(fs.existsSync(fileName + ".wav")).to.be.true;
 			if (fs.existsSync(fileName + ".wav")) {
 				fs.unlinkSync(fileName + ".wav");
@@ -253,7 +268,7 @@ describe('#Text', function() {
 
 		return textObject.speech()
 		.then((speechObject) => {
-			speechObject.audio.writeToFile(wavName);
+			speechObject.audio.writeToFileSync(wavName);
 			expect(fs.existsSync(wavName + ".wav")).to.be.true;
 			fs.unlinkSync(wavName + ".wav");
 		});
@@ -288,7 +303,6 @@ describe('#Speech', function() {
 		})
 		.then((textObject) => {
 			expect(textObject.text).to.be.a('string');
-			fs.unlinkSync(wavName + ".wav");
 		});
 	}).timeout(0);
 
