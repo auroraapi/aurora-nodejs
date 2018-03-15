@@ -202,7 +202,7 @@ module.exports = class AudioFile {
 			// When we're done reading from the buffer, end the output.
 			readBuffer.on("end", () => {
 				currentWavBuffer.audioOutput.end();
-			})
+			});
 
 			// On finish, delete the audioOutput and resolve with 
 			// the audio buffer if it hasn't been rejected.
@@ -296,7 +296,7 @@ module.exports = class AudioFile {
 		return {
 			audioInput: audioInput,
 			writeStream: writeStream
-		}
+		};
 	}
 
 
@@ -398,7 +398,7 @@ module.exports = class AudioFile {
 	 * @return {Promise<AudioFile>} - The promise for the proper audio file from the recording. 
 	 */
 	static fromRecording(length = 0, silenceLength = 1.0) {
-		if (length != 0) {
+		if (length !== 0) {
 			return AudioFile.recordFixedLength(length);
 		}
 		else {

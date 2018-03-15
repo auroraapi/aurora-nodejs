@@ -553,7 +553,7 @@ module.exports = class WavBuffer {
 	 */
 	getDataIterator() {
 		if (!this.isSupported()) {
-			throw "The current encoding scheme is unsupported."
+			throw "The current encoding scheme is unsupported.";
 		}
 
 		let blockAlign = this.getBlockAlign();
@@ -565,7 +565,7 @@ module.exports = class WavBuffer {
 		if (this.getWavEncodingScheme() == PCM16) {
 			sampleObtainingFunction = (sample, channel) => {
 				return sample.readInt16LE(channel * bitDepth);
-			}
+			};
 		}
 
 		let dataPointer = this.data;
@@ -593,7 +593,7 @@ module.exports = class WavBuffer {
 					return { value: returnValues };
 				}
 			};
-		}
+		};
 
 		return iterator;
 	}
@@ -651,7 +651,7 @@ module.exports = class WavBuffer {
 	 */
 	getMaxAmplitude() {
 		if (!this.isSupported()) {
-			throw "The current encoding scheme is unsupported."
+			throw "The current encoding scheme is unsupported.";
 		}
 
 		let max = 0;
@@ -689,7 +689,7 @@ module.exports = class WavBuffer {
 		if (this.getWavEncodingScheme() == PCM16) {
 			sampleObtainingFunction = (sample, channel) => {
 				return sample.readInt16LE(channel * bitDepth);
-			}
+			};
 		}
 
 		// For each chunk of blockSeconds time...
