@@ -127,7 +127,7 @@ describe('#audio', function() {
 		.then(function(resultingAudioFile) {
 			expect(resultingAudioFile).to.exist;
 		});
-	}).timeout(0);
+	});
 
 	it("can be created from a filename", function() {
 		AudioFile.createFromFile(HELLO_FRIENDS_LOCATION)
