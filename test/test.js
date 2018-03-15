@@ -1,316 +1,490 @@
 'use strict';
 
-const fs = require('fs');
-const chai = require('chai');
-const expect = chai.expect;
-const assert = chai.assert;
+let WavBuffer = require('./wav');
+let fs = require("fs");
+let portAudio = require("naudiodon");
+let streamBuffers = require('stream-buffers');
 
-const keys = require('./private').keys;
+const BUF_SIZE = Math.pow(2, 10);
+const SILENT_THRESH = Math.pow(2, 10);
+const NUM_CHANNELS = 1;
+const FORMAT = portAudio.SampleFormat16Bit;  //portAudio.paInt16;
+const RATE = 44100;
 
-const aurora = require('../index');
-const api = aurora.api;
-const AudioFile = aurora.AudioFile;
+const WAV_HEADER_SIZE = 44;
+const WAV_FORMAT_TAG = ".wav";
 
-const HELLO_FRIENDS_LOCATION = "./test/helloFriends";
-const SIN_WAVE_LOCATION = "./test/sinWave";
+/**
+ * Aurora's representation for a chunk of audio. Contains methods for the basic
+ * processing, playing and recording, and file management of said audio. 
+ * 
+ * @details
+ * Since surprisingly few audio processing libraries exist for npm, this representation 
+ * uses a newly constructed WavBuffer in order to store the binary data related to the .wav file. 
+ * Such files are expected to be generated using naudiodon, a node binding for PortAudio.
+ *
+ * @typedef {Object} AudioFile
+ * @property {WavBuffer} audio
+ * @property {portAudio.AudioOutput} audioOutput
+ */
+module.exports = class AudioFile {
 
-let setKeys = function() {
-	aurora.setAppId(keys['appId']);
-	aurora.setAppToken(keys['appToken']);
-	aurora.setDeviceId(keys['deviceId']);
-}
+	/**
+	 * Creates an AudioFile object from the input WavBuffer or normal buffer.
+	 * @param {WavBuffer | Buffer} audio - The buffer to be stored. 
+	 */
+	constructor(audio) {
+		// Define this.audio to be a WavBuffer that stores the .wav file data.
+		if (WavBuffer.isWavBuffer(audio)) {
+			this.audio = audio;
+		}
+		else if (Buffer.isBuffer(audio)) {
+			this.audio = new WavBuffer(audio);
+		}
+		else {
+			throw "Input is not a buffer!";
+		}
 
-/* test aurora API as a whole */
-describe('#aurora', function() {
-	it("exists", function() {
-		expect(aurora).to.exist;
-	});
+		// An naudiodon output. This is stored so we can stop it later if need be.
+		this.audioOutput = null;
+	}
 
-	it("stores and retrieves an app ID", function() {
-		const testAppId = "123456";
-		aurora.setAppId(testAppId);
-		expect(aurora.getAppId()).to.equal(testAppId);
-	});
+	/**
+	 * Removes .wav metadata from the buffer. 
+	 * @return {Buffer} A buffer of the PCM audio data inside the wav data.
+	 */
+	wavWithoutMetadata() {
+		return this.audio.getWavWithoutHeader();
+	}
 
-	it("stores and retrieves an app token", function() {
-		const testAppToken = "123456";
-		aurora.setAppToken(testAppToken);
-		expect(aurora.getAppToken()).to.equal(testAppToken);
-	});
+	/**
+	 * A callback that takes 1 argument in case of error.
+	 * @callback errorCallback
+	 * @param {Error} error
+	 */
 
-	it("stores and retrieves a device ID", function() {
-		const testDeviceID = "123456";
-		aurora.setDeviceId(testDeviceID);
-		expect(aurora.getDeviceId()).to.equal(testDeviceID);
-	});
-});
+	/**
+	 * Stores the data contained in this object to [fname].wav. 
+	 * @param {string} fname - The name of the file to write to with a '.wav' appended to the end of the input.
+	 * @param {Object} [options] - Same format as fs's writeFile options.
+	 * @param {errorCallback} [callback] - A callback that takes 1 argument in case there is an error. Defaults to throwing.
+	 */
+	writeToFile(fname, options, callback) {
+		if (!options) {
+			options = {
+				mode: 0o666,
+				flag: 'w'
+			};
+		}
+		if (!callback) {
+			callback = function(error) {
+				if (error) throw error;
+			};
+		}
+		fs.writeFile(fname + WAV_FORMAT_TAG, this.getWav(), options, callback);
+	}
 
+	/**
+	 * Stores the data contained in this object to [fname].wav. 
+	 * @param {string} fname - The name of the file to write to with a '.wav' appended to the end of the input.
+	 * @param {Object} [options] - Same format as fs's writeFile options.
+	 */
+	writeToFileSync(fname, options) {
+		if (!options) {
+			options = {
+				mode: 0o666,
+				flag: 'w'
+			};
+		}
+		fs.writeFileSync(fname + WAV_FORMAT_TAG, this.getWav(), options);
+	}
 
-/* test api.js */
-describe('#api', function() {
-	it("exists", function() {
-		expect(api).to.exist;
-	});
+	/**
+	 * Return the underlying audio stream.
+	 * @return {Buffer} A buffer of the PCM audio data inside the wav data.
+	 */
+	getWav() {
+		return this.audio.getWav();
+	}
 
-	it("can access stored API data from headers", function() {
-		const testString = "123456";
-		aurora.setAppId(testString);
-		aurora.setAppToken(testString);
-		aurora.setDeviceId(testString);
+	/**
+	 * Write the data to wavData.wav, then return the name of the file of the format:
+	 * wavData.[yyyy].[MM].[dd].[hh].[mm].[fff].wav
+	 * @return {string} The name of the resulting file with the '.wav' tag included.
+	 */
+	getWavPath() {
+		let defaultWavName = 'wavData';
+		let now = new Date();
+		defaultWavName = defaultWavName +  
+			(now.getFullYear().toString().padStart(4, '0')) + '.' +
+			((now.getMonth() + 1).toString().padStart(2, '0')) + '.' +
+			(now.getDate().toString().padStart(2, '0')) + '.' +
+			(now.getHours().toString().padStart(2, '0')) + '.' +
+			(now.getMinutes().toString().padStart(2, '0')) + '.' +
+			(now.getMilliseconds().toString().padStart(3, '0'));
+		this.writeToFileSync(defaultWavName);
+		return defaultWavName + WAV_FORMAT_TAG;
+	}
 
-		let headers = api.getHeaders();
-		expect(headers["X-Application-ID"]).to.equal(testString);
-		expect(headers["X-Application-Token"]).to.equal(testString);
-		expect(headers["X-Device-ID"]).to.equal(testString);
-	}).timeout(5000);
+	/**
+	 * Pad both sides of the audio with the specified amount of silence in seconds.
+	 * @param {number} - seconds: The amount of seconds to add.
+	 */
+	pad(seconds) {
+		this.audio.padSilence(seconds);
+	}
 
-	it("converts text to speech using getTTS()", function() {
-		
-		setKeys();
+	/**
+	 * Pad the left side of the audio with the specified amount of silence in seconds.
+	 * @param {number} - seconds: The amount of seconds to add.
+	 */
+	padLeft(seconds) {
+		this.audio.padSilenceFront(seconds);
+	}
 
-		const wavName = './test/speechResult';
-		let text = "Hello World!";
+	/**
+	 * Pad the right side of the audio with the specified amount of silence in seconds.
+	 * @param {number} - seconds: The amount of seconds to add.
+	 */
+	padRight(seconds) {
+		this.audio.padSilenceBack(seconds);
+	}
 
-		return api.getTTS(text)
-		.then((audioFile) => {
-			audioFile.writeToFile(wavName);
-			expect(fs.existsSync(wavName + ".wav")).to.be.true;
-			fs.unlinkSync(wavName + ".wav");
-		});
-	}).timeout(5000);
+	/**
+	 * Trims extraneous silence in the audio.
+ 	 * @param {number} [silenceThreshold] - The threshold for silence. Defaults to 1/16.
+	 * @param {number} [blockSeconds] - The number of seconds to consider as a single block. Defaults to 1 second. 
+	 */
+	trimSilent(silenceThreshold=1/16, blockSeconds=1) {
+		this.audio.trimSilence(silenceThreshold, blockSeconds);
+	}
 
-	it("interprets text using getInterpret()", function() {
-		
-		setKeys();
+	/**
+	 * Plays the audio stored in this audio file (if it exists) to the default portAudio
+	 * device. The playback of the audio is asynchronous and can be stopped by calling this.stop().
+	 * @return {AudioFile} - This audio file that resolves when it's done playing.
+	 */
+	play() {
+		let currentWavBuffer = this;
 
-		let text = "What's the weather in Los Angles?";
+		return new Promise(function(resolve, reject) {
+			// If you're already playing, immediately reject.
+			if (currentWavBuffer.audioOutput) {
+				reject(new Error("Already playing something"));
+			}
 
-		return api.getInterpret(text)
-		.then((response) => {
-			expect(response.hasOwnProperty('intent')).to.be.true;
-			expect(response.hasOwnProperty('entities')).to.be.true;
-		});
-	}).timeout(5000);
+			// Load the data to be streamed.
+			let readBuffer = new streamBuffers.ReadableStreamBuffer();
+			readBuffer.put(currentWavBuffer.getWav());
+			readBuffer.stop();
 
-	it("can convert speech to text using getSTT()", function() {
-	
-		setKeys();
-
-		return AudioFile.createFromFile(HELLO_FRIENDS_LOCATION)
-		.then((audioFile) => {
-			return api.getSTT(audioFile);
-		})
-		.then((textTranscript) => {
-			expect(textTranscript.transcript).to.be.a('string');
-		});
-	}).timeout(5000);
-});
-
-
-/* test audio.js */
-describe('#audio', function() {
-	it("exists", function() {
-		expect(AudioFile).to.exist;
-	});
-
-	it("can be created from a stream", function() {
-		let fileName = HELLO_FRIENDS_LOCATION + ".wav";
-		AudioFile.createFromStream(fs.createReadStream(fileName))
-		.then(function(resultingAudioFile) {
-			expect(resultingAudioFile).to.exist;
-		});
-	});
-
-	it("can be created from a filename", function() {
-		AudioFile.createFromFile(HELLO_FRIENDS_LOCATION)
-		.then(function(resultingAudioFile) {
-			expect(resultingAudioFile).to.exist;
-		});
-	});
-
-	it("can be created from wav data", function() {
-		let wavBuffer = fs.readFileSync(HELLO_FRIENDS_LOCATION + '.wav');
-		expect(AudioFile.createFromWavData(wavBuffer)).to.exist;
-	});
-
-	it("can be created from recording a fixed length", function() {
-		return AudioFile.fromRecording(3)
-		.then((resultingAudioFile) => {
-			expect(resultingAudioFile).to.exist;
-			return resultingAudioFile.play();
-		}).then((audioFile) => {
-			console.log("Done playing audio file.");
-		});
-	}).timeout(0);
-
-	it("can be created from silence aware recording", function() {
-		return AudioFile.fromRecording(0, 3)
-		.then((resultingAudioFile) => {
-			expect(resultingAudioFile).to.exist;
-			return resultingAudioFile.play();
-		}).then((audioFile) => {
-			console.log("Done playing audio file.");
-		});
-	}).timeout(0);
-
-	it("can play and stop recordings", function() {
-		return AudioFile.createFromFile(HELLO_FRIENDS_LOCATION)
-		.then((audioFile) => {
-			audioFile.play();
-			return audioFile;
-		})
-		.then((audioFile) => {
-			// Set a timeout for a second.
-			return new Promise(function(resolve) {
-				setTimeout(() => {
-					resolve(audioFile);
-				}, 1000);
+			// Create the audio output stream.
+			currentWavBuffer.audioOutput = new portAudio.AudioOutput({
+				channelCount: NUM_CHANNELS,
+				sampleFormat: FORMAT,
+				sampleRate: RATE,
+				deviceId: -1 // default
 			});
-		})
-		.then((audioFile) => {
-			audioFile.stop();
-		})
-		.then((audioFile) => {
-			console.log("Done with test.");
+
+
+
+			// On error, stop the audio output and reject.
+			let rejected = false;
+			let onError = function(error) {
+				console.error(error);
+				rejected = true;
+				reject(error);
+				currentWavBuffer.audioOutput.end();
+			};
+			readBuffer.on('error', onError);
+			currentWavBuffer.audioOutput.on('error', onError);
+
+			// When we're done reading from the buffer, end the output.
+			readBuffer.on("end", () => {
+				currentWavBuffer.audioOutput.end();
+			})
+
+			// On finish, delete the audioOutput and resolve with 
+			// the audio buffer if it hasn't been rejected.
+			currentWavBuffer.audioOutput.on('finish', () => {
+				currentWavBuffer.audioOutput = null;
+				if (!rejected) {
+					resolve(currentWavBuffer);
+				}
+			});
+
+			// Start piping. 
+			readBuffer.pipe(currentWavBuffer.audioOutput);
+			currentWavBuffer.audioOutput.start();
 		});
-	}).timeout(0);
+	}
 
-	it("can pad both sides of files", function() {
-		return AudioFile.createFromFile(SIN_WAVE_LOCATION)
-		.then((audioFile) => {
-			audioFile.pad(1);
-			return audioFile.play();
-		}).then((audioFile) => {
-			console.log("Done playing audio file.");
+	/**
+	 * If audio output is being played from this.play(), stop it.
+	 */
+	stop() {
+		if (this.audioOutput) {
+			this.audioOutput.end();
+			this.audioOutput = null;
+		}
+	}
+
+	/**
+	 * A private helper function to help set up the input and output streams.
+	 * @static
+	 * @param {Function} resolve - Promise handlers.
+	 * @param {Function} reject - Promise handlers.
+	 * @return {Object} - The resulting streams, stored at audioInput and writeStream
+	 * @private
+	 */
+	static setUpInputAndWriteStreams(resolve, reject) {
+		// Load the audio input source.
+		let audioInput = new portAudio.AudioInput({
+			channelCount: NUM_CHANNELS,
+			sampleFormat: FORMAT,
+			sampleRate: RATE,
+			deviceId: -1 // default
 		});
-	}).timeout(0);
 
-	it("can pad left of files", function() {
-		return AudioFile.createFromFile(SIN_WAVE_LOCATION)
-		.then((audioFile) => {
-			audioFile.padLeft(1);
-			return audioFile.play();
-		}).then((audioFile) => {
-			console.log("Done playing audio file.");
+		// Load a buffer to store the input.
+		let writeStream = new streamBuffers.WritableStreamBuffer();
+		// Events to handle: 
+		// readstream error
+		// writestream error
+		// readstream end
+		// writestream finish
+		// Start piping. 
+
+
+		// On error, stop the audio output and reject.
+		let rejected = false;
+		let onError = function(error) {
+			console.error(error);
+			rejected = true;
+			reject(error);
+			// Triggers readstream end
+			audioInput.quit();
+			writeStream.end();
+		};
+		audioInput.on('error', onError);
+		writeStream.on('error', onError);
+
+		// When we're done reading from the mic, end the writeStream.
+		audioInput.on('end', () => {
+			writeStream.end();
 		});
-	}).timeout(0);
 
-	it("can pad right of files", function() {
-		return AudioFile.createFromFile(SIN_WAVE_LOCATION)
-		.then((audioFile) => {
-			audioFile.padRight(1);
-			return audioFile.play();
-		}).then((audioFile) => {
-			console.log("Done playing audio file.");
-		});
-	}).timeout(0);
-
-	// it("can trim silence off files", function() {
-	// 	return AudioFile.createFromFile(SIN_WAVE_LOCATION)
-	// 	.then((audioFile) => {
-	// 		audioFile.pad(1);
-	// 		audioFile.trimSilent();
-	// 		return audioFile.play();
-	// 	}).then((audioFile) => {
-	// 		console.log("Done playing audio file.");
-	// 	});
-	// }).timeout(0);
-
-	it("can write itself to a new file and return the path", function() {
-		return AudioFile.createFromFile(SIN_WAVE_LOCATION)
-		.then((audioFile) => {
-			let filePath = audioFile.getWavPath();
-			expect(fs.existsSync(filePath)).to.be.true;
-			if (fs.existsSync(filePath)) {
-				fs.unlinkSync(filePath);
+		// On finish, if you hadn't rejected the output, return a new 
+		// AudioBuffer with the data in writeStream.
+		writeStream.on('finish', () => {
+			if (!rejected) {
+				let pcmData = writeStream.getContents();
+				if (!pcmData) {
+					reject(new Error("Problem listening to data."));
+				}
+				else {
+					let recordedBuffer = WavBuffer.generateWavFromPCM(pcmData, {
+						numChannels: NUM_CHANNELS,
+						sampleRate: RATE,
+						bitsPerSample: FORMAT
+					});
+					resolve(AudioFile.createFromWavData(recordedBuffer));
+				}
 			}
 		});
-	});
 
-	it("can write itself to a specified file location", function() {
-		return AudioFile.createFromFile(SIN_WAVE_LOCATION)
-		.then((audioFile) => {
-			let fileName = "./test/testLoc";
-			let filePath = audioFile.writeToFile(fileName);
-			expect(fs.existsSync(fileName + ".wav")).to.be.true;
-			if (fs.existsSync(fileName + ".wav")) {
-				fs.unlinkSync(fileName + ".wav");
-			}
+		return {
+			audioInput: audioInput,
+			writeStream: writeStream
+		}
+	}
+
+
+	/**
+	 * A private helper function to help split the task of recording, since fromRecording grew too large.
+	 * @static
+	 * @param {number} length - The amount of time in seconds to record for. 
+	 * @return {Promise<AudioFile>} - The promise for the proper audio file from the recording. 
+	 * @private
+	 */
+	static recordFixedLength(length = 0) {
+		return new Promise(function(resolve, reject) {
+			// Set up streams 
+			// Implicitly sets readstream and writestream errors, readstream end, writestream finish.
+			// Also implicitly resolve.
+			let streams = AudioFile.setUpInputAndWriteStreams(resolve, reject);
+			let audioInput = streams.audioInput;
+			let writeStream = streams.writeStream;
+
+			// Start piping.
+			audioInput.start();
+			audioInput.pipe(writeStream);
+
+			// Timeout in length time.
+			setTimeout(() => {
+				audioInput.quit();
+			}, length * 1000);
 		});
-	});
-});
+	}
 
-/* test the Text object */
-describe('#Text', function() {
-	it("exists", function() {
-		expect(aurora.Text).to.exist;
-	});
+	/**
+	 * A private helper function to help split the task of recording.
+	 * @static
+	 * @param {number} silenceLength - The amount of silence in seconds to allow before stopping.
+	 * @return {Promise<AudioFile>} - The promise for the proper audio file from the recording. 
+	 * @private
+	 */
+	static recordSilenceAware(silenceLen = 1.0) {
+		return new Promise(function(resolve, reject) {
+			// Set up streams 
+			// Implicitly sets readstream and writestream errors, readstream end, writestream finish.
+			// Also implicitly resolve.
+			let streams = AudioFile.setUpInputAndWriteStreams(resolve, reject);
+			let audioInput = streams.audioInput;
+			let writeStream = streams.writeStream;
 
-	it("can convert Text to Speech using Text.speech()", function() {
-		const wavName = './test/speechResult';
+			let bytesPerSubsample = FORMAT / 8;
+			let subsampleSilenceTarget = RATE * NUM_CHANNELS * silenceLen;
+			let subsamplesInSilence = 0;
 
-		let textObject = new aurora.Text("Hello world!");
+			// Whenever we receive a data chunk, note how long it is. Test if it is silence, 
+			// then, if so, add the time corresponding to the number of samples spent in silence
+			// to samplesInSilence. In either case, write to the data chunk.
+			audioInput.on('data', (dataChunk) => {
+				writeStream.write(dataChunk);
+				
+				// Loop through every subsample in the data chunk to find the one with the max amplitude.
+				let numSubsamplesInChunk = dataChunk.length / bytesPerSubsample;
+				let maxAmplitude = 0;
+				// For each subsample in the dataChunk
+				for (let currentSubsample = 0; currentSubsample < numSubsamplesInChunk; currentSubsample++) {
+					// Get the current subsample
+					let currentSubsampleByteOffset = currentSubsample * bytesPerSubsample;
+					let currentSubsampleValue = dataChunk.readIntLE(currentSubsampleByteOffset, bytesPerSubsample);
 
-		return textObject.speech()
-		.then((speechObject) => {
-			speechObject.audio.writeToFile(wavName);
-			expect(fs.existsSync(wavName + ".wav")).to.be.true;
-			fs.unlinkSync(wavName + ".wav");
+					// Save if greater than max.
+					let currentSubsampleAmplitude = Math.abs(currentSubsampleValue);
+					if (currentSubsampleAmplitude > maxAmplitude) {
+						maxAmplitude = currentSubsampleAmplitude;
+					}
+				}
+
+				// If the maximum amplitude of the sample is greater than our silence threshold, 
+				// reset the subsamples we've spent in silence. 
+				if (maxAmplitude >= SILENT_THRESH) {
+					subsamplesInSilence = 0;
+				}
+				// Otherwise, increment the amount of silence we've encountered.
+				else {
+					subsamplesInSilence += numSubsamplesInChunk;
+				}
+				// If we've spent enough time in silence, finish recording.
+				if (subsamplesInSilence >= subsampleSilenceTarget) {
+					audioInput.quit();
+				}
+			});
+
+			// Start recording.
+			audioInput.start();
 		});
-	});
+	}
 
-	it("can convert Text to Interpret using Text.interpret()", function() {
-		let textObject = new aurora.Text("What is the weather in Los Angeles?");
+	/**
+	 * Starts recording data for the specified amount of time from the default audio device, then 
+	 * returns a Promise for the actual AudioFile class. 
+	 * @static
+	 * @param {number} length - The amount of time in seconds to record for. If 0, it will record indefinitely, until the specified amount of silence.
+	 * @param {number} silenceLength - The amount of silence in seconds to allow before stopping. Ignored if length != 0.
+	 * @return {Promise<AudioFile>} - The promise for the proper audio file from the recording. 
+	 */
+	static fromRecording(length = 0, silenceLength = 1.0) {
+		if (length != 0) {
+			return AudioFile.recordFixedLength(length);
+		}
+		else {
+			return AudioFile.recordSilenceAware(silenceLength);
+		}
+	}
 
-		return textObject.interpret()
-		.then((interpretObject) => {
-			expect(interpretObject.hasOwnProperty('intent')).to.be.true;
-			expect(interpretObject.hasOwnProperty('entities')).to.be.true;
+	/**
+	 * Starts recording data for the specified amount of time from the default audio device, then 
+	 * returns a Promise for the actual AudioFile class. 
+	 * @static
+	 * @param {Buffer} d - A buffer containing wav audio data.
+	 * @return {AudioFile} - A proper audio file. No promise returned. 
+	 */
+	static createFromWavData(d) {
+		return new AudioFile(d);
+	}
+
+	/**
+	 * Reads the audio data from the file, appending the .wav extension to the
+	 * input filename. Returns the result as a promise.
+	 * @static
+	 * @param {string} f - A filename. [filename].wav will be polled for .wav data.
+	 * @return {Promise<AudioFile>} - A promise for an AudioFile. 
+	 */
+	static createFromFile(f) {
+		let readFile = fs.createReadStream(f + WAV_FORMAT_TAG);
+		return AudioFile.createFromStream(readFile);
+	}
+
+	/**
+	 * Reads the .wav audio data from the stream. Returns a promise that will return
+	 * the result.
+	 * @static
+	 * @param {Stream} readStream - A read stream.
+	 * @return {Promise<AudioFile>} - A promise for an AudioFile. 
+	 */
+	static createFromStream(readStream) {
+
+		// Events to handle: 
+		// readstream error
+		// writestream error
+		// readstream end
+		// writestream finish
+		// Start piping. 
+
+		return new Promise(function(resolve, reject) {
+
+			let writeStream = new streamBuffers.WritableStreamBuffer();
+			
+
+			// On error, stop the audio output and reject.
+			let rejected = false;
+			let onError = function(error) {
+				console.error(error);
+				rejected = true;
+				reject(error);
+				// Triggers readstream end
+				writeStream.end();
+			};
+			readStream.on('error', onError);
+			writeStream.on('error', onError);
+
+			// When we're done reading from the mic, end the writeStream.
+			readStream.on('end', () => {
+				writeStream.end();
+			});
+
+			// On finish, if you hadn't rejected the output, return a new 
+			// AudioBuffer with the data in writeStream.
+			writeStream.on('finish', () => {
+				if (!rejected) {
+					let wavData = writeStream.getContents();
+					if (!pcmData) {
+						reject(new Error("Problem with streaming of .wav data."));
+					}
+					else {
+						resolve(AudioFile.createFromWavData(wavData));
+					}
+				}
+			});
+
+			// Start piping.
+			s.pipe(ws);
 		});
-	});
-});
+	}
+};
 
-/* test the Speech object */
-describe('#Speech', function() {
-	it("exists", function() {
-		expect(aurora.Speech).to.exist;
-	});
-
-	it("can convert Speech to Text using Speech.text()", function() {
-		const wavName = HELLO_FRIENDS_LOCATION;
-
-		return AudioFile.createFromFile(wavName)
-		.then((audioFile) => {
-			return new aurora.Speech(audioFile);
-		})
-		.then((speechObject) => {
-			return speechObject.text();
-		})
-		.then((textObject) => {
-			expect(textObject.text).to.be.a('string');
-			fs.unlinkSync(wavName + ".wav");
-		});
-	}).timeout(0);
-
-	it("can record using Speech.listen()", function() {
-		return aurora.Speech.listen(5)
-		.then((speechObject) => {
-			return speechObject.text()
-		})
-		.then((textObject) => {
-			console.log(textObject.text);
-			expect(textObject.text).to.be.a('string');
-		});
-	}).timeout(0);
-
-	it("can record using silence aware Speech.listen()", function() {
-		return aurora.Speech.listen(0, 5)
-		.then((speechObject) => {
-			return speechObject.text()
-		})
-		.then((textObject) => {
-			console.log(textObject.text);
-			expect(textObject.text).to.be.a('string');
-		});
-	}).timeout(0);
-});
+// TODO: implement IsSilent(data) <--- ???
