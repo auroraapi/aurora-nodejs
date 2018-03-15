@@ -372,12 +372,10 @@ module.exports = class AudioFile {
 				// If the maximum amplitude of the sample is greater than our silence threshold, 
 				// reset the subsamples we've spent in silence. 
 				if (maxAmplitude >= SILENT_THRESH) {
-					console.log("Active");
 					subsamplesInSilence = 0;
 				}
 				// Otherwise, increment the amount of silence we've encountered.
 				else {
-					console.log("Inactive");
 					subsamplesInSilence += numSubsamplesInChunk;
 				}
 				// If we've spent enough time in silence, finish recording.
