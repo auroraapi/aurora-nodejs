@@ -367,7 +367,7 @@ module.exports = class WavBuffer {
 	 */
 	realloc(byteCount) {
 		// Create new space for the buffer.
-		let tempBuffer = Buffer.allocUnsafe(this.buffer.length + byteCount);
+		let tempBuffer = Buffer.alloc(this.buffer.length + byteCount);
 		// Copy the data.
 		this.buffer.copy(tempBuffer);
 		// Move DataView references.
@@ -416,8 +416,6 @@ module.exports = class WavBuffer {
 		this.dataHeader;
 		// This holds the start of the actual sound data with no header metadata.
 		this.data;
-		// A "class identifier."
-		this.isAuroraWavBuffer = true;
 		// Stores the encoding scheme of the data for a small performance bump.
 		this.encoding;
 
@@ -477,7 +475,7 @@ module.exports = class WavBuffer {
 	 * @return {WavBuffer} - A new PCM buffer from the given options.
 	 */
 	static generateWavFromPCM(pcmBuffer, options) {
-		let tempBuffer = Buffer.allocUnsafe(pcmBuffer.length + DEFAULT_WAV_HEADER_LEN);
+		let tempBuffer = Buffer.alloc(pcmBuffer.length + DEFAULT_WAV_HEADER_LEN);
 
 		// Load the RIFF header.
 		Buffer.from(CHUNK_ID, ASCII).copy(tempBuffer, CHUNK_ID_POS);
@@ -583,7 +581,7 @@ module.exports = class WavBuffer {
 					if (currentBlockIndex >= dataPointer.length) {
 						return { done : true };
 					}
-					let currentSample = Buffer.allocUnsafe(blockAlign);
+					let currentSample = Buffer.alloc(blockAlign);
 					dataPointer.copy(currentSample, 0, currentBlockIndex, currentBlockIndex + blockAlign);
 
 					let returnValues = [];
@@ -645,7 +643,7 @@ module.exports = class WavBuffer {
 	 * @returns {boolean} true if the object input is a WavBuffer. 
 	 */
 	static isWavBuffer(buffer) {
-		return buffer.hasOwnProperty("isAuroraWavBuffer");
+		return buffer instanceof WavBuffer;
 	}
 
 	/**
@@ -673,8 +671,8 @@ module.exports = class WavBuffer {
 	 * Trims silence off of the sound file. "Silence" in this case
 	 * is defined as any block of time where the amplitude of any sample on any channel 
 	 * does not exceed 1/6th of the maximum amplitude.
-	 * @param {number} silenceThreshold - The threshold for silence. Defaults to 1/16.
-	 * @param {number} blockSeconds - The number of seconds to consider as a single block. Defaults to 1 second. 
+	 * @param {number} [silenceThreshold] - The threshold for silence. Defaults to 1/16.
+	 * @param {number} [blockSeconds] - The number of seconds to consider as a single block. Defaults to 1 second. 
 	 */
 	trimSilence(silenceThreshold=1/16, blockSeconds=1) {
 		let silenceAmplitudeThreshold = this.getMaxAmplitude() * silenceThreshold;
@@ -702,7 +700,7 @@ module.exports = class WavBuffer {
 			for (let samplePos = 0; samplePos < samplesInBlock; samplePos++) {
 				// Get the current sample. 
 				let sampleOffsetInBlock = samplePos * bytesInSample;
-				let currentSample = Buffer.allocUnsafe(bytesInSample);
+				let currentSample = Buffer.alloc(bytesInSample);
 				this.data.copy(currentSample, 0, blockCountPos + sampleOffsetInBlock);
 
 				// Get the values in the sample.
