@@ -113,18 +113,17 @@ describe('#audio', function(){
 		expect(AudioFile).to.exist;
 	});
 
-	it("fromRecording and playback", function(done){
-		AudioFile.fromRecording(1000)
+	it("fromRecording and playback", function(){
+		return AudioFile.fromRecording(1000)
 		.then(function(resultingAudioFile) {
 			resultingAudioFile.play();
-			done();
 		});
 	});
 
 
-	it('converts audio data to .wav file', function(done){
+	it('converts audio data to .wav file', function(){
 		expect(fs.existsSync('test.wav')).to.be.false;
-		AudioFile.fromRecording(1000).then(function(resultingAudioFile){
+		return AudioFile.fromRecording(1000).then(function(resultingAudioFile){
 			resultingAudioFile.writeToFile('test'); // no .wav tag
 			expect(fs.existsSync('test.wav')).to.be.true;
 
@@ -132,12 +131,8 @@ describe('#audio', function(){
 			expect(fs.existsSync(path)).to.be.true;
 
 			// clean up
-			fs.unlink('test.wav', function(){
-				fs.unlink(path, function(){
-					done();
-				});
-			});
-	
+			fs.unlinkSync('test.wav');
+			fs.unlinkSync(path);	
 		});
 	});
 
