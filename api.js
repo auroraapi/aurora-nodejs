@@ -22,6 +22,10 @@ const INTERPRET_PATH = '/v1/interpret/';
 const CONTENT_TYPE = "Content-Type";
 const WAV_MIMETYPE = "audio/wav";
 
+
+const NETWORK_TIMEOUT = 0;
+
+
 module.exports.getHeaders = function() {
 	return {
 		"X-Application-ID": global.aurora.store['appId'],
@@ -40,7 +44,7 @@ module.exports.getTTS = function(text) {
 	let headers = this.getHeaders();
 	let instance = axios.create({
 		baseURL: BASE_URL,
-		timeout: 4000,
+		timeout: NETWORK_TIMEOUT,
 		method: 'get',
 		headers: headers,
 		params: {
@@ -72,7 +76,7 @@ module.exports.getInterpret = function(text) {
 	let headers = this.getHeaders();
 	let instance = axios.create({
 		baseURL: BASE_URL,
-		timeout: 4000,
+		timeout: NETWORK_TIMEOUT,
 		method: 'get',
 		headers: headers,
 		params: {
@@ -103,7 +107,7 @@ module.exports.getSTT = function(audio) {
 	headers[CONTENT_TYPE] = WAV_MIMETYPE;
 	let instance = axios.create({
 		baseURL: BASE_URL,
-		timeout: 4000,
+		timeout: NETWORK_TIMEOUT,
 		method: 'post',
 		headers: headers,
 		responseType: 'json'
