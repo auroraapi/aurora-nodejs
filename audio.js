@@ -9,7 +9,7 @@ const BUF_SIZE = Math.pow(2, 10);
 const SILENT_THRESH = Math.pow(2, 10);
 const NUM_CHANNELS = 1;
 const FORMAT = portAudio.SampleFormat16Bit;  //portAudio.paInt16;
-const RATE = 44100;
+const RATE = 16000;
 
 const WAV_HEADER_SIZE = 44;
 const WAV_FORMAT_TAG = ".wav";
