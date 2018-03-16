@@ -165,24 +165,24 @@ module.exports = class AudioFile {
 	 * @return {AudioFile} - This audio file that resolves when it's done playing.
 	 */
 	play() {
-		let currentWavBuffer = this;
+		let currentAudioFile = this;
 
 		return new Promise(function(resolve, reject) {
 			// If you're already playing, immediately reject.
-			if (currentWavBuffer.audioOutput) {
+			if (currentAudioFile.audioOutput) {
 				reject(new Error("Already playing something"));
 			}
 
 			// Load the data to be streamed.
 			let readBuffer = new streamBuffers.ReadableStreamBuffer();
-			readBuffer.put(currentWavBuffer.getWav());
+			readBuffer.put(currentAudioFile.getWav());
 			readBuffer.stop();
 
 			// Create the audio output stream.
-			currentWavBuffer.audioOutput = new portAudio.AudioOutput({
-				channelCount: NUM_CHANNELS,
-				sampleFormat: FORMAT,
-				sampleRate: RATE,
+			currentAudioFile.audioOutput = new portAudio.AudioOutput({
+				channelCount: currentAudioFile.audio.getNumChannels(),
+				sampleFormat: currentAudioFile.audio.getFmtSubchunkSize(),
+				sampleRate: currentAudioFile.audio.getSampleRate(),
 				deviceId: -1 // default
 			});
 
@@ -194,28 +194,28 @@ module.exports = class AudioFile {
 				console.error(error);
 				rejected = true;
 				reject(error);
-				currentWavBuffer.audioOutput.end();
+				currentAudioFile.audioOutput.end();
 			};
 			readBuffer.on('error', onError);
-			currentWavBuffer.audioOutput.on('error', onError);
+			currentAudioFile.audioOutput.on('error', onError);
 
 			// When we're done reading from the buffer, end the output.
 			readBuffer.on("end", () => {
-				currentWavBuffer.audioOutput.end();
+				currentAudioFile.audioOutput.end();
 			});
 
 			// On finish, delete the audioOutput and resolve with 
 			// the audio buffer if it hasn't been rejected.
-			currentWavBuffer.audioOutput.on('finish', () => {
-				currentWavBuffer.audioOutput = null;
+			currentAudioFile.audioOutput.on('finish', () => {
+				currentAudioFile.audioOutput = null;
 				if (!rejected) {
-					resolve(currentWavBuffer);
+					resolve(currentAudioFile);
 				}
 			});
 
 			// Start piping. 
-			readBuffer.pipe(currentWavBuffer.audioOutput);
-			currentWavBuffer.audioOutput.start();
+			readBuffer.pipe(currentAudioFile.audioOutput);
+			currentAudioFile.audioOutput.start();
 		});
 	}
 
