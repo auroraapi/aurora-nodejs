@@ -13,6 +13,13 @@ aurora.setDeviceId(privateKeys.deviceId);
 // then return a promise with the Speech result.
 aurora.Speech.listen(0, 3)
 .then((speechObject) => {
+	console.log("Playing speech to confirm what we heard...");
+	return speechObject.audio.play()
+	.then(() => {
+		return speechObject;
+	});
+})
+.then((speechObject) => {
 	console.log("Done recording speech! Converting into text...");
 	// Convert the received speech to text.
 	return speechObject.text();
