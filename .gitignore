@@ -1,5 +1,7 @@
 node_modules
-./*.raw
-./*.wav
-test/private.js
+dist
+docs
 
+yarn-error.log
+
+.DS_Store

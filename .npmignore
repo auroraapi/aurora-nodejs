@@ -1,0 +1,6 @@
+lib
+examples
+Makefile
+tsconfig.json
+tslint.json
+yarn-error.log

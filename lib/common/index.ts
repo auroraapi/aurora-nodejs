@@ -1,0 +1,1 @@
+export type Map<T> = { [index: string]: T }
