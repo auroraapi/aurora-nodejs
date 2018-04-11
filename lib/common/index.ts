@@ -1,1 +1,1 @@
-export type Map<T> = { [index: string]: T }
+export interface Map<T> { [index: string]: T; }
