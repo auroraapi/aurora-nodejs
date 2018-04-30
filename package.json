@@ -5,8 +5,8 @@
   "main": "dist/index",
   "typings": "dist/index.d.ts",
   "scripts": {
-    "prepare": "yarn test && yarn build && cp -r dist/* .",
     "prepack": "yarn test && yarn build && cp -r dist/* .",
+    "prepublishOnly": "yarn test && yarn build && cp -r dist/* .",
     "postpack": "python scripts/postpack.py",
     "postpublish": "python scripts/postpack.py",
     "precommit": "yarn build && yarn test && yarn docs && lint-staged -c lint-staged.json",
