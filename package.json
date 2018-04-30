@@ -13,7 +13,7 @@
     "prepush": "yarn test",
     "docs": "typedoc --ignoreCompilerErrors --mode modules --theme default --out docs --exclude \"**/tests/**/*.ts\" \"lib\"",
     "build": "rm -rf dist && tsc --pretty --declaration",
-    "lint": "tslint -c tslint.json -p tsconfig.json -e node_modules --fix",
+    "lint": "tslint -c tslint.json -p tsconfig.json --fix",
     "test": "mocha -r ts-node/register \"lib/tests/**/*.ts\"",
     "clean": "rm -rf dist *.tgz *.tar.gz tmp yarn-error.log"
   },

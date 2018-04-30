@@ -3,6 +3,16 @@
   "extends": [
     "tslint:recommended"
   ],
+  "linterOptions": {
+    "exclude": [
+      "dist",
+      "docs",
+      "examples",
+      "lib/tests",
+      "node_modules",
+      "scripts"
+    ]
+  },
   "jsRules": {},
   "rules": {
     "indent": [true, "spaces", 2],
