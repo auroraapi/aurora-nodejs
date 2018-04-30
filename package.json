@@ -10,7 +10,6 @@
     "postpack": "python scripts/postpack.py",
     "postpublish": "python scripts/postpack.py",
     "precommit": "yarn build && yarn docs && lint-staged -c lint-staged.json",
-    "prepush": "yarn test",
     "docs": "typedoc --ignoreCompilerErrors --mode modules --theme default --out docs --exclude \"**/tests/**/*.ts\" \"lib\"",
     "build": "rm -rf dist && tsc --pretty --declaration",
     "lint": "tslint -c tslint.json -p tsconfig.json --fix",
