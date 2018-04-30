@@ -6,7 +6,9 @@ import { AuroraError, APIError } from '../../errors';
 import { expect } from 'chai';
 import fs from 'fs';
 
-const AUDIO_FILE = "lib/tests/helloFriends.wav";
+const AUDIO_FILE = "lib/tests/test.wav";
+
+const t = (ms: number) => new Promise((resolve, reject) => setTimeout(resolve, ms));
 
 describe("#AudioFile", () => {
 	before(done => {
@@ -67,22 +69,12 @@ describe("#AudioFile", () => {
 	it("should play an AudioFile", done => {
 		AudioFile.fromStream(fs.createReadStream(AUDIO_FILE))
 			.then(audio => {
-				return new Promise((resolve, reject) => {
-					audio.play();
-					setTimeout(() => {
-						try {
-							expect(audio.playing()).to.be.true;
-							audio.stop();
-							resolve();
-						} catch (e) {
-							reject(e);
-						}
-					}, 250);
-				});
+				audio.play();
+				return Promise.resolve().then(() => t(1000));
 			})
 			.then(done)
 			.catch(done);
-	});
+	}).timeout(6000);
 
 	it("should create a recording stream", done => {
 		const s = createRecordingStream(0.25, 0);

@@ -36,31 +36,30 @@ export class AudioFile {
     });
   }
 
-  public async play() {
-    return new Promise((resolve, reject) => {
-      if (this.stream) {
-        this.stream.abort();
-      }
+  public play() {
+    if (this.stream) {
+      this.stream.abort();
+    }
 
-      // Create the audio output stream.
-      this.stream = new portAudio.AudioOutput({
-        channelCount: this.audio.numChannels,
-        deviceId: -1, // use default device
-        sampleFormat: this.audio.bitsPerSample,
-        sampleRate: this.audio.sampleRate,
-      });
-
-      this.stream.on("error", () => undefined);
-      this.stream.on("finish", resolve);
-
-      this.stream.start();
-      this.stream.write(this.audio.audioData);
-      this.stream.end();
+    // Create the audio output stream.
+    this.stream = new portAudio.AudioOutput({
+      channelCount: this.audio.numChannels,
+      deviceId: -1, // use default device
+      sampleFormat: this.audio.bitsPerSample,
+      sampleRate: this.audio.sampleRate,
     });
+
+    this.stream.on("error", () => undefined);
+
+    this.stream.start();
+    this.stream.write(this.audio.audioData);
+    this.stream.end();
   }
 
   public stop() {
     if (this.stream) {
+      this.stream.end();
+      this.stream.quit();
       this.stream.abort();
     }
   }

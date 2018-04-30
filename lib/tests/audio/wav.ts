@@ -17,7 +17,7 @@ describe("#WAV", () => {
 	});
 
 	it("should create a WAV from a file", done => {
-		const f = fs.readFileSync('lib/tests/helloFriends.wav');
+		const f = fs.readFileSync('lib/tests/test.wav');
 		const w = WAV.fromBuffer(f);
 		// these are based on properties of the wav file
 		expect(w.audioData.length).to.equal(f.length - 44);
@@ -29,8 +29,8 @@ describe("#WAV", () => {
 	});
 
 	it("should create a WAV from stream", done => {
-		const f = fs.readFileSync('lib/tests/helloFriends.wav');
-		const s = fs.createReadStream('lib/tests/helloFriends.wav');
+		const f = fs.readFileSync('lib/tests/test.wav');
+		const s = fs.createReadStream('lib/tests/test.wav');
 		WAV.fromStream(s)
 			.then(w => {
 				// these are based on properties of the wav file
@@ -45,7 +45,7 @@ describe("#WAV", () => {
 	});
 
 	it("should add audio data correctly", done => {
-		const f = fs.readFileSync('lib/tests/helloFriends.wav');
+		const f = fs.readFileSync('lib/tests/test.wav');
 		const w = WAV.fromBuffer(f);
 		const oldData = w.audioData.slice();
 		const addData = new Buffer([10,20,30,40]);
@@ -56,7 +56,7 @@ describe("#WAV", () => {
 	});
 
 	it("should create WAV data buffer correctly", done => {
-		const f = fs.readFileSync('lib/tests/helloFriends.wav');
+		const f = fs.readFileSync('lib/tests/test.wav');
 		const w = WAV.fromBuffer(f);
 		const d = w.data();
 

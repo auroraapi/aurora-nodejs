@@ -1,20 +1,20 @@
 {
   "name": "auroraapi",
-  "version": "0.0.1",
+  "version": "0.1.2",
   "description": "Aurora SDK for NodeJS",
   "main": "dist/index",
   "typings": "dist/index.d.ts",
   "scripts": {
-    "prepare": "yarn lint && yarn test && yarn build && cp -r dist/* .",
-    "prepack": "yarn build && cp -r dist/* .",
+    "prepare": "yarn test && yarn build && cp -r dist/* .",
+    "prepack": "yarn test && yarn build && cp -r dist/* .",
     "postpack": "python scripts/postpack.py",
     "postpublish": "python scripts/postpack.py",
-    "precommit": "yarn build && yarn docs && lint-staged -c lint-staged.json",
+    "precommit": "yarn build && yarn test && yarn docs && lint-staged -c lint-staged.json",
     "docs": "typedoc --ignoreCompilerErrors --mode modules --theme default --out docs --exclude \"**/tests/**/*.ts\" \"lib\"",
     "build": "rm -rf dist && tsc --pretty --declaration",
     "lint": "tslint -c tslint.json -p tsconfig.json --fix",
     "test": "mocha -r ts-node/register \"lib/tests/**/*.ts\"",
-    "clean": "rm -rf dist *.tgz *.tar.gz tmp yarn-error.log"
+    "clean": "rm -rf dist *.tgz *.tar.gz tmp yarn-error.log && python scripts/postpack.py"
   },
   "repository": {
     "type": "git",
@@ -29,7 +29,7 @@
     "api",
     "sdk"
   ],
-  "author": "Nikhil Kansal <nkansal96@gmail.com>, Christopher Brown, Anbo Wei",
+  "author": "Nikhil Kansal <nkansal96@gmail.com>",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/nkansal96/aurora-nodejs/issues"
@@ -45,7 +45,6 @@
     "chai": "^4.1.2",
     "husky": "^0.14.3",
     "lint-staged": "^7.0.5",
-
     "mocha": "^5.0.1",
     "ts-node": "^5.0.1",
     "tslint": "^5.9.1",
