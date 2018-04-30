@@ -1,0 +1,47 @@
+{
+  "defaultSeverity": "error",
+  "extends": [
+    "tslint:recommended"
+  ],
+  "linterOptions": {
+    "exclude": [
+      "dist",
+      "docs",
+      "examples",
+      "lib/tests",
+      "node_modules",
+      "scripts"
+    ]
+  },
+  "jsRules": {},
+  "rules": {
+    "indent": [true, "spaces", 2],
+    "interface-name": [true, "never-prefix"],
+    "max-classes-per-file": [true, 4, "exclude-class-expressions"],
+    "member-ordering": [
+      true,
+      {
+        "order": [
+          "public-instance-field",
+          "protected-instance-field",
+          "private-instance-field",
+          "public-static-field",
+          "protected-static-field",
+          "private-static-field",
+          "public-constructor",
+          "protected-constructor",
+          "private-constructor",
+          "public-static-method",
+          "protected-static-method",
+          "private-static-method",
+          "public-instance-method",
+          "protected-instance-method",
+          "private-instance-method"
+        ]
+      }
+    ],
+    "no-bitwise": false,
+    "no-var-requires": false
+  },
+  "rulesDirectory": []
+}

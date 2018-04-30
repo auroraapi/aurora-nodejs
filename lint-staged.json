@@ -1,0 +1,12 @@
+{
+  "ignore": [
+    "**/dist/**/*",
+    "**/docs/**/*",
+    "**/examples/**/*",
+    "**/lib/tests/**/*",
+    "**/scripts/**/*"
+  ],
+  "linters": {
+    "lib/**/*.ts": ["yarn lint", "git add"]
+  }
+}

@@ -1,6 +1,4 @@
 # Aurora NodeJS SDK
-Christopher Brown (904594941)
-Anbo Wei (604480880)
 
 ## Overview
 
@@ -35,86 +33,167 @@ $ npm install auroraapi
 
 First, make sure you have an account with [Aurora](http://dashboard.auroraapi.com) and have created an Application.
 
+Code examples can be found in the `examples` directory. You can run them directly by specifying the `APP_ID` and `APP_TOKEN` environment variables (or pasting them into the source directly). You'll also need to have [yarn](http://yarnpkg.org/en) installed and run `yarn build`.
+
+This repository will show examples written using TypeScript, but you can also write them in plain ES6+. Here's a TypeScript example (with async/await):
+
+```typescript
+import aurora from "auroraapi";
+import { Text } from "auroraapi/text";
+
+aurora.config.appId    = "YOUR_APP_ID";
+aurora.config.appToken = "YOUR_APP_TOKEN";
+
+async function main() {
+  const text = new Text("Hello World");
+  const speech = await text.speech();
+  await speech.audio.play();
+}
+
+try {
+  main()
+} catch (e) {
+  console.error(e);
+}
+```
+
+and the equivalent example in ES6 (with regular promises):
+
+```javascript
+const aurora = require('auroraapi');
+const { Text } = require('auroraapi/text');
+
+aurora.config.appId    = "YOUR_APP_ID";
+aurora.config.appToken = "YOUR_APP_TOKEN";
+
+const text = new Text("Hello World!");
+text.speech()
+  .then(speech => speech.audio.play())
+  .catch(console.error);
+```
+
+The rest of this section is more specific code examples that show the various functionality of the library and document its behavior.
+
 ### Text to Speech (TTS)
 
-```Javascript
+```Typescript
 // Import the package
-const aurora = require('auroraapi');
+import aurora from "auroraapi";
+import { Text } from "auroraapi/text";
 
-// Set your application settings
-aurora.setAppId('YOUR_APP_ID'); // put your app ID here
-aurora.setAppToken('YOUR_APP_TOKEN'); // put your app token here
+// set your credentials
+aurora.config.appId    = "YOUR_APP_ID";
+aurora.config.appToken = "YOUR_APP_TOKEN";
+aurora.config.deviceID = "YOUR_DEVICE_ID"; // optional
 
-// query the TTS service
-let speech = aurora.Text('Hello world').speech();
+(async function() {
+	// query the TTS service
+	const speech = await (new Text("Hello World")).speech();
+	
+	// play the resulting audio
+	await speech.audio.play()
 
-// play the resulting audio
-speech.audio.play();
-
-// or save it to a file
-speech.audio.writeToFile('test.wav');
-
+	// or save it to a file
+	await speech.audio.writeToFile('hello_world.wav');
+})();
 ```
 
 ### Speech to Text (STT)
 
 #### Convert a WAV file to Speech
 
-```Javascript
-// import the package
-const aurora = require('auroraapi');
+```typescript
+import fs from 'fs';
+import aurora from "auroraapi";
+import { Speech } from "auroraapi/speech";
+import { AudioFile } from "auroraapi/audio";
 
-// set your application settings
-aurora.setAppId('YOUR_APP_ID'); // put your app ID here
-aurora.setAppToken('YOUR_APP_TOKEN'); // put your app token here
+aurora.config.appId    = "YOUR_APP_ID";
+aurora.config.appToken = "YOUR_APP_TOKEN";
 
-// load a WAV file
-let a = aurora.audio.AudioFile.createFromFile('test.wav');
-
-let p = aurora.Speech(a).text();
-console.log(p.text);
+(async function() {
+	// load a WAV file
+	const stream = fs.createReadStream('hello_world.wav')
+	const audio = await AudioFile.fromStream(stream);
+	
+	// create a speech object from the audio and convert to text
+	const text = await (new Speech(audio)).text();
+	console.log(`Transcription: ${text.text}`);
+})();
 ```
 
 #### Convert a previous Text API call to Speech
-```Javascript
-// call the TTS API to convert "Hello world" to speech
-let speech = aurora.Text('Hello world').speech();
+```typescript
+import aurora from "auroraapi";
+import { Text } from "auroraapi/text";
+import { AudioFile } from "auroraapi/audio";
 
-// previous API returned a speech object, so we can just call
-// the text() method to get a prediction
-let p = speech.text();
-console.log(p.text);
+aurora.config.appId    = "YOUR_APP_ID";
+aurora.config.appToken = "YOUR_APP_TOKEN";
+
+(async function() {
+	// load a WAV file
+	const speech = await (new Text("Hello world")).speech();
+
+	// the previous API method returns a Speech object, so we can just call
+	// the text() method to get a prediction
+	let text = speech.text();
+	console.log(`Transcription: ${text.text}`);
+})();
 ```
 
 #### Listen for a specified amount of time
-This is a PENDING feature and will be implemented at a later time
 
-```Javascript
-// listen for 3 seconds
-let speech = aurora.Speech.listen(3000);
+```typescript
+import aurora from "auroraapi";
+import { listen, createDefaultListenParams } from "auroraapi/speech";
 
-// convert to text
-let p = speech.text();
-console.log(p.text);
+aurora.config.appId    = "YOUR_APP_ID";
+aurora.config.appToken = "YOUR_APP_TOKEN";
+
+(async function() {
+	// listening requires some parameters. we have calibrated the defaults
+	// so you should include them if you don't intend to override them. You
+	// can do this by calling `createDefaultListenParams` to get the default
+	// params, and then override the ones you want
+	const params = createDefaultListenParams();
+	// listen for 3 seconds, ignoring trailing silence
+	// setting `length` overrides the other setting (`silenceLen`), which 
+	// listens until a period of consecutive silence. This detail will be
+	// explored in the next example.
+	params.length = 3.0;
+	const speech = await listen(params)
+
+	// convert the recorded speech to text
+	let text = speech.text();
+	console.log(`Transcription: ${text.text}`);
+})();
 ```
 
 #### Listen for an unspecified amount of time
-This is a PENDING feature and will be implemented at a later time
 
-```Javascript
-// start listening until 1.0 seconds of silence
-let speech = aurora.Speech.listen();
-// or specify your own silence timeout (0.5 seconds shown here)
-// let speech = aurora.Speech.listen(silence_len=0.5)
+```Typescript
+import aurora from "auroraapi";
+import { listen, createDefaultListenParams } from "auroraapi/speech";
 
-// convert to text
-let p = speech.text();
-console.log(p.text); // prints the prediction
+aurora.config.appId    = "YOUR_APP_ID";
+aurora.config.appToken = "YOUR_APP_TOKEN";
+
+(async function() {
+	const params = createDefaultListenParams();
+	// listen until there is 0.5 seconds of continuous silence, not including
+	// any trailing silence. Note that this property is not taken into account
+	// if `length` is non-zero.
+	params.silenceLen = 0.5;
+	const speech = await listen(params)
+
+	// convert the recorded speech to text
+	let text = speech.text();
+	console.log(`Transcription: ${text.text}`);
+})();
 ```
 
 #### Continuously listen
-This is a PENDING feature and will be implemented at a later time
-
 
 Continuously listen and retrieve speech segments. Note: you can do anything with these speech segments, but here we'll convert them to text. Just like the previous example, these segments are demarcated by silence (1.0 second by default) and can be changed by passing the `silence_len` parameter. Additionally, you can make these segments fixed length (as in the example before the previous) by setting the `length` parameter.
 

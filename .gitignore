@@ -1,5 +1,7 @@
+dist
 node_modules
-./*.raw
-./*.wav
-test/private.js
 
+yarn-error.log
+
+.DS_Store
+*.tgz
