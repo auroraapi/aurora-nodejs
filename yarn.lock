@@ -1731,8 +1731,8 @@ natural-compare@^1.4.0:
   resolved "https://registry.yarnpkg.com/natural-compare/-/natural-compare-1.4.0.tgz#4abebfeed7541f2c27acfb29bdbbd15c8d5ba4f7"
 
 node-portaudio@^0.4.8:
-  version "0.4.8"
-  resolved "https://registry.yarnpkg.com/node-portaudio/-/node-portaudio-0.4.8.tgz#96b10ea3f20fe5e779d6f6a7565bca8013683919"
+  version "0.4.9"
+  resolved "https://registry.yarnpkg.com/node-portaudio/-/node-portaudio-0.4.9.tgz#64b935b33c1d51b56c5108a307677d7525a2babe"
   dependencies:
     bindings "^1.3.0"
     nan "^2.10.0"
