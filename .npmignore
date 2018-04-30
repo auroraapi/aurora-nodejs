@@ -1,6 +1,11 @@
 lib
+dist
+docs
 examples
+scripts
+
 Makefile
+lint-staged.json
 tsconfig.json
 tslint.json
 yarn-error.log

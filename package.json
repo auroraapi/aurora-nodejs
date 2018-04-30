@@ -3,15 +3,19 @@
   "version": "0.0.1",
   "description": "Aurora SDK for NodeJS",
   "main": "dist/index",
-  "typings": "lib/index.d.ts",
+  "typings": "dist/index.d.ts",
   "scripts": {
-    "prepublish": "yarn lint && yarn test && yarn build",
-    "precommit": "yarn lint && yarn build",
+    "prepare": "yarn lint && yarn test && yarn build && cp -r dist/* .",
+    "prepack": "yarn build && cp -r dist/* .",
+    "postpack": "python scripts/postpack.py",
+    "postpublish": "python scripts/postpack.py",
+    "precommit": "yarn build && yarn docs && lint-staged -c lint-staged.json",
     "prepush": "yarn test",
+    "docs": "typedoc --ignoreCompilerErrors --mode modules --theme default --out docs --exclude \"**/tests/**/*.ts\" \"lib\"",
     "build": "rm -rf dist && tsc --pretty --declaration",
     "lint": "tslint -c tslint.json -p tsconfig.json -e node_modules --fix",
     "test": "mocha -r ts-node/register \"lib/tests/**/*.ts\"",
-    "test-integ": "mocha -r ts-node/register lib/tests/integration.ts"
+    "clean": "rm -rf dist *.tgz *.tar.gz tmp yarn-error.log"
   },
   "repository": {
     "type": "git",
@@ -36,24 +40,21 @@
     "node": ">=6.9.0"
   },
   "devDependencies": {
-    "@types/axios": "^0.14.0",
     "@types/chai": "^4.1.2",
-    "@types/chai-as-promised": "^7.1.0",
     "@types/mocha": "^5.0.0",
     "@types/node": "^9.4.7",
     "chai": "^4.1.2",
-    "chai-as-promised": "^7.1.1",
     "husky": "^0.14.3",
-    "jsdoc": "^3.5.5",
+    "lint-staged": "^7.0.5",
+
     "mocha": "^5.0.1",
     "ts-node": "^5.0.1",
     "tslint": "^5.9.1",
+    "typedoc": "^0.11.1",
     "typescript": "^2.7.2"
   },
   "dependencies": {
     "axios": "^0.17.1",
-    "https-post": "^0.1.1",
-    "naudiodon": "^0.4.6",
-    "stream-buffers": "^3.0.1"
+    "node-portaudio": "^0.4.8"
   }
 }

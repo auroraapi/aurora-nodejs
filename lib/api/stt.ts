@@ -1,5 +1,5 @@
 import { Readable } from "stream";
-import WAV from "../audio/wav";
+import { WAV } from "../audio/wav";
 import { Config } from "../config";
 import { Credentials, Method } from "./backend";
 import { STT_PATH } from "./backend/aurora";
@@ -19,7 +19,7 @@ export interface STTResponse {
  * @param config configuration to use for the call
  * @param audio the audio to convert to text.
  */
-export default async function getSTT(config: Config, audio: Readable | WAV) {
+export async function getSTT(config: Config, audio: Readable | WAV) {
   const res = await config.backend.call({
     body: audio instanceof WAV ? audio.data() : audio,
     credentials: config as Credentials,

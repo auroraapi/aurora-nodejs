@@ -1,12 +1,11 @@
 import { AuroraError } from "../errors";
 import { record } from "./util";
-import WAV from "./wav";
+import { WAV } from "./wav";
 
 import fs from "fs";
 import { PassThrough, Readable } from "stream";
 
-// naudiodon doesn't support ES2016 style imports :(
-const portAudio = require("naudiodon");
+import * as portAudio from "node-portaudio";
 
 export class AudioFile {
   private audio: WAV;
@@ -40,8 +39,7 @@ export class AudioFile {
   public async play() {
     return new Promise((resolve, reject) => {
       if (this.stream) {
-        this.stream.end();
-        this.stream.quit();
+        this.stream.abort();
       }
 
       // Create the audio output stream.
@@ -52,24 +50,18 @@ export class AudioFile {
         sampleRate: this.audio.sampleRate,
       });
 
-      this.stream.on("error", reject);
+      this.stream.on("error", () => undefined);
       this.stream.on("finish", resolve);
-      this.stream.start();
 
-      for (let i = 0; i < this.audio.audioData.byteLength; i += 1024) {
-        if (!this.stream) {
-          break;
-        }
-        this.stream.write(this.audio.audioData.slice(i, i + 1024));
-      }
+      this.stream.start();
+      this.stream.write(this.audio.audioData);
+      this.stream.end();
     });
   }
 
   public stop() {
     if (this.stream) {
-      this.stream.end();
-      this.stream.quit();
-      this.stream = null;
+      this.stream.abort();
     }
   }
 

@@ -19,7 +19,7 @@ export interface InterpretResponse {
  * @param config configuration to use for the call
  * @param text the text to interpret
  */
-export default async function getInterpret(config: Config, text: string) {
+export async function getInterpret(config: Config, text: string) {
   const res = await config.backend.call({
     credentials: config as Credentials,
     method: Method.GET,

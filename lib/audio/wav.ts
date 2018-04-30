@@ -17,7 +17,7 @@ export const DEFAULT_BITS_PER_SAMPLE = 16;
  * @version 0.1.0
  * @author [Nikhil Kansal](https://github.com/nkansal96)
  */
-export default class WAV {
+export class WAV {
   /** The raw PCM audio data */
   public audioData: Buffer;
   /** The number of channels in the audio data */

@@ -1,4 +1,4 @@
-import WAV from '../../audio/wav';
+import { WAV } from '../../audio/wav';
 import { AudioFile, createRecordingStream } from '../../audio';
 import { opts } from '../../audio/util';
 import { AuroraError, APIError } from '../../errors';

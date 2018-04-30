@@ -1,6 +1,6 @@
-import getSTT from "./api/stt";
+import { getSTT } from "./api/stt";
 import { AudioFile, createRecordingStream } from "./audio";
-import config from "./config";
+import { config } from "./config";
 import { Text } from "./text";
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -81,23 +81,58 @@ export class Speech {
   }
 }
 
+/**
+ * Various parameters used to configure the audio recording.
+ */
 export interface ListenParams {
+  /**
+   * The amount of time (in seconds) to record for. Specifying this overrides
+   * any value set for `silenceLen`. Note that the recording function will discard
+   * silence at the beginning of the recording until some non-silence, and then will
+   * start recording for `length` additional seconds.
+   */
   length: number;
+
+  /**
+   * The amount of time (in seconds) of silence to tolerate before ending the recording.
+   * This value is only taken into account when `length` is set to 0. Note that the
+   * recording function will still discard silence at the beginning of the recording
+   * until some non-silence, and then will start recording until it finds `silenceLen`
+   * consecutive seconds of silence.
+   */
   silenceLen: number;
 }
 
-export function createDefaultListenParams() {
-  return {
-    length: DEFAULT_LISTEN_LENGTH,
-    silenceLen: DEFAULT_SILENCE_LENGTH,
-  };
-}
+/**
+ * Creates an object with the default values for the listening parameters.
+ * You should use this to create the listen params and then modify the
+ * parameters you want to specify.
+ */
+export const createDefaultListenParams = (): ListenParams => ({
+  length: DEFAULT_LISTEN_LENGTH,
+  silenceLen: DEFAULT_SILENCE_LENGTH,
+});
 
+/**
+ * Listen on the recording device given the parameters. It resolves with
+ * a Speech object encapsulating the captured audio.
+ *
+ * @param params the listening parameters
+ */
 export async function listen(params: ListenParams = createDefaultListenParams()) {
   const audio = await AudioFile.fromRecording(params.length, params.silenceLen);
   return new Speech(audio);
 }
 
+/**
+ * Continuously listens on the recording device with the given paramters. It
+ * passes the detected speech as the first argument to the provided callback.
+ * This function does this repeatedly until the callback function returns
+ * false or throws an error.
+ *
+ * @param params the listening params
+ * @param handleFn the function that handles each incoming speech segment
+ */
 export async function continuouslyListen(params: ListenParams, handleFn: SpeechHandler) {
   for (;;) {
     let speech = null;
@@ -113,12 +148,33 @@ export async function continuouslyListen(params: ListenParams, handleFn: SpeechH
   }
 }
 
+/**
+ * Listen on the recording device given the parameters. Once the recording starts
+ * it streams the audio to the Aurora API to immediately begin transcribing.
+ *
+ * This function resolves with a Text instance, containing the final transcribed
+ * text.
+ *
+ * @param params the listening parameters
+ */
 export async function listenAndTranscribe(params: ListenParams = createDefaultListenParams()) {
   const stream = createRecordingStream(params.length, params.silenceLen);
   const text = await getSTT(config, stream);
   return new Text(text.transcript);
 }
 
+/**
+ * Continuously listens on the recording device with the given paramters.
+ * Once the recording starts it streams the audio to the Aurora API to
+ * immediately begin transcribing. This function resolves with a Text
+ * instance, containing the final transcribed text.
+ *
+ * This function does this repeatedly until the callback function returns
+ * false or throws an error.
+ *
+ * @param params the listening params
+ * @param handleFn the function that handles each incoming text segment
+ */
 export async function continuouslyListenAndTranscribe(params: ListenParams, handleFn: TextHandler) {
   for (;;) {
     let text = null;

@@ -69,12 +69,12 @@ export type CallResponse = Readable | Buffer | Map<any>;
  * @version 0.1.0
  * @author [Nikhil Kansal](http://github.com/nkansal96)
  */
-export default abstract class Backend {
-  /** the axios http client */
+export abstract class Backend {
+  /** the axios HTTP client */
   protected http: AxiosInstance;
 
   /**
-   * Creates the http client using the given base URL
+   * Creates the HTTP client using the given base URL
    *
    * @param baseURL the base URL to use for requests
    */

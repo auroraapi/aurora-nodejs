@@ -1,5 +1,5 @@
-import Backend from "../api/backend";
-import AuroraBackend from "../api/backend/aurora";
+import { Backend } from "../api/backend";
+import { AuroraBackend } from "../api/backend/aurora";
 
 /**
  * Configuration for the SDK.
@@ -12,19 +12,19 @@ export class Config {
    * (required) The application ID. This field is sent to the Aurora API
    * as the 'X-Application-ID' header.
    */
-  public appId: string = "";
+  public appId?: string;
   /**
    * (required) The application token. This field is sent to the Aurora
    * API as the 'X-Application-Token' header.
    */
-  public appToken: string = "";
+  public appToken?: string;
   /**
    * (optional) The unique device ID. This field is sent to the Aurora API
    * as the 'X-Device-ID' header. To generate meaningful analytics, you should
    * ensure that this is unique across all devices and decribes the device
    * over its entire lifetime.
    */
-  public deviceId: string = "";
+  public deviceId?: string;
 
   /**
    * The backend to use for the API calls. By default, this is configured
@@ -37,5 +37,4 @@ export class Config {
 /**
  * The default instance of the configuration, used by the SDK.
  */
-const config = new Config();
-export default config;
+export const config = new Config();

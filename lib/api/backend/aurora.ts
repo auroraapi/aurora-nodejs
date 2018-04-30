@@ -1,4 +1,4 @@
-import Backend, { CallParams, CallResponse } from ".";
+import { Backend, CallParams, CallResponse } from ".";
 import { APIError, AuroraError } from "../../errors";
 import { fromAnyToJSON } from "./util";
 
@@ -15,16 +15,16 @@ export const STT_PATH = "/stt";
  * @version 0.1.0
  * @author [Nihil Kansal](http://github.com/nkansal96)
  */
-export default class AuroraBackend extends Backend {
+export class AuroraBackend extends Backend {
   /**
    * Create the backend with the Aurora API endpoint
    */
-  constructor() {
-    super(API_BASE_URL);
+  constructor(url: string = API_BASE_URL) {
+    super(url);
   }
 
   /**
-   * Create an execute a call to the Aurora backend. Upon success, it returns
+   * Create and execute a call to the Aurora backend. Upon success, it returns
    * the response from the backend (either as JSON or a stream). If the request
    * fails due to a backend error, an instance of `APIError` is thrown. If the
    * request fails due to a local error, an instance of `Error` is thrown.

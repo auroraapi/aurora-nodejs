@@ -1,6 +1,6 @@
-import getInterpret from "./api/interpret";
-import getTTS from "./api/tts";
-import config from "./config";
+import { getInterpret } from "./api/interpret";
+import { getTTS } from "./api/tts";
+import { config } from "./config";
 
 import { Interpret } from "./interpret";
 import { Speech } from "./speech";

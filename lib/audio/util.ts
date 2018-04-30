@@ -1,8 +1,6 @@
+import * as portAudio from "node-portaudio";
 import { Duplex, PassThrough, Readable } from "stream";
 import * as WAV from "./wav";
-
-// naudiodon doesn't support ES2016 style imports :(
-const portAudio = require("naudiodon");
 
 const SILENT_THRESH = 1 << 11;
 const BUF_SIZE      = 1 << 12;
@@ -41,7 +39,7 @@ export function record(length: number, silenceLen: number): PassThrough {
     highWaterMark: 64 * BUF_SIZE,
   });
 
-  const stream = portAudio.AudioInput({
+  const stream = new portAudio.AudioInput({
     channelCount: WAV.DEFAULT_NUM_CHANNELS,
     deviceId: -1, // use default device
     sampleFormat: WAV.DEFAULT_BITS_PER_SAMPLE,
@@ -55,10 +53,7 @@ export function record(length: number, silenceLen: number): PassThrough {
   let silenceStart = opts.ignoreLeadingSilence;
   let preSilenceBufs: Buffer[] = [];
 
-  stream.on("error", (err: Error) => {
-    read.emit("error", err);
-    stream.quit();
-  });
+  stream.on("error", () => undefined);
   stream.on("data", (chunk: Buffer) => {
     if (silenceStart) {
       preSilenceBufs.push(chunk);

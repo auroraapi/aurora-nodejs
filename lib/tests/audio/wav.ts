@@ -1,12 +1,8 @@
-import WAV from '../../audio/wav';
+import { WAV } from '../../audio/wav';
 import { AuroraError, APIError } from '../../errors';
 
-import chaiAsPromised from 'chai-as-promised';
-import chai from 'chai';
+import { expect } from 'chai';
 import fs from 'fs';
-
-chai.use(chaiAsPromised);
-const { expect } = chai;
 
 describe("#WAV", () => {
 	it("should create an empty WAV", done => {
