@@ -29,12 +29,12 @@
     "api",
     "sdk"
   ],
-  "author": "Nikhil Kansal <nkansal96@gmail.com>",
+  "author": "Nikhil Kansal <nikhil@auroraapi.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/nkansal96/aurora-nodejs/issues"
+    "url": "https://github.com/auroraapi/aurora-nodejs/issues"
   },
-  "homepage": "https://github.com/nkansal96/aurora-nodejs#readme",
+  "homepage": "https://github.com/auroraapi/aurora-nodejs#readme",
   "engines": {
     "node": ">=6.9.0"
   },

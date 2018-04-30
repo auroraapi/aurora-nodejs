@@ -57,7 +57,7 @@ describe("#AudioFile", () => {
 	});
 
 	it("should create AudioFile from recording", done => {
-		AudioFile.fromRecording(0.25, 0)
+		AudioFile.fromRecording(0.01, 0)
 			.then(audio => {
 				expect(audio).to.be.an.instanceOf(AudioFile);
 				expect(audio.getAudio()).to.be.an.instanceOf(WAV);
@@ -70,14 +70,14 @@ describe("#AudioFile", () => {
 		AudioFile.fromStream(fs.createReadStream(AUDIO_FILE))
 			.then(audio => {
 				audio.play();
-				return Promise.resolve().then(() => t(1000));
+				return Promise.resolve().then(() => t(25));
 			})
 			.then(done)
 			.catch(done);
-	}).timeout(6000);
+	})
 
 	it("should create a recording stream", done => {
-		const s = createRecordingStream(0.25, 0);
+		const s = createRecordingStream(0.01, 0);
 
 		const bufs: Buffer[] = [];
 		s.on('data', (data: Buffer) => bufs.push(data));

@@ -6,7 +6,7 @@ import fs from 'fs';
 
 describe("#record", () => {
 	it("should record fixed length", done => {
-		const s = record(0.25, 0);
+		const s = record(0.01, 0);
 		const bufs: Buffer[] = [];
 		let ended = false;
 
@@ -23,6 +23,6 @@ describe("#record", () => {
 			if (!ended) {
 				s.emit('close');
 			}
-		}, 1500);
-	}).timeout(5000);
+		}, 50);
+	});
 });
