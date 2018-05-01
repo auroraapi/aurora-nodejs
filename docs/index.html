@@ -261,7 +261,7 @@ aurora.config.appToken = <span class="hljs-string">"YOUR_APP_TOKEN"</span>;
  */</span>
 (<span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
   <span class="hljs-keyword">const</span> params = createDefaultListenParams();
-    params.silenceLen = <span class="hljs-number">0.5</span>;
+  params.silenceLen = <span class="hljs-number">0.5</span>;
   <span class="hljs-keyword">await</span> continuouslyListen(params, listenHandler)
 })();
 
@@ -272,7 +272,7 @@ aurora.config.appToken = <span class="hljs-string">"YOUR_APP_TOKEN"</span>;
  */</span>
 (<span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
   <span class="hljs-keyword">const</span> params = createDefaultListenParams();
-    params.length = <span class="hljs-number">3.0</span>;
+  params.length = <span class="hljs-number">3.0</span>;
   <span class="hljs-keyword">await</span> continuouslyListen(params, listenHandler)
 })();
 </code></pre>
@@ -312,10 +312,10 @@ aurora.config.appToken = <span class="hljs-string">"YOUR_APP_TOKEN"</span>;
 (<span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
   <span class="hljs-keyword">const</span> params = createDefaultListenParams();
 
-    <span class="hljs-comment">// use this one to listen and transcribe once</span>
-    <span class="hljs-keyword">const</span> text = <span class="hljs-keyword">await</span> listenAndTranscribe();
+  <span class="hljs-comment">// use this one to listen and transcribe once</span>
+  <span class="hljs-keyword">const</span> text = <span class="hljs-keyword">await</span> listenAndTranscribe();
 
-    <span class="hljs-comment">// use this one to continuously listen and transcribe</span>
+  <span class="hljs-comment">// use this one to continuously listen and transcribe</span>
   <span class="hljs-keyword">await</span> continuouslyListenAndTranscribe(params, listenHandler)
 })();
 </code></pre>
@@ -395,7 +395,7 @@ aurora.config.appToken = <span class="hljs-string">"YOUR_APP_TOKEN"</span>;
   }
 
   <span class="hljs-comment">// interpret and print the results</span>
-    <span class="hljs-keyword">const</span> i = <span class="hljs-keyword">await</span> (<span class="hljs-keyword">new</span> Text(text)).interpret();
+  <span class="hljs-keyword">const</span> i = <span class="hljs-keyword">await</span> (<span class="hljs-keyword">new</span> Text(text)).interpret();
   <span class="hljs-built_in">console</span>.log(i.intent, i.entities);
   }
 })();
