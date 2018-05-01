@@ -69,6 +69,16 @@
 <div class="container container-main">
 	<div class="row">
 		<div class="col-8 col-content">
+			<section class="tsd-panel tsd-comment">
+				<div class="tsd-comment tsd-typography">
+					<div class="lead">
+						<p>AudioFile represents an audio file. Its underlying data container is
+							a WAV file. This class provides high level functions to create WAV
+							files in memory from various sources, including a WAV object, a Buffer,
+						a Stream, or from recording. It also lets you play and save files.</p>
+					</div>
+				</div>
+			</section>
 			<section class="tsd-panel tsd-hierarchy">
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
@@ -123,13 +133,24 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in audio/index.ts:12</li>
+									<li>Defined in <a href="https://github.com/auroraapi/aurora-nodejs/blob/94fe953/lib/audio/index.ts#L19">audio/index.ts:19</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Creates an AudioFile from either a WAV object or a Buffer, which is converted
+										to a WAV object. If passing a Buffer, it needs to be a valid WAV file with
+									correct header fields.</p>
+								</div>
+							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
 									<h5>audio: <a href="_audio_wav_.wav.html" class="tsd-signature-type">WAV</a><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Buffer</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<div class="lead">
+										</div>
+									</div>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <a href="_audio_index_.audiofile.html" class="tsd-signature-type">AudioFile</a></h4>
@@ -145,9 +166,14 @@
 					<div class="tsd-signature tsd-kind-icon">audio<span class="tsd-signature-symbol">:</span> <a href="_audio_wav_.wav.html" class="tsd-signature-type">WAV</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in audio/index.ts:11</li>
+							<li>Defined in <a href="https://github.com/auroraapi/aurora-nodejs/blob/94fe953/lib/audio/index.ts#L17">audio/index.ts:17</a></li>
 						</ul>
 					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>the WAV file encapsulated by this object</p>
+						</div>
+					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private">
 					<a name="stream" class="tsd-anchor"></a>
@@ -155,9 +181,14 @@
 					<div class="tsd-signature tsd-kind-icon">stream<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in audio/index.ts:12</li>
+							<li>Defined in <a href="https://github.com/auroraapi/aurora-nodejs/blob/94fe953/lib/audio/index.ts#L19">audio/index.ts:19</a></li>
 						</ul>
 					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>a reference to the node-portaudio stream that is currently playing this file</p>
+						</div>
+					</div>
 				</section>
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
@@ -172,10 +203,13 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in audio/index.ts:71</li>
+									<li>Defined in <a href="https://github.com/auroraapi/aurora-nodejs/blob/94fe953/lib/audio/index.ts#L112">audio/index.ts:112</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+							</div>
 							<h4 class="tsd-returns-title">Returns <a href="_audio_wav_.wav.html" class="tsd-signature-type">WAV</a></h4>
+							<p>the underlying WAV object</p>
 						</li>
 					</ul>
 				</section>
@@ -189,10 +223,13 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in audio/index.ts:75</li>
+									<li>Defined in <a href="https://github.com/auroraapi/aurora-nodejs/blob/94fe953/lib/audio/index.ts#L119">audio/index.ts:119</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+							</div>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Buffer</span></h4>
+							<p>the fully-formatted WAV file (with correct headers) from the underlying WAV object</p>
 						</li>
 					</ul>
 				</section>
@@ -206,9 +243,15 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in audio/index.ts:39</li>
+									<li>Defined in <a href="https://github.com/auroraapi/aurora-nodejs/blob/94fe953/lib/audio/index.ts#L71">audio/index.ts:71</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Plays the song asynchronously to the default output device. If you want to
+									stop playback, you can call the <code>stop()</code> function on this object.</p>
+								</div>
+							</div>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
 						</li>
 					</ul>
@@ -223,10 +266,13 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in audio/index.ts:67</li>
+									<li>Defined in <a href="https://github.com/auroraapi/aurora-nodejs/blob/94fe953/lib/audio/index.ts#L105">audio/index.ts:105</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+							</div>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
+							<p>true if the AudioFile is currently playing.</p>
 						</li>
 					</ul>
 				</section>
@@ -240,9 +286,14 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in audio/index.ts:59</li>
+									<li>Defined in <a href="https://github.com/auroraapi/aurora-nodejs/blob/94fe953/lib/audio/index.ts#L94">audio/index.ts:94</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Stops the playback</p>
+								</div>
+							</div>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
 						</li>
 					</ul>
@@ -251,19 +302,27 @@
 					<a name="writetofile" class="tsd-anchor"></a>
 					<h3>write<wbr>ToFile</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">write<wbr>ToFile<span class="tsd-signature-symbol">(</span>fname<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">Object</span><span class="tsd-signature-symbol">&gt;</span></li>
+						<li class="tsd-signature tsd-kind-icon">write<wbr>ToFile<span class="tsd-signature-symbol">(</span>path<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">Object</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in audio/index.ts:79</li>
+									<li>Defined in <a href="https://github.com/auroraapi/aurora-nodejs/blob/94fe953/lib/audio/index.ts#L128">audio/index.ts:128</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Writes the underlying WAV file to the given path asynchronously.</p>
+								</div>
+							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>fname: <span class="tsd-signature-type">string</span></h5>
+									<h5>path: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>filepath to write to</p>
+									</div>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">Object</span><span class="tsd-signature-symbol">&gt;</span></h4>
@@ -274,19 +333,27 @@
 					<a name="writetofilesync" class="tsd-anchor"></a>
 					<h3>write<wbr>ToFile<wbr>Sync</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">write<wbr>ToFile<wbr>Sync<span class="tsd-signature-symbol">(</span>fname<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+						<li class="tsd-signature tsd-kind-icon">write<wbr>ToFile<wbr>Sync<span class="tsd-signature-symbol">(</span>path<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in audio/index.ts:90</li>
+									<li>Defined in <a href="https://github.com/auroraapi/aurora-nodejs/blob/94fe953/lib/audio/index.ts#L144">audio/index.ts:144</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Writes the underlying WAV file to the given path synchronously.</p>
+								</div>
+							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>fname: <span class="tsd-signature-type">string</span></h5>
+									<h5>path: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>filepath to write to</p>
+									</div>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -303,16 +370,29 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in audio/index.ts:29</li>
+									<li>Defined in <a href="https://github.com/auroraapi/aurora-nodejs/blob/94fe953/lib/audio/index.ts#L57">audio/index.ts:57</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Records audio from the default input device, formats it as a WAV file,
+									and creates an AudioFile from it.</p>
+								</div>
+							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
 									<h5>length: <span class="tsd-signature-type">number</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>number of seconds to listen for (not including leading silence)</p>
+									</div>
 								</li>
 								<li>
 									<h5>silenceLen: <span class="tsd-signature-type">number</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>number of seconds of silence to endure (not including leading silence)
+										before quitting the recording. This value is ignored if <code>length != 0</code></p>
+									</div>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="_audio_index_.audiofile.html" class="tsd-signature-type">AudioFile</a><span class="tsd-signature-symbol">&gt;</span></h4>
@@ -329,13 +409,22 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in audio/index.ts:24</li>
+									<li>Defined in <a href="https://github.com/auroraapi/aurora-nodejs/blob/94fe953/lib/audio/index.ts#L44">audio/index.ts:44</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Consumes the given stream and creates an AudioFile from it. The passed
+									stream object must contain a valid WAV file.</p>
+								</div>
+							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
 									<h5>stream: <span class="tsd-signature-type">Readable</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>the stream to consume and convert to an AudioFile</p>
+									</div>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="_audio_index_.audiofile.html" class="tsd-signature-type">AudioFile</a><span class="tsd-signature-symbol">&gt;</span></h4>
@@ -385,6 +474,9 @@
 					</li>
 					<li class=" tsd-kind-external-module">
 						<a href="../modules/_config_index_.html">"config/index"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/_errors_codes_.html">"errors/codes"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
 						<a href="../modules/_errors_index_.html">"errors/index"</a>

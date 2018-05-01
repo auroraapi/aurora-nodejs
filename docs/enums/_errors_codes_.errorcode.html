@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>&quot;audio/index&quot; | auroraapi</title>
+	<title>ErrorCode | auroraapi</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -56,80 +56,87 @@
 					<a href="../globals.html">Globals</a>
 				</li>
 				<li>
-					<a href="_audio_index_.html">&quot;audio/index&quot;</a>
+					<a href="../modules/_errors_codes_.html">&quot;errors/codes&quot;</a>
+				</li>
+				<li>
+					<a href="_errors_codes_.errorcode.html">ErrorCode</a>
 				</li>
 			</ul>
-			<h1>External module &quot;audio/index&quot;</h1>
+			<h1>Enumeration ErrorCode</h1>
 		</div>
 	</div>
 </header>
 <div class="container container-main">
 	<div class="row">
 		<div class="col-8 col-content">
+			<section class="tsd-panel tsd-comment">
+				<div class="tsd-comment tsd-typography">
+					<div class="lead">
+						<p>Error codes denoting particular types of errors that can occurr</p>
+					</div>
+				</div>
+			</section>
 			<section class="tsd-panel-group tsd-index-group">
 				<h2>Index</h2>
 				<section class="tsd-panel tsd-index-panel">
 					<div class="tsd-index-content">
 						<section class="tsd-index-section ">
-							<h3>Classes</h3>
+							<h3>Enumeration members</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-class tsd-parent-kind-external-module"><a href="../classes/_audio_index_.audiofile.html" class="tsd-kind-icon">Audio<wbr>File</a></li>
-							</ul>
-						</section>
-						<section class="tsd-index-section ">
-							<h3>Functions</h3>
-							<ul class="tsd-index-list">
-								<li class="tsd-kind-function tsd-parent-kind-external-module"><a href="_audio_index_.html#createrecordingstream" class="tsd-kind-icon">create<wbr>Recording<wbr>Stream</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="_errors_codes_.errorcode.html#invalidaudiotype" class="tsd-kind-icon">Invalid<wbr>Audio<wbr>Type</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="_errors_codes_.errorcode.html#networkerror" class="tsd-kind-icon">Network<wbr>Error</a></li>
+								<li class="tsd-kind-enum-member tsd-parent-kind-enum"><a href="_errors_codes_.errorcode.html#wavbrokenstream" class="tsd-kind-icon">WAVBroken<wbr>Stream</a></li>
 							</ul>
 						</section>
 					</div>
 				</section>
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
-				<h2>Functions</h2>
-				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-external-module">
-					<a name="createrecordingstream" class="tsd-anchor"></a>
-					<h3>create<wbr>Recording<wbr>Stream</h3>
-					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-external-module">
-						<li class="tsd-signature tsd-kind-icon">create<wbr>Recording<wbr>Stream<span class="tsd-signature-symbol">(</span>length<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, silenceLen<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">PassThrough</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/auroraapi/aurora-nodejs/blob/94fe953/lib/audio/index.ts#L165">audio/index.ts:165</a></li>
-								</ul>
-							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>Creates a stream that emits a complete WAV file by recording from the default
-										input device. The returned stream first contains the 44-byte WAV header, and then
-										is followed by 16-bit mono samples at a rate of 16 KHz. NOTE: because we emit
-										the WAV header on the stream before we find out how long the data actually is, the
-										header doesn&#39;t have the correct value for the length of the data. For this reason,
-										the consumer of the stream needs to either update the header field manually or
-									read the WAV file until EOF.</p>
-								</div>
-							</div>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>length: <span class="tsd-signature-type">number</span></h5>
-									<div class="tsd-comment tsd-typography">
-										<p>number of seconds to listen for (not including leading silence)</p>
-									</div>
-								</li>
-								<li>
-									<h5>silenceLen: <span class="tsd-signature-type">number</span></h5>
-									<div class="tsd-comment tsd-typography">
-										<p>number of seconds of silence to endure (not including leading silence)
-										before quitting the recording. This value is ignored if <code>length != 0</code></p>
-									</div>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">PassThrough</span></h4>
-						</li>
-					</ul>
+				<h2>Enumeration members</h2>
+				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
+					<a name="invalidaudiotype" class="tsd-anchor"></a>
+					<h3>Invalid<wbr>Audio<wbr>Type</h3>
+					<div class="tsd-signature tsd-kind-icon">Invalid<wbr>Audio<wbr>Type<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> =&nbsp;&quot;InvalidAudioType&quot;</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in errors/codes.ts:8</li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Occurs when an invalid argument is specified to the AudioFile constructor</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
+					<a name="networkerror" class="tsd-anchor"></a>
+					<h3>Network<wbr>Error</h3>
+					<div class="tsd-signature tsd-kind-icon">Network<wbr>Error<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> =&nbsp;&quot;NetworkError&quot;</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in errors/codes.ts:10</li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Occurs when a network connection to the backend could not be established</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-enum-member tsd-parent-kind-enum">
+					<a name="wavbrokenstream" class="tsd-anchor"></a>
+					<h3>WAVBroken<wbr>Stream</h3>
+					<div class="tsd-signature tsd-kind-icon">WAVBroken<wbr>Stream<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol"> =&nbsp;&quot;WAVBrokenStream&quot;</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in errors/codes.ts:12</li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Occurs when a stream is being read into a WAV file but the read fails</p>
+						</div>
+					</div>
 				</section>
 			</section>
 		</div>
@@ -140,68 +147,83 @@
 						<a href="../globals.html"><em>Globals</em></a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="_api_backend_aurora_.html">"api/backend/aurora"</a>
+						<a href="../modules/_api_backend_aurora_.html">"api/backend/aurora"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="_api_backend_index_.html">"api/backend/index"</a>
+						<a href="../modules/_api_backend_index_.html">"api/backend/index"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="_api_backend_mock_.html">"api/backend/mock"</a>
+						<a href="../modules/_api_backend_mock_.html">"api/backend/mock"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="_api_backend_util_.html">"api/backend/util"</a>
+						<a href="../modules/_api_backend_util_.html">"api/backend/util"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="_api_interpret_.html">"api/interpret"</a>
+						<a href="../modules/_api_interpret_.html">"api/interpret"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="_api_stt_.html">"api/stt"</a>
+						<a href="../modules/_api_stt_.html">"api/stt"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="_api_tts_.html">"api/tts"</a>
+						<a href="../modules/_api_tts_.html">"api/tts"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/_audio_index_.html">"audio/index"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/_audio_util_.html">"audio/util"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/_audio_wav_.html">"audio/wav"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/_common_index_.html">"common/index"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/_config_index_.html">"config/index"</a>
 					</li>
 					<li class="current tsd-kind-external-module">
-						<a href="_audio_index_.html">"audio/index"</a>
+						<a href="../modules/_errors_codes_.html">"errors/codes"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="_audio_util_.html">"audio/util"</a>
+						<a href="../modules/_errors_index_.html">"errors/index"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="_audio_wav_.html">"audio/wav"</a>
+						<a href="../modules/_index_.html">"index"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="_common_index_.html">"common/index"</a>
+						<a href="../modules/_interpret_.html">"interpret"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="_config_index_.html">"config/index"</a>
+						<a href="../modules/_speech_.html">"speech"</a>
 					</li>
 					<li class=" tsd-kind-external-module">
-						<a href="_errors_codes_.html">"errors/codes"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="_errors_index_.html">"errors/index"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="_index_.html">"index"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="_interpret_.html">"interpret"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="_speech_.html">"speech"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="_text_.html">"text"</a>
+						<a href="../modules/_text_.html">"text"</a>
 					</li>
 				</ul>
 			</nav>
 			<nav class="tsd-navigation secondary menu-sticky">
 				<ul class="before-current">
-					<li class=" tsd-kind-class tsd-parent-kind-external-module">
-						<a href="../classes/_audio_index_.audiofile.html" class="tsd-kind-icon">Audio<wbr>File</a>
+				</ul>
+				<ul class="current">
+					<li class="current tsd-kind-enum tsd-parent-kind-external-module">
+						<a href="_errors_codes_.errorcode.html" class="tsd-kind-icon">Error<wbr>Code</a>
+						<ul>
+							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
+								<a href="_errors_codes_.errorcode.html#invalidaudiotype" class="tsd-kind-icon">Invalid<wbr>Audio<wbr>Type</a>
+							</li>
+							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
+								<a href="_errors_codes_.errorcode.html#networkerror" class="tsd-kind-icon">Network<wbr>Error</a>
+							</li>
+							<li class=" tsd-kind-enum-member tsd-parent-kind-enum">
+								<a href="_errors_codes_.errorcode.html#wavbrokenstream" class="tsd-kind-icon">WAVBroken<wbr>Stream</a>
+							</li>
+						</ul>
 					</li>
-					<li class=" tsd-kind-function tsd-parent-kind-external-module">
-						<a href="_audio_index_.html#createrecordingstream" class="tsd-kind-icon">create<wbr>Recording<wbr>Stream</a>
+				</ul>
+				<ul class="after-current">
+					<li class=" tsd-kind-object-literal tsd-parent-kind-external-module">
+						<a href="../modules/_errors_codes_.html#errormessages" class="tsd-kind-icon">Error<wbr>Messages</a>
 					</li>
 				</ul>
 			</nav>

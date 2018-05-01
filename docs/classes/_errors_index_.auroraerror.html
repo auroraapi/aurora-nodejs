@@ -69,6 +69,22 @@
 <div class="container container-main">
 	<div class="row">
 		<div class="col-8 col-content">
+			<section class="tsd-panel tsd-comment">
+				<div class="tsd-comment tsd-typography">
+					<div class="lead">
+						<p>AuroraError is an error that occurred on the client-side. It contains
+						helpful information to help you debug what went wrong.</p>
+					</div>
+					<dl class="tsd-comment-tags">
+						<dt>author</dt>
+						<dd><p><a href="https://github.com/nkansal96">Nikhil Kansal</a></p>
+						</dd>
+						<dt>version</dt>
+						<dd><p>1.0.0</p>
+						</dd>
+					</dl>
+				</div>
+			</section>
 			<section class="tsd-panel tsd-hierarchy">
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
@@ -109,6 +125,12 @@
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-overwrite tsd-is-inherited tsd-is-static"><a href="_errors_index_.auroraerror.html#stack" class="tsd-kind-icon">stack</a></li>
 							</ul>
 						</section>
+						<section class="tsd-index-section ">
+							<h3>Methods</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><a href="_errors_index_.auroraerror.html#fromcode" class="tsd-kind-icon">from<wbr>Code</a></li>
+							</ul>
+						</section>
 					</div>
 				</section>
 			</section>
@@ -124,19 +146,39 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in errors/index.ts:6</li>
+									<li>Defined in <a href="https://github.com/auroraapi/aurora-nodejs/blob/94fe953/lib/errors/index.ts#L19">errors/index.ts:19</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Creates an AuroraError from the given information</p>
+								</div>
+							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
 									<h5>code: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<div class="lead">
+											<p>error code</p>
+										</div>
+									</div>
 								</li>
 								<li>
 									<h5>message: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<div class="lead">
+											<p>user-friendly error message</p>
+										</div>
+									</div>
 								</li>
 								<li>
 									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> info: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> =&nbsp;&quot;&quot;</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<div class="lead">
+											<p>technical information about the error</p>
+										</div>
+									</div>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <a href="_errors_index_.auroraerror.html" class="tsd-signature-type">AuroraError</a></h4>
@@ -152,9 +194,14 @@
 					<div class="tsd-signature tsd-kind-icon">code<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in errors/index.ts:4</li>
+							<li>Defined in <a href="https://github.com/auroraapi/aurora-nodejs/blob/94fe953/lib/errors/index.ts#L15">errors/index.ts:15</a></li>
 						</ul>
 					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>A unique code that describes the error</p>
+						</div>
+					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
 					<a name="info" class="tsd-anchor"></a>
@@ -162,9 +209,14 @@
 					<div class="tsd-signature tsd-kind-icon">info<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in errors/index.ts:6</li>
+							<li>Defined in <a href="https://github.com/auroraapi/aurora-nodejs/blob/94fe953/lib/errors/index.ts#L19">errors/index.ts:19</a></li>
 						</ul>
 					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>More technical information about the problem that occurred</p>
+						</div>
+					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
 					<a name="message" class="tsd-anchor"></a>
@@ -172,9 +224,14 @@
 					<div class="tsd-signature tsd-kind-icon">message<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in errors/index.ts:5</li>
+							<li>Defined in <a href="https://github.com/auroraapi/aurora-nodejs/blob/94fe953/lib/errors/index.ts#L17">errors/index.ts:17</a></li>
 						</ul>
 					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>A user-friendly description of what went wrong and how to fix it</p>
+						</div>
+					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-static">
 					<a name="error" class="tsd-anchor"></a>
@@ -221,6 +278,46 @@
 					</aside>
 				</section>
 			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Methods</h2>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-static">
+					<a name="fromcode" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagStatic">Static</span> from<wbr>Code</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-static">
+						<li class="tsd-signature tsd-kind-icon">from<wbr>Code<span class="tsd-signature-symbol">(</span>code<span class="tsd-signature-symbol">: </span><a href="../enums/_errors_codes_.errorcode.html" class="tsd-signature-type">ErrorCode</a>, info<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_errors_index_.auroraerror.html" class="tsd-signature-type">AuroraError</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/auroraapi/aurora-nodejs/blob/94fe953/lib/errors/index.ts#L41">errors/index.ts:41</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Creates an AuroraError based on a pre-defined error code.</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>code: <a href="../enums/_errors_codes_.errorcode.html" class="tsd-signature-type">ErrorCode</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>the error code</p>
+									</div>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> info: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> =&nbsp;&quot;&quot;</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>additional information about the error</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="_errors_index_.auroraerror.html" class="tsd-signature-type">AuroraError</a></h4>
+						</li>
+					</ul>
+				</section>
+			</section>
 		</div>
 		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
 			<nav class="tsd-navigation primary">
@@ -263,6 +360,9 @@
 					</li>
 					<li class=" tsd-kind-external-module">
 						<a href="../modules/_config_index_.html">"config/index"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="../modules/_errors_codes_.html">"errors/codes"</a>
 					</li>
 					<li class="current tsd-kind-external-module">
 						<a href="../modules/_errors_index_.html">"errors/index"</a>
@@ -314,6 +414,9 @@
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-overwrite tsd-is-inherited tsd-is-static">
 								<a href="_errors_index_.auroraerror.html#stack" class="tsd-kind-icon">stack</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-static">
+								<a href="_errors_index_.auroraerror.html#fromcode" class="tsd-kind-icon">from<wbr>Code</a>
 							</li>
 						</ul>
 					</li>

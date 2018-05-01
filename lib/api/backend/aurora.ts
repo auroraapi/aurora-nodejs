@@ -1,5 +1,5 @@
 import { Backend, CallParams, CallResponse } from ".";
-import { APIError, AuroraError } from "../../errors";
+import { APIError, AuroraError, ErrorCode } from "../../errors";
 import { fromAnyToJSON } from "./util";
 
 export const API_BASE_URL = "https://api.auroraapi.com/v1";
@@ -56,7 +56,7 @@ export class AuroraBackend extends Backend {
         const data = await fromAnyToJSON(err.response.data);
         throw APIError.fromJSON(data);
       }
-      throw new AuroraError("NetworkError", "Unable to reach the Aurora API server", JSON.stringify(err.request));
+      throw AuroraError.fromCode(ErrorCode.NetworkError, JSON.stringify(err.request));
     }
   }
 }

@@ -1,8 +1,22 @@
+/**
+ * Checks if a given object behaves like a stream
+ *
+ * @param s object to check
+ * @returns true if the object behaves like a stream
+ */
 const isStream = (s: any) =>
   s != null &&
   typeof s === "object" &&
   typeof s.pipe === "function";
 
+/**
+ * Given some object, it returns a JSON representation of it. It assumes that
+ * there is a valid representation, no matter what the container format is. For
+ * example, if you pass it a stream, it will consume the stream and attempt
+ * to run `JSON.parse` on it.
+ *
+ * @param data object to convert to JSON
+ */
 export function fromAnyToJSON(data: any) {
   return new Promise((resolve, reject) => {
     if (isStream(data)) {

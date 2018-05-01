@@ -1,5 +1,5 @@
 import { Readable } from "stream";
-import { AuroraError } from "../errors";
+import { AuroraError, ErrorCode } from "../errors";
 
 const WAV_HEADER_LEN = 44;
 const WAV_PCM_FORMAT = 16;
@@ -96,7 +96,7 @@ export class WAV {
       const bufs: Buffer[] = [];
       stream.on("data", (data: Buffer) => bufs.push(data));
       stream.on("end", () => resolve(WAV.fromBuffer(Buffer.concat(bufs))));
-      stream.on("error", (err) => reject(new AuroraError("WAVBrokenStream", err.message)));
+      stream.on("error", (err) => reject(AuroraError.fromCode(ErrorCode.WAVBrokenStream, err.message)));
     });
   }
 
