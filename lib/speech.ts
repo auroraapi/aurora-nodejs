@@ -125,7 +125,7 @@ export async function listen(params: ListenParams = createDefaultListenParams())
 }
 
 /**
- * Continuously listens on the recording device with the given paramters. It
+ * Continuously listens on the recording device with the given parameters. It
  * passes the detected speech as the first argument to the provided callback.
  * This function does this repeatedly until the callback function returns
  * false or throws an error.
