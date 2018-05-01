@@ -241,7 +241,7 @@ const listenHandler = (speech?: Speech, error?: Error) => {
  */
 (async function() {
   const params = createDefaultListenParams();
-    params.silenceLen = 0.5;
+  params.silenceLen = 0.5;
   await continuouslyListen(params, listenHandler)
 })();
 
@@ -252,7 +252,7 @@ const listenHandler = (speech?: Speech, error?: Error) => {
  */
 (async function() {
   const params = createDefaultListenParams();
-    params.length = 3.0;
+  params.length = 3.0;
   await continuouslyListen(params, listenHandler)
 })();
 ```
@@ -296,10 +296,10 @@ const listenHandler = (text?: Text, error?: Error) => {
 (async function() {
   const params = createDefaultListenParams();
   
-    // use this one to listen and transcribe once
-    const text = await listenAndTranscribe();
+  // use this one to listen and transcribe once
+  const text = await listenAndTranscribe();
   
-    // use this one to continuously listen and transcribe
+  // use this one to continuously listen and transcribe
   await continuouslyListenAndTranscribe(params, listenHandler)
 })();
 ```
@@ -390,7 +390,7 @@ const readlineSync = require('readline-sync');
   }
 
   // interpret and print the results
-    const i = await (new Text(text)).interpret();
+  const i = await (new Text(text)).interpret();
   console.log(i.intent, i.entities);
   }
 })();
