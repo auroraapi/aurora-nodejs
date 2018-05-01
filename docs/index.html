@@ -123,14 +123,14 @@ aurora.config.appToken = <span class="hljs-string">"YOUR_APP_TOKEN"</span>;
 aurora.config.deviceID = <span class="hljs-string">"YOUR_DEVICE_ID"</span>; <span class="hljs-comment">// optional</span>
 
 (<span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
-    <span class="hljs-comment">// query the TTS service</span>
-    <span class="hljs-keyword">const</span> speech = <span class="hljs-keyword">await</span> (<span class="hljs-keyword">new</span> Text(<span class="hljs-string">"Hello World"</span>)).speech();
+  <span class="hljs-comment">// query the TTS service</span>
+  <span class="hljs-keyword">const</span> speech = <span class="hljs-keyword">await</span> (<span class="hljs-keyword">new</span> Text(<span class="hljs-string">"Hello World"</span>)).speech();
 
-    <span class="hljs-comment">// play the resulting audio</span>
-    <span class="hljs-keyword">await</span> speech.audio.play()
+  <span class="hljs-comment">// play the resulting audio</span>
+  <span class="hljs-keyword">await</span> speech.audio.play()
 
-    <span class="hljs-comment">// or save it to a file</span>
-    <span class="hljs-keyword">await</span> speech.audio.writeToFile(<span class="hljs-string">'hello_world.wav'</span>);
+  <span class="hljs-comment">// or save it to a file</span>
+  <span class="hljs-keyword">await</span> speech.audio.writeToFile(<span class="hljs-string">'hello_world.wav'</span>);
 })();
 </code></pre>
 				<h3 id="speech-to-text-stt-">Speech to Text (STT)</h3>
@@ -144,13 +144,13 @@ aurora.config.appId    = <span class="hljs-string">"YOUR_APP_ID"</span>;
 aurora.config.appToken = <span class="hljs-string">"YOUR_APP_TOKEN"</span>;
 
 (<span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
-    <span class="hljs-comment">// load a WAV file</span>
-    <span class="hljs-keyword">const</span> stream = fs.createReadStream(<span class="hljs-string">'hello_world.wav'</span>)
-    <span class="hljs-keyword">const</span> audio = <span class="hljs-keyword">await</span> AudioFile.fromStream(stream);
+  <span class="hljs-comment">// load a WAV file</span>
+  <span class="hljs-keyword">const</span> stream = fs.createReadStream(<span class="hljs-string">'hello_world.wav'</span>)
+  <span class="hljs-keyword">const</span> audio = <span class="hljs-keyword">await</span> AudioFile.fromStream(stream);
 
-    <span class="hljs-comment">// create a speech object from the audio and convert to text</span>
-    <span class="hljs-keyword">const</span> text = <span class="hljs-keyword">await</span> (<span class="hljs-keyword">new</span> Speech(audio)).text();
-    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">`Transcription: <span class="hljs-subst">${text.text}</span>`</span>);
+  <span class="hljs-comment">// create a speech object from the audio and convert to text</span>
+  <span class="hljs-keyword">const</span> text = <span class="hljs-keyword">await</span> (<span class="hljs-keyword">new</span> Speech(audio)).text();
+  <span class="hljs-built_in">console</span>.log(<span class="hljs-string">`Transcription: <span class="hljs-subst">${text.text}</span>`</span>);
 })();
 </code></pre>
 				<h4 id="convert-a-previous-text-api-call-to-speech">Convert a previous Text API call to Speech</h4>
@@ -162,13 +162,13 @@ aurora.config.appId    = <span class="hljs-string">"YOUR_APP_ID"</span>;
 aurora.config.appToken = <span class="hljs-string">"YOUR_APP_TOKEN"</span>;
 
 (<span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
-    <span class="hljs-comment">// load a WAV file</span>
-    <span class="hljs-keyword">const</span> speech = <span class="hljs-keyword">await</span> (<span class="hljs-keyword">new</span> Text(<span class="hljs-string">"Hello world"</span>)).speech();
+  <span class="hljs-comment">// load a WAV file</span>
+  <span class="hljs-keyword">const</span> speech = <span class="hljs-keyword">await</span> (<span class="hljs-keyword">new</span> Text(<span class="hljs-string">"Hello world"</span>)).speech();
 
-    <span class="hljs-comment">// the previous API method returns a Speech object, so we can just call</span>
-    <span class="hljs-comment">// the text() method to get a prediction</span>
-    <span class="hljs-keyword">let</span> text = speech.text();
-    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">`Transcription: <span class="hljs-subst">${text.text}</span>`</span>);
+  <span class="hljs-comment">// the previous API method returns a Speech object, so we can just call</span>
+  <span class="hljs-comment">// the text() method to get a prediction</span>
+  <span class="hljs-keyword">let</span> text = speech.text();
+  <span class="hljs-built_in">console</span>.log(<span class="hljs-string">`Transcription: <span class="hljs-subst">${text.text}</span>`</span>);
 })();
 </code></pre>
 				<h4 id="listen-for-a-specified-amount-of-time">Listen for a specified amount of time</h4>
@@ -179,21 +179,21 @@ aurora.config.appId    = <span class="hljs-string">"YOUR_APP_ID"</span>;
 aurora.config.appToken = <span class="hljs-string">"YOUR_APP_TOKEN"</span>;
 
 (<span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
-    <span class="hljs-comment">// listening requires some parameters. we have calibrated the defaults</span>
-    <span class="hljs-comment">// so you should include them if you don't intend to override them. You</span>
-    <span class="hljs-comment">// can do this by calling `createDefaultListenParams` to get the default</span>
-    <span class="hljs-comment">// params, and then override the ones you want</span>
-    <span class="hljs-keyword">const</span> params = createDefaultListenParams();
-    <span class="hljs-comment">// listen for 3 seconds, ignoring trailing silence</span>
-    <span class="hljs-comment">// setting `length` overrides the other setting (`silenceLen`), which </span>
-    <span class="hljs-comment">// listens until a period of consecutive silence. This detail will be</span>
-    <span class="hljs-comment">// explored in the next example.</span>
-    params.length = <span class="hljs-number">3.0</span>;
-    <span class="hljs-keyword">const</span> speech = <span class="hljs-keyword">await</span> listen(params)
+  <span class="hljs-comment">// listening requires some parameters. we have calibrated the defaults</span>
+  <span class="hljs-comment">// so you should include them if you don't intend to override them. You</span>
+  <span class="hljs-comment">// can do this by calling `createDefaultListenParams` to get the default</span>
+  <span class="hljs-comment">// params, and then override the ones you want</span>
+  <span class="hljs-keyword">const</span> params = createDefaultListenParams();
+  <span class="hljs-comment">// listen for 3 seconds, ignoring leading silence</span>
+  <span class="hljs-comment">// setting `length` overrides the other setting (`silenceLen`), which </span>
+  <span class="hljs-comment">// listens until a period of consecutive silence. This detail will be</span>
+  <span class="hljs-comment">// explored in the next example.</span>
+  params.length = <span class="hljs-number">3.0</span>;
+  <span class="hljs-keyword">const</span> speech = <span class="hljs-keyword">await</span> listen(params)
 
-    <span class="hljs-comment">// convert the recorded speech to text</span>
-    <span class="hljs-keyword">let</span> text = speech.text();
-    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">`Transcription: <span class="hljs-subst">${text.text}</span>`</span>);
+  <span class="hljs-comment">// convert the recorded speech to text</span>
+  <span class="hljs-keyword">let</span> text = speech.text();
+  <span class="hljs-built_in">console</span>.log(<span class="hljs-string">`Transcription: <span class="hljs-subst">${text.text}</span>`</span>);
 })();
 </code></pre>
 				<h4 id="listen-for-an-unspecified-amount-of-time">Listen for an unspecified amount of time</h4>
@@ -204,68 +204,245 @@ aurora.config.appId    = <span class="hljs-string">"YOUR_APP_ID"</span>;
 aurora.config.appToken = <span class="hljs-string">"YOUR_APP_TOKEN"</span>;
 
 (<span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
-    <span class="hljs-keyword">const</span> params = createDefaultListenParams();
-    <span class="hljs-comment">// listen until there is 0.5 seconds of continuous silence, not including</span>
-    <span class="hljs-comment">// any trailing silence. Note that this property is not taken into account</span>
-    <span class="hljs-comment">// if `length` is non-zero.</span>
-    params.silenceLen = <span class="hljs-number">0.5</span>;
-    <span class="hljs-keyword">const</span> speech = <span class="hljs-keyword">await</span> listen(params)
+  <span class="hljs-keyword">const</span> params = createDefaultListenParams();
+  <span class="hljs-comment">// listen until there is 0.5 seconds of continuous silence, not including</span>
+  <span class="hljs-comment">// any leading silence. Note that this property is not taken into account</span>
+  <span class="hljs-comment">// if `length` is non-zero.</span>
+  params.silenceLen = <span class="hljs-number">0.5</span>;
+  <span class="hljs-keyword">const</span> speech = <span class="hljs-keyword">await</span> listen(params)
 
-    <span class="hljs-comment">// convert the recorded speech to text</span>
-    <span class="hljs-keyword">let</span> text = speech.text();
-    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">`Transcription: <span class="hljs-subst">${text.text}</span>`</span>);
+  <span class="hljs-comment">// convert the recorded speech to text</span>
+  <span class="hljs-keyword">let</span> text = speech.text();
+  <span class="hljs-built_in">console</span>.log(<span class="hljs-string">`Transcription: <span class="hljs-subst">${text.text}</span>`</span>);
 })();
 </code></pre>
 				<h4 id="continuously-listen">Continuously listen</h4>
-				<p>Continuously listen and retrieve speech segments. Note: you can do anything with these speech segments, but here we&#39;ll convert them to text. Just like the previous example, these segments are demarcated by silence (1.0 second by default) and can be changed by passing the <code>silence_len</code> parameter. Additionally, you can make these segments fixed length (as in the example before the previous) by setting the <code>length</code> parameter.</p>
-				<pre><code class="lang-Javascript"><span class="hljs-comment">// continuously listen and convert to speech (blocking example)</span>
-<span class="hljs-comment">// TODO</span>
+				<p>Continuously listen and retrieve speech segments. Note: you can do anything with these speech segments, but here we&#39;ll convert them to text. Just like the previous example, these segments are demarcated by silence (1.0 second by default) and can be changed by passing the <code>silenceLen</code> parameter. Additionally, you can make these segments fixed length (as in the example before the previous) by setting the <code>length</code> parameter.</p>
+				<pre><code class="lang-Typescript"><span class="hljs-keyword">import</span> aurora <span class="hljs-keyword">from</span> <span class="hljs-string">"auroraapi"</span>;
+<span class="hljs-keyword">import</span> {
+  Speech,
+  continuouslyListen,
+  createDefaultListenParams
+} <span class="hljs-keyword">from</span> <span class="hljs-string">"auroraapi/speech"</span>;
 
-<span class="hljs-comment">// reduce the amount of silence in between speech segments</span>
-<span class="hljs-comment">// TODO</span>
+aurora.config.appId    = <span class="hljs-string">"YOUR_APP_ID"</span>;
+aurora.config.appToken = <span class="hljs-string">"YOUR_APP_TOKEN"</span>;
 
-<span class="hljs-comment">// fixed length speech segments of 3 seconds</span>
-<span class="hljs-comment">// TODO</span>
+<span class="hljs-comment">/**
+ * This callback is used to handle each Speech object generated by 
+ * `continuouslyListen`.
+ */</span>
+<span class="hljs-keyword">const</span> listenHandler = <span class="hljs-function">(<span class="hljs-params">speech?: Speech, error?: <span class="hljs-built_in">Error</span></span>) =&gt;</span> {
+  <span class="hljs-keyword">if</span> (error || !speech) {
+    <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
+  }
+
+  <span class="hljs-comment">// asyncronously convert to text, log it, and continue listening</span>
+  speech.text()
+    .then(<span class="hljs-function"><span class="hljs-params">text</span> =&gt;</span> <span class="hljs-built_in">console</span>.log(<span class="hljs-string">`Transcript: <span class="hljs-subst">${text.text}</span>`</span>))
+    .catch(<span class="hljs-built_in">console</span>.error);
+  <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
+};
+
+<span class="hljs-comment">/**
+ * Continuously listen and generate `Speech` objects. Discarding leading silence,
+ * this will listen for up to 1s of consecutive silence and then pass
+ * each resulting `Speech` object to the callback. This will continue to do
+ * this until the callback returns false.
+ */</span>
+(<span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+  <span class="hljs-keyword">const</span> params = createDefaultListenParams();
+  <span class="hljs-keyword">await</span> continuouslyListen(params, listenHandler)
+})();
+
+<span class="hljs-comment">/**
+ * Same as above, but this one will only listen for up to 0.5s of 
+ * consecutive silence
+ */</span>
+(<span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+  <span class="hljs-keyword">const</span> params = createDefaultListenParams();
+    params.silenceLen = <span class="hljs-number">0.5</span>;
+  <span class="hljs-keyword">await</span> continuouslyListen(params, listenHandler)
+})();
+
+<span class="hljs-comment">/**
+ * Same as the first one, except instead of listening for 1s of 
+ * consecutive silence, it will listen for a fixed period of 3 seconds
+ * not including any leading silence.
+ */</span>
+(<span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+  <span class="hljs-keyword">const</span> params = createDefaultListenParams();
+    params.length = <span class="hljs-number">3.0</span>;
+  <span class="hljs-keyword">await</span> continuouslyListen(params, listenHandler)
+})();
+</code></pre>
+				<h4 id="listen-and-transcribe">Listen and Transcribe</h4>
+				<p>If you already know that you wanted the recorded speech to be converted to text, you can do it in one step, reducing the amount of code you need to write and also reducing latency. Using the <code>ListenAndTranscribe</code> method, the audio that is recorded automatically starts uploading as soon as you call the method and transcription begins. When the audio recording ends, you get back the final transcription.</p>
+				<pre><code class="lang-typescript"><span class="hljs-keyword">import</span> aurora <span class="hljs-keyword">from</span> <span class="hljs-string">"auroraapi"</span>;
+<span class="hljs-keyword">import</span> { Text } <span class="hljs-keyword">from</span> <span class="hljs-string">"auroraapi/text"</span>;
+<span class="hljs-keyword">import</span> {
+  createDefaultListenParams,
+  listenAndTranscribe,
+  continuouslyListenAndTranscribe,
+} <span class="hljs-keyword">from</span> <span class="hljs-string">"auroraapi/speech"</span>;
+
+aurora.config.appId    = <span class="hljs-string">"YOUR_APP_ID"</span>;
+aurora.config.appToken = <span class="hljs-string">"YOUR_APP_TOKEN"</span>;
+
+<span class="hljs-comment">/**
+ * This callback is used to handle each Text object generated by 
+ * `continuouslyListenAndTranscribe`.
+ */</span>
+<span class="hljs-keyword">const</span> listenHandler = <span class="hljs-function">(<span class="hljs-params">text?: Text, error?: <span class="hljs-built_in">Error</span></span>) =&gt;</span> {
+  <span class="hljs-keyword">if</span> (error || !text) {
+    <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
+  }
+
+  <span class="hljs-built_in">console</span>.log(<span class="hljs-string">`Transcript: <span class="hljs-subst">${text.text}</span>`</span>);
+  <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
+};
+
+<span class="hljs-comment">/**
+ * Continuously listen and convert to text. Discarding leading silence,
+ * this will listen for up to 1s of consecutive silence and simultaneously
+ * stream the audio to the Aurora API server. Once the function signals the
+ * end of the audio, the transcript will be immediately available to the 
+ * callback function. The function stops when the callback returns false;
+ */</span>
+(<span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+  <span class="hljs-keyword">const</span> params = createDefaultListenParams();
+
+    <span class="hljs-comment">// use this one to listen and transcribe once</span>
+    <span class="hljs-keyword">const</span> text = <span class="hljs-keyword">await</span> listenAndTranscribe();
+
+    <span class="hljs-comment">// use this one to continuously listen and transcribe</span>
+  <span class="hljs-keyword">await</span> continuouslyListenAndTranscribe(params, listenHandler)
+})();
+</code></pre>
+				<h4 id="listen-and-echo-example">Listen and echo example</h4>
+				<pre><code class="lang-typescript"><span class="hljs-keyword">import</span> aurora <span class="hljs-keyword">from</span> <span class="hljs-string">"auroraapi"</span>;
+<span class="hljs-keyword">import</span> { Text } <span class="hljs-keyword">from</span> <span class="hljs-string">"auroraapi/text"</span>;
+<span class="hljs-keyword">import</span> {
+  createDefaultListenParams,
+  continuouslyListenAndTranscribe,
+} <span class="hljs-keyword">from</span> <span class="hljs-string">"auroraapi/speech"</span>;
+
+aurora.config.appId    = <span class="hljs-string">"YOUR_APP_ID"</span>;
+aurora.config.appToken = <span class="hljs-string">"YOUR_APP_TOKEN"</span>;
+
+<span class="hljs-comment">/**
+ * This callback is used to handle each Text object generated by 
+ * `continuouslyListenAndTranscribe`.
+ */</span>
+<span class="hljs-keyword">const</span> listenHandler = <span class="hljs-function">(<span class="hljs-params">text?: Text, error?: <span class="hljs-built_in">Error</span></span>) =&gt;</span> {
+  <span class="hljs-keyword">if</span> (error || !text) {
+    <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
+  }
+
+  <span class="hljs-comment">// convert each transcribed speech segment back to speech and play</span>
+  <span class="hljs-comment">// the resulting audio.</span>
+  text.speech()
+    .then(<span class="hljs-function"><span class="hljs-params">s</span> =&gt;</span> s.audio.play())
+    .catch(<span class="hljs-built_in">console</span>.error);
+  <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
+};
+
+<span class="hljs-comment">/**
+ * Continuously listen and convert to text. Discarding leading silence,
+ * this will listen for up to 1s of consecutive silence and simultaneously
+ * stream the audio to the Aurora API server. Once the function signals the
+ * end of the audio, the transcript will be immediately available to the 
+ * callback function. The function stops when the callback returns false;
+ */</span>
+(<span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+  <span class="hljs-keyword">const</span> params = createDefaultListenParams();
+  <span class="hljs-keyword">await</span> continuouslyListenAndTranscribe(params, listenHandler)
+})();
 </code></pre>
 				<h3 id="interpret-language-understanding-">Interpret (Language Understanding)</h3>
 				<p>The interpret service allows you to take any Aurora <code>Text</code> object and understand the user&#39;s intent and extract additional query information. Interpret can only be called on <code>Text</code> objects and return <code>Interpret</code> objects after completion. To convert a user&#39;s speech into and <code>Interpret</code> object, it must be converted to text first.</p>
 				<h4 id="basic-example">Basic example</h4>
-				<pre><code class="lang-Javascript"><span class="hljs-comment">// create a Text object</span>
-<span class="hljs-keyword">let</span> text = aurora.Text(<span class="hljs-string">'what is the time in los angeles'</span>);
+				<pre><code class="lang-Javascript"><span class="hljs-keyword">import</span> aurora <span class="hljs-keyword">from</span> <span class="hljs-string">"auroraapi"</span>;
+<span class="hljs-keyword">import</span> { Text } <span class="hljs-keyword">from</span> <span class="hljs-string">"auroraapi/text"</span>;
 
-<span class="hljs-comment">// call the interpret service. This returns an "Interpret" object</span>
-<span class="hljs-keyword">let</span> i = text.interpret();
+aurora.config.appId    = <span class="hljs-string">"YOUR_APP_ID"</span>;
+aurora.config.appToken = <span class="hljs-string">"YOUR_APP_TOKEN"</span>;
 
-<span class="hljs-comment">// get the user's intent</span>
-<span class="hljs-built_in">console</span>.log(i.intent); <span class="hljs-comment">// time</span>
+(<span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+  <span class="hljs-comment">// create a Text object</span>
+  <span class="hljs-keyword">const</span> text = <span class="hljs-keyword">new</span> Text(<span class="hljs-string">"what is the time in los angeles"</span>);
 
-<span class="hljs-comment">// get any additional information</span>
-<span class="hljs-built_in">console</span>.log(i.entities); <span class="hljs-comment">// { "location": "los angeles" }</span>
+  <span class="hljs-comment">// call the interpret service. This returns an "Interpret" object</span>
+  <span class="hljs-keyword">const</span> i = <span class="hljs-keyword">await</span> text.interpret();
+
+  <span class="hljs-comment">// get the user's intent</span>
+  <span class="hljs-built_in">console</span>.log(i.intent); <span class="hljs-comment">// time</span>
+
+  <span class="hljs-comment">// get any additional information</span>
+  <span class="hljs-built_in">console</span>.log(i.entities); <span class="hljs-comment">// { "location": "los angeles" }</span>
+})();
 </code></pre>
 				<h4 id="user-query-example">User query example</h4>
 				<pre><code class="lang-Javascript"><span class="hljs-comment">// requires synchronous readline npm package</span>
-<span class="hljs-keyword">const</span> readlineSync = requier(<span class="hljs-string">'readline-sync'</span>);
+<span class="hljs-keyword">const</span> readlineSync = <span class="hljs-built_in">require</span>(<span class="hljs-string">'readline-sync'</span>);
 
-<span class="hljs-keyword">while</span> (<span class="hljs-literal">true</span>){
-    <span class="hljs-comment">// repeatedly ask the user to enter a command</span>
-    <span class="hljs-keyword">let</span> userText = readlineSync.question(<span class="hljs-string">'Enter a command: '</span>);
-    <span class="hljs-keyword">if</span>(userText.localeCompare(<span class="hljs-string">'quit'</span>) == <span class="hljs-number">0</span>){
-        <span class="hljs-keyword">break</span>;
-    }
+(<span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+  <span class="hljs-keyword">while</span> (<span class="hljs-literal">true</span>){
+  <span class="hljs-comment">// repeatedly ask the user to enter a command</span>
+  <span class="hljs-keyword">const</span> text = readlineSync.question(<span class="hljs-string">'Enter a command: '</span>);
+  <span class="hljs-keyword">if</span> (text.localeCompare(<span class="hljs-string">'quit'</span>) == <span class="hljs-number">0</span>){
+    <span class="hljs-keyword">break</span>;
+  }
 
-    <span class="hljs-comment">// interpret and print the results</span>
-    <span class="hljs-keyword">let</span> i = aurora.Text(userText).interpret();
-    <span class="hljs-built_in">console</span>.log(i.intent, i.entities);
-}
+  <span class="hljs-comment">// interpret and print the results</span>
+    <span class="hljs-keyword">const</span> i = <span class="hljs-keyword">await</span> (<span class="hljs-keyword">new</span> Text(text)).interpret();
+  <span class="hljs-built_in">console</span>.log(i.intent, i.entities);
+  }
+})();
+
 </code></pre>
 				<h4 id="smart-lamp">Smart Lamp</h4>
-				<p>This example relies on PENDING features</p>
 				<p>This example shows how easy it is to voice-enable a smart lamp. It responds to queries in the form of &quot;turn on the lights&quot; or &quot;turn off the lamp&quot;. You define what <code>object</code> you&#39;re listening for (so that you can ignore queries like &quot;turn on the music&quot;).</p>
-				<pre><code class="lang-Javascript"><span class="hljs-keyword">let</span> validWords = [<span class="hljs-string">'light'</span>, <span class="hljs-string">'lights'</span>, <span class="hljs-string">'lamp'</span>];
-<span class="hljs-keyword">let</span> validEntities = <span class="hljs-function">(<span class="hljs-params">d</span>) =&gt;</span>
-    d.hasOwnProperty(<span class="hljs-string">'object'</span>) &amp;&amp; validWords.indexOf(d[<span class="hljs-string">'object'</span>]) != <span class="hljs-number">-1</span>;
+				<pre><code class="lang-Typescript"><span class="hljs-keyword">import</span> aurora <span class="hljs-keyword">from</span> <span class="hljs-string">"auroraapi"</span>;
+<span class="hljs-keyword">import</span> { Text } <span class="hljs-keyword">from</span> <span class="hljs-string">"auroraapi/text"</span>;
+<span class="hljs-keyword">import</span> { Interpret } <span class="hljs-keyword">from</span> <span class="hljs-string">"auroraapi/interpret"</span>;
+<span class="hljs-keyword">import</span> {
+  createDefaultListenParams,
+  continuouslyListenAndTranscribe,
+} <span class="hljs-keyword">from</span> <span class="hljs-string">"auroraapi/speech"</span>;
 
-<span class="hljs-comment">// TODO (continuously listen stuff)</span>
+aurora.config.appId    = <span class="hljs-string">"YOUR_APP_ID"</span>;
+aurora.config.appToken = <span class="hljs-string">"YOUR_APP_TOKEN"</span>;
+
+<span class="hljs-comment">// define the valid trigger words</span>
+<span class="hljs-keyword">const</span> validWords = [<span class="hljs-string">'light'</span>, <span class="hljs-string">'lights'</span>, <span class="hljs-string">'lamp'</span>];
+<span class="hljs-keyword">const</span> validEntities = <span class="hljs-function"><span class="hljs-params">d</span> =&gt;</span> !!d.object &amp;&amp; validWords.includes(d.object);
+
+<span class="hljs-keyword">const</span> handleAction = <span class="hljs-function">(<span class="hljs-params">i: Interpret</span>) =&gt;</span> {
+  <span class="hljs-keyword">if</span> (i.intent === <span class="hljs-string">"turn_off"</span> &amp;&amp; validEntities(i.entities)) {
+    <span class="hljs-comment">// do something to actually turn off the lamp</span>
+    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">"turning off the lamp"</span>);
+  } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (i.intent === <span class="hljs-string">"turn_on"</span> &amp;&amp; validEntities(i.entities)) {
+    <span class="hljs-comment">// do something to actually turn on the lamp</span>
+    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">"turning on the lamp"</span>);
+  }
+};
+
+<span class="hljs-keyword">const</span> listenHandler = <span class="hljs-function">(<span class="hljs-params">text?: Text, error?: <span class="hljs-built_in">Error</span></span>) =&gt;</span> {
+  <span class="hljs-keyword">if</span> (error || !text) {
+    <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
+  }
+
+  text.interpret()
+    .then(handleAction)
+    .catch(<span class="hljs-built_in">console</span>.error);
+  <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
+};
+
+(<span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+  <span class="hljs-keyword">const</span> params = createDefaultListenParams();
+  <span class="hljs-keyword">await</span> continuouslyListenAndTranscribe(params, listenHandler)
+})();
 </code></pre>
 			</div>
 		</div>
